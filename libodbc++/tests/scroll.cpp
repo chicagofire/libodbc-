@@ -67,6 +67,13 @@ do {								\
 
 #define TABLE_ROWS 1000
 
+static void commit(Connection* con)
+{
+  if(con->getMetaData()->supportsTransactions()) {
+    con->commit();
+  }
+}
+
 static void createStuff(Connection* con)
 {
   // create our table
@@ -120,7 +127,7 @@ static void populate(Connection* con)
       pstmt->executeUpdate();
     }
     delete pstmt;
-    con->commit();
+    commit(con);
     cout << "Inserted " << TABLE_ROWS << " rows." << endl;
   }
 }
@@ -227,12 +234,12 @@ int main(int argc, char** argv)
     
     populate(con);
     compare(con);
-    con->commit();
+    commit(con);
     
     dropStuff(con);
 
 
-    con->commit();
+    commit(con);
     delete con;
 
     if(assertionsFailed>0) {
