@@ -29,8 +29,8 @@ interface. It includes additional support for QT integration.
 If you want to develop programs that will use the odbc++ library,
 you will also need to install the libodbc++-devel package.
 
-If you want to develop QT programs that will use the odbc++ library,
-you should also install the libodbc++-qt package.
+If you want to run or develop QT programs that will use the odbc++
+library, you should also install the libodbc++-qt package.
 
 %package devel
 Summary: Development files for programs which use the odbc++ library.
