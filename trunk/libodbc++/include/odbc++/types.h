@@ -46,6 +46,10 @@ class QIODevice;
 # error "Whoops. Can not recognize the ODBC subsystem."
 #endif
 
+#if HAVE_SQLUCODE_H
+# include <sqlucode.h>
+#endif
+
 // fixups for current iODBC, which kindly doesn't provide SQL_TRUE and
 // SQL_FALSE macros
 
@@ -192,6 +196,15 @@ namespace odbc {
       VARBINARY		= SQL_VARBINARY,
       /** An SQL VARCHAR (variable length less than 256) */
       VARCHAR		= SQL_VARCHAR
+#if HAVE_SQLUCODE_H
+      ,
+      /** A wide SQL CHAR (fixed length less than 256) */
+      WVARCHAR          = SQL_WCHAR,
+      /** A wide SQL VARCHAR (variable length less than 256) */
+      WCHAR          = SQL_WVARCHAR,
+      /** A wide SQL LONGVARCHAR (variable length, huge) */
+      WLONGVARCHAR   = SQL_WLONGVARCHAR
+#endif
     };
   };
 

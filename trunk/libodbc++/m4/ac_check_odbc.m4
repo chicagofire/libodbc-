@@ -38,7 +38,7 @@ then
 	LIBS="$LIBS -L$odbc_libraries_dir"
 fi
 
-AC_CHECK_HEADERS([sql.h sqlext.h],
+AC_CHECK_HEADERS([sql.h sqlext.h sqlucode.h],
 [odbc_ok=yes; odbc_headers="$odbc_headers $ac_hdr"],
 [odbc_ok=no; break]
 )
