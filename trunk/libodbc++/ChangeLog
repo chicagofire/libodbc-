@@ -1,3 +1,12 @@
+2003-04-17  Alex Hornby <alex@anvil.com>
+
+	* NEWS: Update for release of 0.2.3pre1
+	
+	* doc/progref/Makefile.am: Test for doc file presence before
+	install. Was breaking on *.png target.
+
+	* src/databasemetadata.cpp: fix spelling of driver
+	
 2003-04-10  Alex Hornby <alex@anvil.com>
 
 	* configure.ac: remind users of --with-odbc option if ODBC is
