@@ -1,3 +1,7 @@
+* News in version 0.2.3
+
+	* Fixed compilation with Borland C++ Builder
+
 * News in version 0.2.3pre4
 
 	* Fix time_t support in MSVC++ builds
