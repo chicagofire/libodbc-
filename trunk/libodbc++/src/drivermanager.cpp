@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -35,7 +35,7 @@ ErrorHandler* DriverManager::eh_=NULL;
 int DriverManager::loginTimeout_=-1;
 
 
-// Note: this will probably not work in all cases, 
+// Note: this will probably not work in all cases,
 // static constructors are known to cause problems
 
 #ifdef ODBCXX_ENABLE_THREADS
@@ -44,11 +44,11 @@ int DriverManager::loginTimeout_=-1;
 
 odbc::Mutex & DMAccessMutex(bool shutdown=0)
 {
-  static odbc::Mutex* mtx(new odbc::Mutex());
+  static odbc::Mutex* mtx = new odbc::Mutex();
   if ( shutdown ) {
     delete mtx;
     mtx = 0;
-  } 
+  }
   return *mtx;
 }
 
@@ -64,22 +64,22 @@ void DriverManager::shutdown()
       SQLRETURN r=ODBC3_C
         (SQLFreeHandle(SQL_HANDLE_ENV, henv_),
          SQLFreeEnv(henv_));
-      
+
       switch(r) {
       case SQL_SUCCESS:
         break;
-          
+
       case SQL_INVALID_HANDLE:
         // the check above should prevent this
         assert(false);
         break;
-          
+
       case SQL_ERROR:
         // try to obtain an error description
         eh_->_checkEnvError(henv_, r, "Failed to shutdown DriverManager");
         break;
       }
-      
+
       henv_=SQL_NULL_HENV;
       //if henv_ was valid, so is eh_
       delete eh_;
@@ -143,7 +143,7 @@ Connection* DriverManager::_createConnection()
 {
   SQLHDBC hdbc;
   SQLRETURN r;
-  
+
   //allocate a handle
   r=
 #if ODBCVER >= 0x0300
@@ -154,21 +154,21 @@ Connection* DriverManager::_createConnection()
     ;
 
   eh_->_checkEnvError(henv_,r,"Failed to allocate connection handle");
-  
+
   Connection* con=new Connection(hdbc);
   {
     ODBCXX_LOCKER(DMAccess); //since we read loginTimeout_
-    
+
     //apply the login timeout. -1 means do-not-touch (the default)
     if(loginTimeout_>-1) {
-      
+
       con->_setNumericOption(
 #if ODBCVER < 0x0300
 			     SQL_LOGIN_TIMEOUT
 #else
 			     SQL_ATTR_LOGIN_TIMEOUT
 #endif
-			     
+			
 			     ,(SQLUINTEGER)loginTimeout_);
     }
   } // end of lock scope
@@ -203,10 +203,10 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
 DataSourceList* DriverManager::getDataSources()
 {
   DriverManager::_checkInit();
-  
+
   SQLRETURN r;
   SQLSMALLINT dsnlen,desclen;
-  
+
   DataSourceList* l=new DataSourceList();
 
   char dsn[SQL_MAX_DSN_LENGTH+1];
@@ -222,12 +222,12 @@ DataSourceList* DriverManager::getDataSources()
 		     (SQLCHAR*)desc,
 		     256,
 		     &desclen);
-    
+
     eh_->_checkEnvError(henv_,r,"Failed to obtain a list of datasources");
-    
+
     while(r==SQL_SUCCESS || r==SQL_SUCCESS_WITH_INFO) {
       l->insert(l->end(),new DataSource(dsn,desc));
-      
+
       r=SQLDataSources(henv_,
 		       SQL_FETCH_NEXT,
 		       (SQLCHAR*)dsn,
@@ -236,7 +236,7 @@ DataSourceList* DriverManager::getDataSources()
 		       (SQLCHAR*)desc,
 		       256,
 		       &desclen);
-      
+
       eh_->_checkEnvError(henv_,r,"Failed to obtain a list of datasources");
     }
   } // lock scope end
@@ -244,7 +244,7 @@ DataSourceList* DriverManager::getDataSources()
 }
 
 #define MAX_DESC_LEN 64
-#define MAX_ATTR_LEN 1024 
+#define MAX_ATTR_LEN 1024
 
 DriverList* DriverManager::getDrivers()
 {
@@ -253,7 +253,7 @@ DriverList* DriverManager::getDrivers()
   SQLRETURN r;
   DriverList* l=new DriverList();
 
-  
+
   char desc[MAX_DESC_LEN];
   char attrs[MAX_ATTR_LEN];
 
@@ -269,13 +269,13 @@ DriverList* DriverManager::getDrivers()
 		 (SQLCHAR*)attrs,
 		 MAX_ATTR_LEN,
 		 &alen);
-    
+
     eh_->_checkEnvError(henv_,r,"Failed to obtain a list of drivers");
-    
+
     while(r==SQL_SUCCESS || r==SQL_SUCCESS_WITH_INFO) {
       vector<ODBCXX_STRING> attr;
       unsigned int i=0, last=0;
-      
+
       //find our attributes
       if(attrs[0]!=0) {
 	do {
@@ -284,10 +284,10 @@ DriverList* DriverManager::getDrivers()
 	  last=i+1;
 	} while(attrs[last]!=0);
       }
-      
+
       Driver* d=new Driver(desc,attr);
       l->insert(l->end(),d);
-      
+
       r=SQLDrivers(henv_,
 		   SQL_FETCH_NEXT,
 		   (SQLCHAR*)desc,
@@ -296,10 +296,10 @@ DriverList* DriverManager::getDrivers()
 		   (SQLCHAR*)attrs,
 		   MAX_ATTR_LEN,
 		   &alen);
-      
+
       eh_->_checkEnvError(henv_,r,"Failed to obtain a list of drivers");
     }
   } // lock scope end
-  
+
   return l;
 }
