@@ -1,3 +1,9 @@
+2003-04-23 Alex Hornby <alex@anvil.com>
+
+	* NEWS: Announce 0.2.3pre2
+	
+	* configure.ac: Update version number
+
 2003-04-20  Manush Dodunekov  <manush@stendahls.net>
 
 	* include/odbc/setup.h: Add a macro wrapper for string
