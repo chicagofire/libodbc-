@@ -22,6 +22,10 @@
 #ifndef __ODBCXX_SETUP_H
 #define __ODBCXX_SETUP_H
 
+#if defined(__WIN32__) && !defined(WIN32)
+# define WIN32 1
+#endif
+
 #if !defined(WIN32)
 # include <odbc++/config.h>
 #else
