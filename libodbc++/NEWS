@@ -1,3 +1,7 @@
+* News in version 0.2.3pre4
+
+	* Fix time_t support in MSVC++ builds
+
 * News in version 0.2.3pre3
 
 	* initial pkg-config support added
