@@ -1,5 +1,9 @@
 2003-03-28  Alex Hornby <alex@anvil.com>
 
+	* src/connection.cpp: Fix memory error in string handling
+
+2003-03-28  Alex Hornby <alex@anvil.com>
+
 	* autogen.sh: Add script for bootstrapping from CVS
 
 2003-03-28  Alex Hornby <alex@anvil.com>
