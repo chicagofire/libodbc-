@@ -1,0 +1,465 @@
+# Makefile.in generated automatically by automake 1.4 from Makefile.am
+
+# Copyright (C) 1994, 1995-8, 1999 Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+#  This file is part of libodbc++.
+#  
+#  Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
+#   
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Library General Public
+#  License as published by the Free Software Foundation; either
+#  version 2 of the License, or (at your option) any later version.
+#   
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Library General Public License for more details.
+#  
+#  You should have received a copy of the GNU Library General Public License
+#  along with this library; see the file COPYING.  If not, write to
+#  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+#  Boston, MA 02111-1307, USA.
+
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+
+DESTDIR =
+
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+
+top_builddir = ..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
+
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AS = @AS@
+CC = @CC@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DLLTOOL = @DLLTOOL@
+LIBREADLINE = @LIBREADLINE@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MAINT = @MAINT@
+MAKEINFO = @MAKEINFO@
+OBJDUMP = @OBJDUMP@
+PACKAGE = @PACKAGE@
+QT_DEFS = @QT_DEFS@
+QT_INCLUDES = @QT_INCLUDES@
+QT_LIBS = @QT_LIBS@
+QT_MOC = @QT_MOC@
+RANLIB = @RANLIB@
+SUBDIR_ISQLXX = @SUBDIR_ISQLXX@
+SUBDIR_QTSQLXX = @SUBDIR_QTSQLXX@
+SUBDIR_TESTS = @SUBDIR_TESTS@
+THREAD_LIBS = @THREAD_LIBS@
+VERSION = @VERSION@
+bzip2 = @bzip2@
+db2html = @db2html@
+docdir = @docdir@
+doxygen = @doxygen@
+lib_version = @lib_version@
+perl = @perl@
+sed = @sed@
+zip = @zip@
+
+noinst_PROGRAMS =  streams dbmetadata scroll oracle mysql dmtest
+
+
+INCLUDES = @INCLUDES@ @QT_INCLUDES@
+DEFS = @DEFS@ @QT_DEFS@
+
+@THREADS_TRUE@@QT_TRUE@testlibs = @THREAD_LIBS@ ../src/libodbc++_qt-mt.la
+@THREADS_TRUE@@QT_FALSE@testlibs = @THREAD_LIBS@ ../src/libodbc++-mt.la
+@THREADS_FALSE@@QT_TRUE@testlibs = ../src/libodbc++_qt.la
+@THREADS_FALSE@@QT_FALSE@testlibs = ../src/libodbc++.la
+
+scroll_SOURCES = scroll.cpp
+scroll_LDADD = $(testlibs)
+
+dbmetadata_SOURCES = dbmetadata.cpp
+dbmetadata_LDADD = $(testlibs)
+
+mysql_SOURCES = mysql.cpp
+mysql_LDADD = $(testlibs)
+
+dmtest_SOURCES = dmtest.cpp
+dmtest_LDADD = $(testlibs)
+
+streams_SOURCES = streams.cpp
+streams_LDADD = $(testlibs)
+
+oracle_SOURCES = oracle.cpp
+oracle_LDADD = $(testlibs)
+
+EXTRA_DIST = README
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+CONFIG_HEADER = ../config.h
+CONFIG_CLEAN_FILES = 
+PROGRAMS =  $(noinst_PROGRAMS)
+
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+streams_OBJECTS =  streams.o
+@QT_TRUE@@THREADS_FALSE@streams_DEPENDENCIES =  ../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@streams_DEPENDENCIES =  ../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@streams_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@streams_DEPENDENCIES =  ../src/libodbc++_qt-mt.la
+streams_LDFLAGS = 
+dbmetadata_OBJECTS =  dbmetadata.o
+@QT_TRUE@@THREADS_FALSE@dbmetadata_DEPENDENCIES =  \
+@QT_TRUE@@THREADS_FALSE@../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@dbmetadata_DEPENDENCIES =  \
+@QT_FALSE@@THREADS_TRUE@../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@dbmetadata_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@dbmetadata_DEPENDENCIES =  \
+@QT_TRUE@@THREADS_TRUE@../src/libodbc++_qt-mt.la
+dbmetadata_LDFLAGS = 
+scroll_OBJECTS =  scroll.o
+@QT_TRUE@@THREADS_FALSE@scroll_DEPENDENCIES =  ../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@scroll_DEPENDENCIES =  ../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@scroll_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@scroll_DEPENDENCIES =  ../src/libodbc++_qt-mt.la
+scroll_LDFLAGS = 
+oracle_OBJECTS =  oracle.o
+@QT_TRUE@@THREADS_FALSE@oracle_DEPENDENCIES =  ../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@oracle_DEPENDENCIES =  ../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@oracle_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@oracle_DEPENDENCIES =  ../src/libodbc++_qt-mt.la
+oracle_LDFLAGS = 
+mysql_OBJECTS =  mysql.o
+@QT_TRUE@@THREADS_FALSE@mysql_DEPENDENCIES =  ../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@mysql_DEPENDENCIES =  ../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@mysql_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@mysql_DEPENDENCIES =  ../src/libodbc++_qt-mt.la
+mysql_LDFLAGS = 
+dmtest_OBJECTS =  dmtest.o
+@QT_TRUE@@THREADS_FALSE@dmtest_DEPENDENCIES =  ../src/libodbc++_qt.la
+@QT_FALSE@@THREADS_TRUE@dmtest_DEPENDENCIES =  ../src/libodbc++-mt.la
+@QT_FALSE@@THREADS_FALSE@dmtest_DEPENDENCIES =  ../src/libodbc++.la
+@QT_TRUE@@THREADS_TRUE@dmtest_DEPENDENCIES =  ../src/libodbc++_qt-mt.la
+dmtest_LDFLAGS = 
+CXXFLAGS = @CXXFLAGS@
+CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+DIST_COMMON =  README Makefile.am Makefile.in
+
+
+DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
+
+TAR = gtar
+GZIP_ENV = --best
+DEP_FILES =  .deps/dbmetadata.P .deps/dmtest.P .deps/mysql.P \
+.deps/oracle.P .deps/scroll.P .deps/streams.P
+SOURCES = $(streams_SOURCES) $(dbmetadata_SOURCES) $(scroll_SOURCES) $(oracle_SOURCES) $(mysql_SOURCES) $(dmtest_SOURCES)
+OBJECTS = $(streams_OBJECTS) $(dbmetadata_OBJECTS) $(scroll_OBJECTS) $(oracle_OBJECTS) $(mysql_OBJECTS) $(dmtest_OBJECTS)
+
+all: all-redirect
+.SUFFIXES:
+.SUFFIXES: .S .c .cpp .lo .o .s
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu tests/Makefile
+
+Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
+	cd $(top_builddir) \
+	  && CONFIG_FILES=$(subdir)/$@ CONFIG_HEADERS= $(SHELL) ./config.status
+
+
+mostlyclean-noinstPROGRAMS:
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+
+distclean-noinstPROGRAMS:
+
+maintainer-clean-noinstPROGRAMS:
+
+.s.o:
+	$(COMPILE) -c $<
+
+.S.o:
+	$(COMPILE) -c $<
+
+mostlyclean-compile:
+	-rm -f *.o core *.core
+
+clean-compile:
+
+distclean-compile:
+	-rm -f *.tab.c
+
+maintainer-clean-compile:
+
+.s.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+.S.lo:
+	$(LIBTOOL) --mode=compile $(COMPILE) -c $<
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+
+maintainer-clean-libtool:
+
+streams: $(streams_OBJECTS) $(streams_DEPENDENCIES)
+	@rm -f streams
+	$(CXXLINK) $(streams_LDFLAGS) $(streams_OBJECTS) $(streams_LDADD) $(LIBS)
+
+dbmetadata: $(dbmetadata_OBJECTS) $(dbmetadata_DEPENDENCIES)
+	@rm -f dbmetadata
+	$(CXXLINK) $(dbmetadata_LDFLAGS) $(dbmetadata_OBJECTS) $(dbmetadata_LDADD) $(LIBS)
+
+scroll: $(scroll_OBJECTS) $(scroll_DEPENDENCIES)
+	@rm -f scroll
+	$(CXXLINK) $(scroll_LDFLAGS) $(scroll_OBJECTS) $(scroll_LDADD) $(LIBS)
+
+oracle: $(oracle_OBJECTS) $(oracle_DEPENDENCIES)
+	@rm -f oracle
+	$(CXXLINK) $(oracle_LDFLAGS) $(oracle_OBJECTS) $(oracle_LDADD) $(LIBS)
+
+mysql: $(mysql_OBJECTS) $(mysql_DEPENDENCIES)
+	@rm -f mysql
+	$(CXXLINK) $(mysql_LDFLAGS) $(mysql_OBJECTS) $(mysql_LDADD) $(LIBS)
+
+dmtest: $(dmtest_OBJECTS) $(dmtest_DEPENDENCIES)
+	@rm -f dmtest
+	$(CXXLINK) $(dmtest_LDFLAGS) $(dmtest_OBJECTS) $(dmtest_LDADD) $(LIBS)
+.cpp.o:
+	$(CXXCOMPILE) -c $<
+.cpp.lo:
+	$(LTCXXCOMPILE) -c $<
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP)
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	here=`pwd` && cd $(srcdir) \
+	  && mkid -f$$here/ID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS)'; \
+	unique=`for i in $$list; do echo $$i; done | \
+	  awk '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || (cd $(srcdir) && etags $(ETAGS_ARGS) $$tags  $$unique $(LISP) -o $$here/TAGS)
+
+mostlyclean-tags:
+
+clean-tags:
+
+distclean-tags:
+	-rm -f TAGS ID
+
+maintainer-clean-tags:
+
+distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
+
+subdir = tests
+
+distdir: $(DISTFILES)
+	here=`cd $(top_builddir) && pwd`; \
+	top_distdir=`cd $(top_distdir) && pwd`; \
+	distdir=`cd $(distdir) && pwd`; \
+	cd $(top_srcdir) \
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu tests/Makefile
+	@for file in $(DISTFILES); do \
+	  d=$(srcdir); \
+	  if test -d $$d/$$file; then \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \
+	    || cp -p $$d/$$file $(distdir)/$$file || :; \
+	  fi; \
+	done
+
+DEPS_MAGIC := $(shell mkdir .deps > /dev/null 2>&1 || :)
+
+-include $(DEP_FILES)
+
+mostlyclean-depend:
+
+clean-depend:
+
+distclean-depend:
+	-rm -rf .deps
+
+maintainer-clean-depend:
+
+%.o: %.c
+	@echo '$(COMPILE) -c $<'; \
+	$(COMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.c
+	@echo '$(LTCOMPILE) -c $<'; \
+	$(LTCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+
+%.o: %.cpp
+	@echo '$(CXXCOMPILE) -c $<'; \
+	$(CXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-cp .deps/$(*F).pp .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm .deps/$(*F).pp
+
+%.lo: %.cpp
+	@echo '$(LTCXXCOMPILE) -c $<'; \
+	$(LTCXXCOMPILE) -Wp,-MD,.deps/$(*F).pp -c $<
+	@-sed -e 's/^\([^:]*\)\.o[ 	]*:/\1.lo \1.o :/' \
+	  < .deps/$(*F).pp > .deps/$(*F).P; \
+	tr ' ' '\012' < .deps/$(*F).pp \
+	  | sed -e 's/^\\$$//' -e '/^$$/ d' -e '/:$$/ d' -e 's/$$/ :/' \
+	    >> .deps/$(*F).P; \
+	rm -f .deps/$(*F).pp
+info-am:
+info: info-am
+dvi-am:
+dvi: dvi-am
+check-am: all-am
+check: check-am
+installcheck-am:
+installcheck: installcheck-am
+install-exec-am:
+install-exec: install-exec-am
+
+install-data-am:
+install-data: install-data-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+install: install-am
+uninstall-am:
+uninstall: uninstall-am
+all-am: Makefile $(PROGRAMS)
+all-redirect: all-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) AM_INSTALL_PROGRAM_FLAGS=-s install
+installdirs:
+
+
+mostlyclean-generic:
+
+clean-generic:
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES)
+	-rm -f config.cache config.log stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+mostlyclean-am:  mostlyclean-noinstPROGRAMS mostlyclean-compile \
+		mostlyclean-libtool mostlyclean-tags mostlyclean-depend \
+		mostlyclean-generic
+
+mostlyclean: mostlyclean-am
+
+clean-am:  clean-noinstPROGRAMS clean-compile clean-libtool clean-tags \
+		clean-depend clean-generic mostlyclean-am
+
+clean: clean-am
+
+distclean-am:  distclean-noinstPROGRAMS distclean-compile \
+		distclean-libtool distclean-tags distclean-depend \
+		distclean-generic clean-am
+	-rm -f libtool
+
+distclean: distclean-am
+
+maintainer-clean-am:  maintainer-clean-noinstPROGRAMS \
+		maintainer-clean-compile maintainer-clean-libtool \
+		maintainer-clean-tags maintainer-clean-depend \
+		maintainer-clean-generic distclean-am
+	@echo "This command is intended for maintainers to use;"
+	@echo "it deletes files that may require special tools to rebuild."
+
+maintainer-clean: maintainer-clean-am
+
+.PHONY: mostlyclean-noinstPROGRAMS distclean-noinstPROGRAMS \
+clean-noinstPROGRAMS maintainer-clean-noinstPROGRAMS \
+mostlyclean-compile distclean-compile clean-compile \
+maintainer-clean-compile mostlyclean-libtool distclean-libtool \
+clean-libtool maintainer-clean-libtool tags mostlyclean-tags \
+distclean-tags clean-tags maintainer-clean-tags distdir \
+mostlyclean-depend distclean-depend clean-depend \
+maintainer-clean-depend info-am info dvi-am dvi check check-am \
+installcheck-am installcheck install-exec-am install-exec \
+install-data-am install-data install-am install uninstall-am uninstall \
+all-redirect all-am all installdirs mostlyclean-generic \
+distclean-generic clean-generic maintainer-clean-generic clean \
+mostlyclean distclean maintainer-clean
+
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

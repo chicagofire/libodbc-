@@ -1,0 +1,33 @@
+#undef PACKAGE
+#undef VERSION
+
+#undef HAVE_LIBPTHREAD
+#undef HAVE_PTHREAD_H
+
+#undef ENABLE_THREADS
+
+#undef HAVE_CXX_STL
+#undef HAVE_CXX_EH
+#undef HAVE_CXX_NS
+
+#undef HAVE_LIBIODBC
+#undef HAVE_ISQL_H
+#undef HAVE_ISQLEXT_H
+
+#undef HAVE_LIBODBC
+#undef HAVE_SQL_H
+#undef HAVE_SQLEXT_H
+
+#undef SQLSMALLINT
+#undef SQLUSMALLINT
+#undef SQLINTEGER
+#undef SQLUINTEGER
+#undef SQLPOINTER
+#undef SQLHENV
+#undef SQLHDBC
+#undef SQLHSTMT
+#undef SQLRETURN
+#undef SQLCHAR
+
+#undef ODBCVER
+#undef DEBUG

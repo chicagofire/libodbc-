@@ -1,0 +1,20 @@
+# Makefile.cvs for libodbc++
+
+CVSCLEANFILES = aclocal.m4 config.cache config.status \
+		config.log configure stamp-h.in \
+		config.h.in
+
+all:
+	aclocal
+	autoheader
+	automake
+	autoconf
+	touch stamp-h.in
+
+# we use automake, so it's safe to delete Makefile.in
+
+cvs-clean:
+	(test -f Makefile && $(MAKE) maintainer-clean) || true
+	find . -name Makefile.in -exec rm -f {} \;
+	find . -name Makefile -exec rm -f {} \; 
+	rm -f $(CVSCLEANFILES)

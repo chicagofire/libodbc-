@@ -1,0 +1,11 @@
+Notes on the QT support in libodbc++:
+
+The QT "support" means simply that std::string becomes QString,
+std::istream becomes QIODevice and odbc::Bytes becomes QByteArray.
+Nothing more, nothing less.
+
+Date, Time and Timestamp are not mapped to QDate, QTime and QDateTime;
+QDateTime's resolution is seconds, which is not enough for an SQL
+TIMESTAMP.
+
+For installation instructions, see doc/INSTALL.txt.
