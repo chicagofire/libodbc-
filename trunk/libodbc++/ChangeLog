@@ -1,3 +1,11 @@
+2003-03-28  Alex Hornby <alex@anvil.com>
+
+	* include/odbc++/callablestatement.h: Add registerInParamter()
+	method to callable statment
+
+	* src/callablestatement.cpp: Add registerInParamter() method to
+	callable statment
+
 2003-03-20  Alex Hornby <alex@anvil.com>
 
 	* include/odbc++/statement.h: Add close() method
