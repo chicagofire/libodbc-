@@ -66,8 +66,10 @@ dist-hook: $(stamp)
 install-data-local:
 	$(mkinstalldirs) $(DESTDIR)$(progref_dir); \
 	for i in $(progref_dist_files); do \
-		fn=`basename $$i` \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(progref_dir)/$$fn; \
+		if test -r "$$i"; then \
+			fn=`basename $$i` \
+			$(INSTALL_DATA) $$i $(DESTDIR)$(progref_dir)/$$fn; \
+		fi; \
 	done
 
 uninstall-local:
