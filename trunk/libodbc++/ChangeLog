@@ -1,3 +1,12 @@
+2001-07-27  Manush Dodunekov  <manush@stendahls.net>
+
+	* src/errorhandler.cpp: Fix _checkErrorODBCx methods to actually
+	use the driver supplied SQLSTATE and vendor code in thrown exceptions.
+
+2001-07-27  Alex Hornby  <alex@anvil.co.uk>
+
+	* src/datahandler.h: Default TIMESTAMP precision to 19.
+
 2000-11-28  Manush Dodunekov  <manush@stendahls.net>
 
 	* include/odbc++/errorhandler.h: Move the mutex to 
