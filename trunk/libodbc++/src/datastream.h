@@ -63,7 +63,7 @@ namespace odbc {
       return 0;
     }
     
-    virtual int showmanyc() {
+    virtual std::streamsize showmanyc() {
       if(this->gptr() < this->egptr()) {
 	return this->egptr() - this->gptr();
       }
