@@ -4,6 +4,8 @@
 
 	* Qt support updated
 
+	* Fix warnings on GCC 3.2
+
 * News in version 0.2.3pre1
 
 	* Uses newer autotools
