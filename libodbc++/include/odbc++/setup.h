@@ -42,6 +42,15 @@
 # endif
 #endif
 
+// check whether we use strstream or stringstream
+#if defined(IN_ODBCXX)
+# if defined(ODBCXX_HAVE_SSTREAM)
+#  define ODBCXX_SSTREAM std::stringstream
+# else
+#  define ODBCXX_SSTREAM std::strstream
+# endif
+#endif
+
 // check if ODBCVER is forced to something
 #if defined(ODBCXX_ODBCVER)
 # define ODBCVER ODBCXX_ODBCVER

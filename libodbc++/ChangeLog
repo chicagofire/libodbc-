@@ -1,3 +1,17 @@
+2003-04-20  Manush Dodunekov  <manush@stendahls.net>
+
+	* include/odbc/setup.h: Add a macro wrapper for string
+	streams
+
+	* src/datahandler.cpp: Don't include strstream
+
+	* src/dtconv.h: Fix sstream vs strstream compilation
+	warnings
+
+	* src/datastream.cpp: Fix for compilation with qt>=3.0
+
+	* src/datastream.h: Fix for compilation with qt>=3.0
+
 2003-04-17  Alex Hornby <alex@anvil.com>
 
 	* NEWS: Update for release of 0.2.3pre1

@@ -25,8 +25,6 @@
 #include "datahandler.h"
 #include "dtconv.h"
 
-#include <strstream>
-
 using namespace odbc;
 using namespace std;
 

@@ -126,8 +126,20 @@ namespace odbc {
 
 #else // defined(ODBCXX_QT)
 
+
   class DataStream : public QIODevice {
   public:
+
+# if QT_VERSION >= 300
+    typedef QIODevice::Offset SizeType;
+    typedef Q_LONG BlockRetType;
+    typedef Q_ULONG BlockLenType;
+# else
+    typedef uint SizeType;
+    typedef int BlockRetType;
+    typedef uint BlockLenType;
+# endif
+
     DataStream(ErrorHandler* eh, SQLHSTMT hstmt, int column, int cType,
 	       SQLINTEGER& ds);
     virtual ~DataStream();
@@ -139,14 +151,14 @@ namespace odbc {
     virtual void close() {}
     virtual void flush() {}
 
-    virtual uint size() const { 
+    virtual SizeType size() const { 
       return 0; 
     }
     
-    virtual int readBlock(char* data, uint len);
+    virtual BlockRetType readBlock(char* data, BlockLenType len);
 
     // not writable
-    virtual int writeBlock(const char*, uint) {
+    virtual BlockRetType writeBlock(const char* data, BlockLenType len) {
       return -1;
     }
     
