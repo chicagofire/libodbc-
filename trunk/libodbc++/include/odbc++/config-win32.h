@@ -40,6 +40,10 @@
 #  pragma warning(disable:4251)
 # endif
 
+# if _MSC_VER <= 1200
+#  define ODBCXX_NO_STD_TIME_T
+# endif
+
 #endif // _MSC_VER
 
 

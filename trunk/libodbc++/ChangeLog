@@ -1,3 +1,11 @@
+2003-05-16  Manush Dodunekov  <manush@stendahls.net>
+
+	* include/odbc++/types.h: Use ::time_t in std if
+	ODBCXX_NO_STD_TIME_T is defined.
+
+	* include/odbc++/config-win32.h: #define ODBCXX_NO_STD_TIME_T
+	for MSVC versions below 7.0
+
 2003-05-08 Alex Hornby <alex@anvil.com>
 
 	* NEWS: update for 0.2.3pre3 release
