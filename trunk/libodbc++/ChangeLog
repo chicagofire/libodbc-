@@ -1,6 +1,6 @@
 2003-04-10  Alex Hornby <alex@anvil.com>
 
-	* configure.ac.in: remind users of --with-odbc option if ODBC is
+	* configure.ac: remind users of --with-odbc option if ODBC is
 	not found.
 
 	* include/odbc++/setup.h: Check for __WIN32__ define from
