@@ -1,3 +1,7 @@
+2001-12-11  Manush Dodunekov  <manush@stendahls.net>
+
+	* libodbc++.spec.in: Minor doc typo fixed
+
 2001-11-06  Manush Dodunekov  <manush@stendahls.net>
 
 	* libodbc++.spec.in: Minor fix to the filelist
