@@ -1,3 +1,14 @@
+2003-04-08  Alex Hornby <alex@hornby.org.uk>
+
+	* configure.ac: check for sqlucode.h for unicode types
+	
+	* src/datahandler.cpp: add simple support for wide character types
+	based on patch from Peter Feltham <pfeltham@idgp.org.au>
+
+	* include/odbc++/types.h: add wide character types to type enum
+
+	* tests/dbmetadata.cpp: add test of getTables() function
+
 2003-04-06  Alex Hornby <alex@hornby.org.uk>
 
 	* configure.ac: Use automake conditionals to control optional

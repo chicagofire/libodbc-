@@ -269,6 +269,19 @@ int main(int argc, char** argv)
 
     cout << "Preferred table identifier format: " << id << endl;
 
+    if(hasCatalogs) {
+      cout << "Tables available: " << endl;
+      std::vector<std::string> types;
+      auto_ptr<odbc::ResultSet> rs(md->getTables("", "", "", types));
+      while(rs->next()) {
+        cout << rs->getString(1) << "." 
+             << rs->getString(2) << "."
+             << rs->getString(3) << " type="
+             << rs->getString(4) << " remarks="
+             << rs->getString(5) <<endl;
+      }
+    }
+
     delete con;
 
   } catch(SQLException& e) {
