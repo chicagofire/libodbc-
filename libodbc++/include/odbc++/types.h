@@ -219,7 +219,7 @@ namespace odbc {
 	}
       }
       ~Rep() {
-	delete buf_;
+	delete [] buf_;
       }
     };
 
