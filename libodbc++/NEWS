@@ -1,5 +1,9 @@
 * News in version 0.2.2:
 
+	* Compiles with gcc 3.0.
+
+	* Fixed a bug where multiple results could not be handled properly.
+
 	* Redid parts of the unix build procedure. A spec file for building RPMS
 	is now part of the distribution. Thread safe versions of the library are
 	now called NAME-mt, in order to coexist with non thread safe versions.
@@ -8,20 +12,20 @@
 	an exception instead of returning 0.
 
 	* Fixed bug where error descriptions for Connection and Statement would
-	get messed up
+	get messed up.
 
-	* Fixed memory leak with streams (ResultSet::getXXXStream())
+	* Fixed memory leak with streams (ResultSet::getXXXStream()).
 
-	* Fixed several bugs with odbc::Bytes that made it totally unusable
+	* Fixed several bugs with odbc::Bytes that made it totally unusable.
 
-	* Fixed bug with padding of CHARs
+	* Fixed bug with padding of CHARs.
 
 	* Fixed bug when setting a parameter to NULL with different SQL type
 	than the non-NULL value used by a previous execute of a PreparedStatement.
 
-	* Support for getting and setting LONGVARCHAR fields as strings
+	* Support for getting and setting LONGVARCHAR fields as strings.
 
-	* Support for getting and setting LONGVARBINARY fields as bytes
+	* Support for getting and setting LONGVARBINARY fields as bytes.
 
 	* Fixed bug when using getString() on a DATE/TIME/TIMESTAMP with
 	an ODBC3 driver manager and an ODBC2 driver.
