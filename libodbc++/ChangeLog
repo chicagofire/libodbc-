@@ -4,6 +4,8 @@
 	
 	* configure.ac: Update version number
 
+	* doc/progref/Makefile.am: distribute footer
+
 2003-04-20  Manush Dodunekov  <manush@stendahls.net>
 
 	* include/odbc/setup.h: Add a macro wrapper for string
