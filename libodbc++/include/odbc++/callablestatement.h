@@ -148,6 +148,11 @@ namespace odbc {
      */
     void registerOutParameter(int idx, int sqlType, int scale);
 
+    /** Registers an input only parameter
+     * @param idx The parameter index, starting at 1
+     */
+    void registerInParameter(int idx);
+
     /** Returns true if the last fetched parameter was NULL */
     bool wasNull() {
       return lastWasNull_;

@@ -46,6 +46,12 @@ CallableStatement::~CallableStatement()
 {
 }
 
+void CallableStatement::registerInParameter(int idx)
+{
+  directions_[idx-1]=SQL_PARAM_INPUT;
+}
+
+
 void CallableStatement::registerOutParameter(int idx, int sqlType, int scale)
 {
   int defPrec=DataHandler::defaultPrecisionFor(sqlType);
