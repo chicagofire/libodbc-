@@ -81,14 +81,17 @@ void DriverManager::shutdown()
       }
 
       henv_=SQL_NULL_HENV;
+
       //if henv_ was valid, so is eh_
       delete eh_;
       eh_=NULL;
     }
   }
 
+#ifdef ODBCXX_ENABLE_THREADS
   // remove the mutex as we can't rely on static destructors
   DMAccessMutex(1);
+#endif /* ODBCXX_ENABLE_THREADS */
 }
 
 
