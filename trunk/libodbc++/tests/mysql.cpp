@@ -27,6 +27,7 @@
 
 #include <cstdio>
 #include <cmath>
+#include <iostream>
 
 #if defined(WIN32)
 # define snprintf _snprintf
@@ -35,7 +36,6 @@
 #if !defined(ODBCXX_QT)
 
 #include <strstream>
-#include <iostream>
 
 #else
 

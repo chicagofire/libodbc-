@@ -189,7 +189,7 @@ namespace odbc {
 
     /** Sets a parameter value to an ascii stream.
      * @param idx The parameter index, starting at 1
-     * @param val The stream to assign
+     * @param s The stream to assign
      * @param len The number of bytes available in the stream
      */
     void setAsciiStream(int idx, ODBCXX_STREAM* s, int len);

@@ -1,3 +1,8 @@
 .deps
+.libs
 Makefile
 Makefile.in
+connectwindow.moc.cpp
+mainwindow.moc.cpp
+qtsql++
+resultwindow.moc.cpp

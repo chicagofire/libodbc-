@@ -272,8 +272,11 @@ int main(int argc, char** argv)
 
     if(hasCatalogs) {
       cout << "Tables available: " << endl;
-      std::vector<std::string> types;
-      auto_ptr<odbc::ResultSet> rs(md->getTables("", "", "", types));
+      std::vector<ODBCXX_STRING> types;
+      auto_ptr<odbc::ResultSet> rs(md->getTables(ODBCXX_STRING(""),
+                                                ODBCXX_STRING(""),
+                                                ODBCXX_STRING(""),
+                                                types));
       while(rs->next()) {
         cout << rs->getString(1) << "." 
              << rs->getString(2) << "."

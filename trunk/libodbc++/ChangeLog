@@ -1,3 +1,22 @@
+2003-05-08 Alex Hornby <alex@anvil.com>
+
+	* NEWS: update for 0.2.3pre3 release
+
+	* include/odbc++/preparedstatement.h: fix doxygen warning.
+	
+	* src/datahandler.cpp: do not include config.h on windows.
+	
+	* include/odbc++/types.h: Use ODBCXX_HAVE_SQLUCODE_H instead of
+	HAVE_SQLUCODE_H. Thanks to Alexander J. Oss <alex.oss@films.com>
+	for suggesting the change.
+	
+	* tests/dbmetadata.cpp: Fix for Qt build. Thanks to Markku Kolkka
+	<markku.kolkka@koti.soon.fi> for the patch.
+
+	* tests/mysql.cpp: ditto
+
+	* THANKS: add Markku Kolkka
+	
 2003-04-30 Alex Hornby <alex@anvil.com>
 
 	* libodbc++.pc.in: Add initial support for pkg-config

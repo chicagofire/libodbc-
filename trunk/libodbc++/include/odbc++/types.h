@@ -196,7 +196,7 @@ namespace odbc {
       VARBINARY		= SQL_VARBINARY,
       /** An SQL VARCHAR (variable length less than 256) */
       VARCHAR		= SQL_VARCHAR
-#if HAVE_SQLUCODE_H
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
       ,
       /** A wide SQL CHAR (fixed length less than 256) */
       WVARCHAR          = SQL_WCHAR,

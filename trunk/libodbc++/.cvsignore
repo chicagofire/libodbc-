@@ -13,6 +13,7 @@ config.sub
 configure
 depcomp
 install-sh
+libodbc++.pc
 libodbc++.spec
 libtool
 ltconfig
