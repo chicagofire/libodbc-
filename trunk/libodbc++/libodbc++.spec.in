@@ -17,8 +17,6 @@ Distribution: RedHat Linux
 Vendor: Manush Dodunekov
 Packager: Manush Dodunekov
 BuildRoot: /var/tmp/%{name}-root
-requires: unixODBC
-requires: qt >= 2.2
 BuildPreReq: unixODBC-devel
 BuildPreReq: qt-devel >= 2.2
 
