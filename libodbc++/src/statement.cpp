@@ -774,3 +774,12 @@ bool Statement::getEscapeProcessing()
     (ODBC3_C(SQL_ATTR_NOSCAN,SQL_NOSCAN))==SQL_NOSCAN_OFF;
 }
 
+void Statement::close()
+{
+  if(state_==STATE_OPEN) {
+    SQLRETURN r=SQLFreeStmt(hstmt_,SQL_CLOSE);
+    this->_checkStmtError(hstmt_,r,"Error closing all results for statement");
+    
+    state_=STATE_CLOSED;
+  }
+}

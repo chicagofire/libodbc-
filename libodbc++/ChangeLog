@@ -1,3 +1,9 @@
+2003-03-20  Alex Hornby <alex@anvil.com>
+
+	* include/odbc++/statement.h: Add close() method
+
+	* src/statement.cpp: Add close() method
+
 2002-10-22  Alexander J. Oss <alex.oss@films.com>
 
 	* src/connection.cpp (nativeSQL): check for error after second

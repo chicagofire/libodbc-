@@ -250,6 +250,12 @@ namespace odbc {
      * otherwise
      */
     bool getEscapeProcessing();
+
+    /** Closes all result sets from this execution. This is useful if
+     * you don't wish to iterate through all remaining results, or if
+     * your driver does not auto-close cursors. */
+    void close();
+
   };
   
 
