@@ -1,3 +1,11 @@
+2003-04-06  Alex Hornby <alex@hornby.org.uk>
+
+	* m4/ac_check_odbc.m4: Separate out unixODBC check and
+	automatically find system installs of unixODBC
+
+	* configure.ac: Set tarname for make dist and turn off maintainer
+	mode by default.
+	
 2003-03-28  Alex Hornby <alex@anvil.com>
 
 	* autogen.sh: Make this a bit more informative

@@ -18,7 +18,7 @@
 #  Boston, MA 02111-1307, USA.
 
 AC_PREREQ(2.53)
-AC_INIT(src/connection.cpp, 0.2.3pre1)
+AC_INIT(libodbcxx,0.2.3pre1,freeodbc++@orcane.net,libodbc++)
 AC_CONFIG_SRCDIR(src/connection.cpp)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -38,7 +38,7 @@ AM_ENABLE_STATIC(no)
 
 # Prevents the Makefile rebuild rules runnning automatically. Use
 # autogen.sh instead.
-AM_MAINTAINER_MODE
+# AM_MAINTAINER_MODE
 
 AC_CANONICAL_HOST
 
@@ -191,14 +191,10 @@ AC_SUBST(SUBDIR_ISQLXX)
 AC_SUBST(LIBREADLINE)
 
 # set up our include paths
-
-INCLUDES="-I\$(top_srcdir)/include -I\$(top_builddir)/include $INCLUDES"
+INCLUDES="-I\$(top_srcdir)/include $INCLUDES"
 
 AC_SUBST(INCLUDES)
 
-
-if test "x$USE_MAINTAINER_MODE" = "xyes"
-then
 
 AC_PATH_PROG(doxygen,doxygen)
 AC_PATH_PROG(perl,perl)
@@ -212,7 +208,6 @@ AC_PATH_PROG(db2html,db2html)
 AC_PATH_PROG(zip,zip)
 AC_PATH_PROG(bzip2,bzip2)
 
-fi
 
 AC_SUBST(db2html)
 AC_SUBST(zip)
