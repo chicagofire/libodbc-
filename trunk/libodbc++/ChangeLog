@@ -1,4 +1,9 @@
-2003-05-11  Alex Hornby <alex@anvil.com>
+2003-06-17  Alex Hornby <alex@anvil.com>
+
+	* src/resultset.cpp: Add tests for stricmp defines. Should fix
+	build with BCB.
+
+2003-06-11  Alex Hornby <alex@anvil.com>
 
 	* NEWS: update for 0.2.3pre4 release
 

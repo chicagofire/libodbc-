@@ -1003,8 +1003,12 @@ int ResultSet::findColumn(const ODBCXX_STRING& colName)
     if(
 #if !defined(WIN32)
        strcasecmp
-#else
+#elif defined(ODBCXX_HAVE__STRICMP)
        _stricmp
+#elif defined(ODBCXX_HAVE_STRICMP)
+       stricmp
+#else
+# error Cannot determine case-insensitive string compare function
 #endif
        (ODBCXX_STRING_CSTR(colName),
 	ODBCXX_STRING_CSTR(metaData_->getColumnName(i)))==0) {
