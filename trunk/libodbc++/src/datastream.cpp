@@ -218,7 +218,7 @@ void DataStream::_readStep()
 }
 
 
-int DataStream::readBlock(char* data, uint len)
+DataStream::BlockRetType DataStream::readBlock(char* data, BlockLenType len)
 {
   size_t bytesRead=0;
   while(!eof_ && bytesRead<len) {

@@ -33,7 +33,11 @@ using namespace std;
 # include <qiodevice.h>
 # include <qbuffer.h>
 #else
-# include <strstream>
+# if defined(ODBCXX_HAVE_SSTREAM)
+#  include <sstream>
+# else
+#  include <strstream>
+# endif
 #endif
 /* conversion functions string <-> int/float/double/long double
  */
@@ -155,7 +159,7 @@ namespace odbc {
   // returns a newly allocated stream
   inline ODBCXX_STREAM* stringToStream(const ODBCXX_STRING& str) {
 #if !defined(ODBCXX_QT)
-    strstream* s=new strstream();
+    ODBCXX_SSTREAM* s=new ODBCXX_SSTREAM();
     *s << str;
     return s;
 #else // defined(ODBCXX_QT)
@@ -226,7 +230,7 @@ namespace odbc {
 
   inline ODBCXX_STREAM* bytesToStream(const ODBCXX_BYTES& b) {
 #if !defined(ODBCXX_QT)
-    strstream* s=new strstream();
+    ODBCXX_SSTREAM* s=new ODBCXX_SSTREAM();
     if(b.getSize()>0) {
       s->write((char*)b.getData(),b.getSize());
     }
