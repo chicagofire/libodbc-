@@ -1,3 +1,12 @@
+2002-10-22  Alexander J. Oss <alex.oss@films.com>
+
+	* src/connection.cpp (nativeSQL): check for error after second
+	call to SQLNativeSql().
+
+2002-06-10  Alex Hornby <alex@anvil.co.uk>
+
+	* include/odbc++/types.h: Use delete[] in Bytes::Rep
+
 2001-12-11  Manush Dodunekov  <manush@stendahls.net>
 
 	* libodbc++.spec.in: Minor doc typo fixed

@@ -399,6 +399,7 @@ ODBCXX_STRING Connection::nativeSQL(const ODBCXX_STRING& sql)
 		   (SQLCHAR*)tmp,
 		   dataSize+1,
 		   &dataSize);
+    this->_checkConError(hdbc_, r, ODBCXX_STRING_CSTR(msg));
     return ODBCXX_STRING_C(tmp);
   }
     
