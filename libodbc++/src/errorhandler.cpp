@@ -92,6 +92,8 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 				    const ODBCXX_STRING& what)
 {
   DriverMessage* m=new DriverMessage();
+  Deleter<DriverMessage> _m(m);
+
   SQLSMALLINT tmp;
   SQLRETURN r=SQLError(henv, hdbc, hstmt,
 		       (SQLCHAR*)m->state_,
@@ -104,14 +106,12 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
     break;
 
   case SQL_INVALID_HANDLE:
-    delete m;
-    m=NULL;
     throw SQLException
       ("[libodbc++]: ErrorHandler::_checkErrorODBC2() called with invalid handle");
     break;
 
   default:
-    delete m;
+    // m will still be deleted when it goes out of scope
     m=NULL;
     break;
   }
@@ -126,21 +126,18 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
     
     if(m!=NULL) {
       errmsg+=m->getDescription();
+      throw SQLException(errmsg, m->getSQLState(), m->getNativeCode());
     } else {
       errmsg+="No description available";
+      throw SQLException(errmsg);
     }
 
-    delete m;
-
-    throw SQLException(errmsg);
 
   } else if(ret==SQL_SUCCESS_WITH_INFO && m!=NULL) {
     // we got ourselves a warning
     this->_postWarning(new SQLWarning(*m));
     
   } 
-
-  delete m;
 }
 
 
@@ -151,6 +148,8 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
 				    const ODBCXX_STRING& what)
 {
   DriverMessage* m=new DriverMessage();
+  Deleter<DriverMessage> _m(m);
+
   SQLSMALLINT tmp;
   
   SQLRETURN r=SQLGetDiagRec(handleType,handle,
@@ -166,14 +165,12 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
     break;
     
   case SQL_INVALID_HANDLE:
-    delete m;
-    m=NULL;
     throw SQLException
       ("[libodbc++]: ErrorHandler::_checkErrorODBC3() called with invalid handle");
     break;
     
   default:
-    delete m;
+    // m will still be deleted when _m goes out of scope
     m=NULL;
     break;
   }
@@ -188,21 +185,18 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
     
     if(m!=NULL) {
       errmsg+=m->getDescription();
+      throw SQLException(errmsg, m->getSQLState(), m->getNativeCode());
     } else {
       errmsg+="No description available";
+      throw SQLException(errmsg);
     }
 
-    delete m;
-
-    throw SQLException(errmsg);
 
   } else if(ret==SQL_SUCCESS_WITH_INFO && m!=NULL) {
     // we got ourselves a warning
     this->_postWarning(new SQLWarning(*m));
     
   } 
-
-  delete m;
 }
 
 #endif // ODBCVER < 0x0300
