@@ -71,7 +71,7 @@ AC_TRY_RUN(
 using namespace std;
 
 struct test : public exception {
-	virtual const char* what() const { return "test"; }
+	virtual const char* what() const throw() { return "test"; }
 };
 
 static void func() { throw test(); }
@@ -294,7 +294,11 @@ odbc_libraries_dir="$odbc_dir/lib"
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 
-CPPFLAGS="$CPPFLAGS -I$odbc_includes_dir"
+if test "x$odbc_includes_dir" != "x/usr/include"
+then
+	CPPFLAGS="$CPPFLAGS -I$odbc_includes_dir"
+fi
+
 LIBS="$LIBS -L$odbc_libraries_dir"
 
 AC_CHECK_HEADERS([sql.h sqlext.h],
