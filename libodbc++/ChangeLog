@@ -1,3 +1,8 @@
+2003-12-16  Alex Hornby <alex@anvil.com>
+
+	* src/drivermanager.cpp: don't rely on static
+	constructor/destructor for mutex.
+
 2003-12-05  Alex Hornby <alex@anvil.com>
 
 	* acinclude.m4: update pthread test to work on hpux 11.11

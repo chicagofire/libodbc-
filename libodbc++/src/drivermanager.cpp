@@ -40,41 +40,55 @@ int DriverManager::loginTimeout_=-1;
 
 #ifdef ODBCXX_ENABLE_THREADS
 
-static odbc::Mutex DMAccess;
+#define DMAccess DMAccessMutex()
+
+odbc::Mutex & DMAccessMutex(bool shutdown=0)
+{
+  static odbc::Mutex* mtx(new odbc::Mutex());
+  if ( shutdown ) {
+    delete mtx;
+    mtx = 0;
+  } 
+  return *mtx;
+}
 
 #endif /* ODBCXX_ENABLE_THREADS */
 
-
 void DriverManager::shutdown()
 {
-  ODBCXX_LOCKER(DMAccess);
+  {
+    ODBCXX_LOCKER(DMAccess);
 
-  if(henv_!=SQL_NULL_HENV) {
+    if(henv_!=SQL_NULL_HENV) {
 
-    SQLRETURN r=ODBC3_C
-      (SQLFreeHandle(SQL_HANDLE_ENV, henv_),
-       SQLFreeEnv(henv_));
-
-    switch(r) {
-    case SQL_SUCCESS:
-      break;
+      SQLRETURN r=ODBC3_C
+        (SQLFreeHandle(SQL_HANDLE_ENV, henv_),
+         SQLFreeEnv(henv_));
       
-    case SQL_INVALID_HANDLE:
-      // the check above should prevent this
-      assert(false);
-      break;
-
-    case SQL_ERROR:
-      // try to obtain an error description
-      eh_->_checkEnvError(henv_, r, "Failed to shutdown DriverManager");
-      break;
+      switch(r) {
+      case SQL_SUCCESS:
+        break;
+          
+      case SQL_INVALID_HANDLE:
+        // the check above should prevent this
+        assert(false);
+        break;
+          
+      case SQL_ERROR:
+        // try to obtain an error description
+        eh_->_checkEnvError(henv_, r, "Failed to shutdown DriverManager");
+        break;
+      }
+      
+      henv_=SQL_NULL_HENV;
+      //if henv_ was valid, so is eh_
+      delete eh_;
+      eh_=NULL;
     }
-
-    henv_=SQL_NULL_HENV;
-    //if henv_ was valid, so is eh_
-    delete eh_;
-    eh_=NULL;
   }
+
+  // remove the mutex as we can't rely on static destructors
+  DMAccessMutex(1);
 }
 
 
