@@ -17,19 +17,23 @@
 #  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #  Boston, MA 02111-1307, USA.
 
+SUBDIRS = \
+	include \
+	src \
+	tests \
+	qtsql++ \
+	isql++ \
+	doc \
+	win32
 
-EXTRA_DIST=BUGS README.jdbc README.threads
+EXTRA_DIST = \
+	BUGS \
+	README.jdbc \
+	README.threads \
+	m4/ac_c_long_long.m4 \
+	m4/ac_check_odbc.m4
 
-AUTOMAKE_OPTIONS=foreign
-
-SUBDIRS=\
-include \
-src \
-@SUBDIR_TESTS@ \
-@SUBDIR_QTSQLXX@ \
-@SUBDIR_ISQLXX@ \
-doc \
-win32
+ACLOCAL_AMFLAGS = -I m4
 
 dist-hook:
 	if test "x$(zip)" != "x"; then \

@@ -23,8 +23,11 @@ else
 thelibs=../src/libodbc++.la
 endif
 
-bin_PROGRAMS=\
-isql++
+if ISQLXX
+bin_PROGRAMS = isql++
+else
+EXTRA_PROGRAMS = isql++
+endif
 
 INCLUDES=@INCLUDES@ -I$(top_srcdir)/src
 

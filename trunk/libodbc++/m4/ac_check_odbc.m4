@@ -2,7 +2,6 @@ AC_DEFUN(AC_CHECK_ODBC,
 [
 AC_LANG_SAVE
 AC_LANG_C
-AC_MSG_CHECKING([whether unixODBC should be used])
 AC_ARG_WITH(odbc,
 [  --with-odbc[=DIR]       Use unixODBC, optionally installed in DIR],
 [
@@ -49,6 +48,7 @@ then
 	AC_CHECK_LIB(odbc,SQLConnect,[odbc_ok=yes],[odbc_ok=no])
 fi
 
+AC_MSG_CHECKING([whether unixODBC should be used])
 if test "x$odbc_ok" = "xyes"
 then
 	LIBS="$LIBS -lodbc"

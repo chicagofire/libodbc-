@@ -187,14 +187,13 @@ fi
 
 fi
 
+AM_CONDITIONAL(ISQLXX, test x$SUBDIR_ISQLXX != x)
 AC_SUBST(SUBDIR_ISQLXX)
 AC_SUBST(LIBREADLINE)
 
 # set up our include paths
-INCLUDES="-I\$(top_srcdir)/include $INCLUDES"
-
+INCLUDES="-I\$(top_srcdir)/include -I\$(top_builddir)/include $INCLUDES"
 AC_SUBST(INCLUDES)
-
 
 AC_PATH_PROG(doxygen,doxygen)
 AC_PATH_PROG(perl,perl)
@@ -311,6 +310,8 @@ else
 	SUBDIR_QTSQLXX=""
 	AC_MSG_RESULT(no)
 fi
+
+AM_CONDITIONAL(QTSQLXX, test x$SUBDIR_QTSQLXX != x)
 
 AC_SUBST(SUBDIR_QTSQLXX)
 AC_SUBST(QT_INCLUDES)
