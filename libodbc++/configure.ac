@@ -18,7 +18,7 @@
 #  Boston, MA 02111-1307, USA.
 
 AC_PREREQ(2.53)
-AC_INIT(libodbcxx,0.2.3pre2,freeodbc++@orcane.net,libodbc++)
+AC_INIT(libodbcxx,0.2.3pre3,freeodbc++@orcane.net,libodbc++)
 AC_CONFIG_SRCDIR(src/connection.cpp)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -332,6 +332,7 @@ doc/progref/Makefile \
 win32/Makefile \
 win32/tests/Makefile \
 libodbc++.spec \
+libodbc++.pc \
 )
 
 if test "x$USE_MAINTAINER_MODE" = "xyes"
