@@ -172,7 +172,7 @@ void Connection::_setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value)
 			(SQLUINTEGER)ODBCXX_STRING_CSTR(value))
 #else
     SQLSetConnectAttr(hdbc_,optnum,
-		      (SQLPOINTER)ODBCXX_STRING_DATA(value),
+		      (SQLPOINTER)ODBCXX_STRING_CSTR(value),
 		      ODBCXX_STRING_LEN(value));
 #endif
     ;
