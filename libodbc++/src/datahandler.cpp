@@ -19,7 +19,11 @@
    Boston, MA 02111-1307, USA.
 */
 
-#include <config.h>
+/* Bring in long long macros needed by unixODBC */
+#if !defined(__WIN32__) && !defined(WIN32)
+# include <config.h>
+#endif
+
 #include <odbc++/types.h>
 
 #include "datahandler.h"
@@ -156,7 +160,7 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
   switch(sqlType_) {
   case Types::CHAR:
   case Types::VARCHAR:
-#if ODBCXX_HAVE_SQLUCODE_H
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   case Types::WVARCHAR:   //convert unicode columns to ANSI
   case Types::WCHAR:              //
 #endif
@@ -244,7 +248,7 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
     break;
 
   case Types::LONGVARCHAR:
-#if ODBCXX_HAVE_SQLUCODE_H
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   case Types::WLONGVARCHAR:
 #endif
     cType_=SQL_C_CHAR;
