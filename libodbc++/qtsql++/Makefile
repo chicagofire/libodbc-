@@ -76,17 +76,17 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = i686-pc-linux-gnu
+host_alias = i686-pc-linux
 host_triplet = i686-pc-linux-gnu
 AS = @AS@
 CC = gcc
-CXX = c++
-CXXCPP = c++ -E
+CXX = /usr/local/gcc/bin/c++
+CXXCPP = /usr/local/gcc/bin/c++ -E
 DLLTOOL = @DLLTOOL@
 LIBREADLINE = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
-MAINT = 
+MAINT = #
 MAKEINFO = makeinfo
 OBJDUMP = @OBJDUMP@
 PACKAGE = libodbc++
@@ -100,14 +100,14 @@ SUBDIR_QTSQLXX =
 SUBDIR_TESTS = tests
 THREAD_LIBS = 
 VERSION = 0.2.2pre5
-bzip2 = /usr/bin/bzip2
-db2html = /usr/bin/db2html
+bzip2 = 
+db2html = 
 docdir = ${prefix}/share/doc
-doxygen = /usr/bin/doxygen
+doxygen = 
 lib_version = 4:0:0
-perl = /usr/bin/perl
+perl = 
 sed = /bin/sed
-zip = /usr/bin/zip
+zip = 
 
 bin_PROGRAMS = qtsql++
 #thelib = ../src/libodbc++_qt-mt.la
@@ -130,7 +130,7 @@ CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
 PROGRAMS =  $(bin_PROGRAMS)
 
-CPPFLAGS =  -I/usr/include
+CPPFLAGS = 
 LDFLAGS = 
 LIBS =  -L/usr/lib -lodbc
 qtsql___OBJECTS =  main.o mainwindow.o connectwindow.o resultwindow.o \
@@ -164,7 +164,7 @@ OBJECTS = $(qtsql___OBJECTS)
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .cpp .lo .o .s
-$(srcdir)/Makefile.in:  Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/Makefile.in: # Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu qtsql++/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)

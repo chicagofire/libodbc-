@@ -171,6 +171,10 @@ namespace odbc {
       case Types::VARBINARY:
 	prec=255;
 	break;
+
+      case Types::TIMESTAMP:
+	prec=19;
+	break;
       }
 
       return prec;
