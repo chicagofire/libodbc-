@@ -28,7 +28,7 @@ AC_ARG_WITH(odbc-libraries,
 save_CPPFLAGS="$CPPFLAGS"
 save_LIBS="$LIBS"
 
-if test "x$odbc_includes_dir" != "x" -a "x$odbc_includes_dir" != "x/usr"
+if test "x$odbc_includes_dir" != "x" -a "x$odbc_includes_dir" != "x/usr/include"
 then
 	CPPFLAGS="$CPPFLAGS -I$odbc_includes_dir"
 fi
