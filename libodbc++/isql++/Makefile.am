@@ -23,7 +23,7 @@ else
 thelibs=../src/libodbc++.la
 endif
 
-if ISQLXX
+if BUILD_ISQLXX
 bin_PROGRAMS = isql++
 else
 EXTRA_PROGRAMS = isql++

@@ -1,3 +1,16 @@
+2003-04-24  Manush Dodunekov  <manush@stendahls.net>
+
+	* configure.ac: Remove commented old checks, fix
+	conditional builds of isql++, qtsql++ and tests
+
+	* tests/Makefile.am: Minor build fix
+
+	* isql++/Makefile.am: Minor build fix
+
+	* qtsql++/Makefile.am: Fix typo, minor build fix
+
+	* qtsql++/mainwindow.cpp: GCC 3 compilation fix
+
 2003-04-23 Alex Hornby <alex@anvil.com>
 
 	* NEWS: Announce 0.2.3pre2
