@@ -645,6 +645,15 @@ namespace odbc {
     SQLINTEGER nativeCode_;
 
     DriverMessage() {}
+#if ODBCVER < 0x0300
+    static DriverMessage* fetchMessage(SQLHENV henv,
+				       SQLHDBC hdbc,
+				       SQLHSTMT hstmt);
+#else
+    static DriverMessage* fetchMessage(SQLINTEGER handleType,
+				       SQLHANDLE h,
+				       int idx);
+#endif
 
   public:
     virtual ~DriverMessage() {}

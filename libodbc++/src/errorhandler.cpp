@@ -24,6 +24,107 @@
 using namespace odbc;
 using namespace std;
 
+#if ODBCVER < 0x0300
+
+// ODBC v2
+
+// static
+DriverMessage* DriverMessage::fetchMessage(SQLHENV henv,
+					   SQLHDBC hdbc,
+					   SQLHSTMT hstmt)
+{
+  DriverMessage* m=new DriverMessage();
+  
+  SQLSMALLINT tmp;
+  SQLRETURN r=SQLError(henv, hdbc, hstmt,
+		       (SQLCHAR*)m->state_,
+		       &m->nativeCode_,
+		       (SQLCHAR*)m->description_,
+		       SQL_MAX_MESSAGE_LENGTH-1,
+		       &tmp);
+
+  switch(r) {
+  case SQL_SUCCESS:
+    // we have a message
+    break;
+
+  case SQL_INVALID_HANDLE:
+    // internal whoops
+    delete m;
+    throw SQLException
+      ("[libodbc++]: fetchMessage() called with invalid handle");
+    break;
+
+  case SQL_ERROR:
+    // this should be extremely rare, but still..
+    delete m;
+    throw SQLException
+      ("[libodbc++]: SQLError() returned SQL_ERROR");
+    break;
+
+  default:
+    // we got no message it seems
+    delete m;
+    m=NULL;
+    break;
+  }
+
+  return m;
+}
+				   
+
+#else
+
+// ODBC v3
+
+// static
+DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
+					   SQLHANDLE h,
+					   int idx)
+{
+  DriverMessage* m=new DriverMessage();
+  
+  SQLSMALLINT tmp;
+
+  SQLRETURN r=SQLGetDiagRec(handleType, h, idx,
+			    (SQLCHAR*)m->state_,
+			    &m->nativeCode_,
+			    (SQLCHAR*)m->description_,
+			    SQL_MAX_MESSAGE_LENGTH-1,
+			    &tmp);
+
+  switch(r) {
+  case SQL_SUCCESS:
+    // we have a message
+    break;
+
+  case SQL_INVALID_HANDLE:
+    // internal whoops
+    delete m;
+    throw SQLException
+      ("[libodbc++]: fetchMessage() called with invalid handle");
+    break;
+
+  case SQL_ERROR:
+    // this should be extremely rare, but still..
+    delete m;
+    throw SQLException
+      ("[libodbc++]: SQLGetDiagRec() returned SQL_ERROR");
+    break;
+
+  default:
+    // we got no message it seems
+    delete m;
+    m=NULL;
+    break;
+  }
+
+  return m;
+}
+
+#endif
+
+
 struct ErrorHandler::PD {
 #ifdef ODBCXX_ENABLE_THREADS
     Mutex access_;
@@ -91,53 +192,44 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 				    SQLRETURN ret, 
 				    const ODBCXX_STRING& what)
 {
-  DriverMessage* m=new DriverMessage();
-  Deleter<DriverMessage> _m(m);
 
-  SQLSMALLINT tmp;
-  SQLRETURN r=SQLError(henv, hdbc, hstmt,
-		       (SQLCHAR*)m->state_,
-		       &m->nativeCode_,
-		       (SQLCHAR*)m->description_,
-		       SQL_MAX_MESSAGE_LENGTH-1,
-		       &tmp);
-  switch(r) {
-  case SQL_SUCCESS:
-    break;
-
-  case SQL_INVALID_HANDLE:
-    throw SQLException
-      ("[libodbc++]: ErrorHandler::_checkErrorODBC2() called with invalid handle");
-    break;
-
-  default:
-    // m will still be deleted when it goes out of scope
-    m=NULL;
-    break;
-  }
-
+  DriverMessage* m=DriverMessage::fetchMessage(henv, hdbc, hstmt);
+  
   if(ret==SQL_ERROR) {
-    // construct an error description based on parameter what and optionally the
-    // driver message
+    
+    Deleter<DriverMessage> _m(m);
+
+    // fixme: we should fetch all available messages instead
+    // of only the first one
     ODBCXX_STRING errmsg("");
     if(ODBCXX_STRING_LEN(what)>0) {
       errmsg=what+": ";
     }
-    
+
     if(m!=NULL) {
       errmsg+=m->getDescription();
-      throw SQLException(errmsg, m->getSQLState(), m->getNativeCode());
+      throw SQLException(errmsg, 
+			 m->getSQLState(), 
+			 m->getNativeCode());
     } else {
       errmsg+="No description available";
       throw SQLException(errmsg);
     }
 
+  } else if(ret==SQL_SUCCESS_WITH_INFO) {
 
-  } else if(ret==SQL_SUCCESS_WITH_INFO && m!=NULL) {
-    // we got ourselves a warning
-    this->_postWarning(new SQLWarning(*m));
+    while(m!=NULL) {
+      this->_postWarning(new SQLWarning(*m));
+      delete m;
+      m=DriverMessage::fetchMessage(henv, hdbc, hstmt);
+    }
+
+  } else {
     
-  } 
+    delete m;
+    
+  }
+
 }
 
 
@@ -147,56 +239,46 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
 				    SQLRETURN ret, 
 				    const ODBCXX_STRING& what)
 {
-  DriverMessage* m=new DriverMessage();
-  Deleter<DriverMessage> _m(m);
 
-  SQLSMALLINT tmp;
-  
-  SQLRETURN r=SQLGetDiagRec(handleType,handle,
-			    1, //record number
-			    (SQLCHAR*)m->state_,
-			    &m->nativeCode_,
-			    (SQLCHAR*)m->description_,
-			    SQL_MAX_MESSAGE_LENGTH-1,
-			    &tmp);
-  
-  switch(r) {
-  case SQL_SUCCESS:
-    break;
-    
-  case SQL_INVALID_HANDLE:
-    throw SQLException
-      ("[libodbc++]: ErrorHandler::_checkErrorODBC3() called with invalid handle");
-    break;
-    
-  default:
-    // m will still be deleted when _m goes out of scope
-    m=NULL;
-    break;
-  }
+  int idx=1;
 
+  DriverMessage* m=DriverMessage::fetchMessage(handleType, handle, idx);
+  
   if(ret==SQL_ERROR) {
-    // construct an error description based on parameter what and optionally the
-    // driver message
+
+    Deleter<DriverMessage> _m(m);
+
+    // fixme: we should fetch all available messages instead
+    // of only the first one
     ODBCXX_STRING errmsg("");
-    if(what.length()>0) {
+    if(ODBCXX_STRING_LEN(what)>0) {
       errmsg=what+": ";
     }
-    
+
     if(m!=NULL) {
       errmsg+=m->getDescription();
-      throw SQLException(errmsg, m->getSQLState(), m->getNativeCode());
+      throw SQLException(errmsg, 
+			 m->getSQLState(), 
+			 m->getNativeCode());
     } else {
       errmsg+="No description available";
       throw SQLException(errmsg);
     }
 
+  } else if(ret==SQL_SUCCESS_WITH_INFO) {
 
-  } else if(ret==SQL_SUCCESS_WITH_INFO && m!=NULL) {
-    // we got ourselves a warning
-    this->_postWarning(new SQLWarning(*m));
+    while(m!=NULL) {
+      _postWarning(new SQLWarning(*m));
+      delete m;
+      m=DriverMessage::fetchMessage(handleType, handle, ++idx);
+    }
+
+  } else {
     
-  } 
+    delete m;
+    
+  }
+
 }
 
 #endif // ODBCVER < 0x0300
