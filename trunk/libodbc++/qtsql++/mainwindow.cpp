@@ -38,6 +38,7 @@
 #include <memory>
 
 using namespace odbc;
+using namespace std;
 
 MainWindow::MainWindow()
   :QMainWindow(NULL,NULL),

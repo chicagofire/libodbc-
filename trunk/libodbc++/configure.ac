@@ -101,32 +101,6 @@ AM_CONDITIONAL(THREADS, test x$enable_threads = xyes)
 
 AC_CHECK_FUNCS(strtoll strtoq snprintf)
 
-
-# Those are removed as of now
-#AC_CHECK_CXX_EH
-
-#if test "x$ac_cv_cxx_eh" != "xyes" 
-#then
-#	AC_MSG_ERROR([$CXX does provide correct exception handling])
-#fi
-
-
-#AC_CHECK_CXX_NS
-
-#if test "x$ac_cv_cxx_ns" != "xyes"
-#then
-#	AC_MSG_ERROR([$CXX does not support namespaces])
-#fi
-
-
-#AC_CHECK_CXX_STL
-
-#if test "x$ac_cv_cxx_stl" != "xyes"
-#then
-#	AC_MSG_ERROR([STL is not available])
-#fi
-
-
 AC_CHECK_ODBC
 
 if test "x$odbc_ok" != "xyes"
@@ -156,18 +130,17 @@ AC_CHECK_SIZEOF(int,0)
 AC_CHECK_SIZEOF(long,0)
 AC_CHECK_SIZEOF(long long,0)
 
-SUBDIR_ISQLXX=""
+with_isqlxx=no
 LIBREADLINE=""
 
 AC_MSG_CHECKING(whether to build isql++)
 
 AC_ARG_WITH(isqlxx,
-[  --with-isqlxx           Build isql++ [default=no]],
-isqlxx=yes)
+[  --with-isqlxx           Build isql++ [default=no]])
 
-AC_MSG_RESULT($isqlxx)
+AC_MSG_RESULT($with_isqlxx)
 
-if test "x$isqlxx" = xyes
+if test "x$with_isqlxx" = xyes
 then
 
 # check for readline
@@ -180,15 +153,19 @@ then
 	AC_CHECK_LIB(readline,readline,readline_ok=yes,readline_ok=no,-ltermcap)
 	if test "x$readline_ok" = "xyes"
 	then
-		SUBDIR_ISQLXX="isql++"
 		LIBREADLINE="-lreadline -ltermcap"
+	else
+		readline_ok=no
 	fi
 fi
 
+if test "x$readline_ok" != "xyes"
+then
+	with_isqlxx=no
 fi
 
-AM_CONDITIONAL(ISQLXX, test x$SUBDIR_ISQLXX != x)
-AC_SUBST(SUBDIR_ISQLXX)
+fi
+
 AC_SUBST(LIBREADLINE)
 
 # set up our include paths
@@ -299,21 +276,13 @@ then
 
 	AC_MSG_CHECKING([whehter qtsql++ should be built])
 	AC_MSG_RESULT($with_qtsqlxx)
-
-	if test "x$with_qtsqlxx" = "xyes"
-	then
-		SUBDIR_QTSQLXX="qtsql++"
-	else
-		SUBDIR_QTSQLXX=""
-	fi
 else
-	SUBDIR_QTSQLXX=""
+	with_qtsqlxx=no
 	AC_MSG_RESULT(no)
 fi
 
-AM_CONDITIONAL(QTSQLXX, test x$SUBDIR_QTSQLXX != x)
+AM_CONDITIONAL(BUILD_QTSQLXX, test x$with_qtsqlxx = xyes)
 
-AC_SUBST(SUBDIR_QTSQLXX)
 AC_SUBST(QT_INCLUDES)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_DEFS)
@@ -321,6 +290,13 @@ AC_SUBST(QT_MOC)
 
 AM_CONDITIONAL(QT, test x$enable_qt = xyes)
 
+# isql++ can't be built in qt mode
+if test x$enable_qt = xyes
+then
+	with_isqlxx=no
+fi
+
+AM_CONDITIONAL(BUILD_ISQLXX, test x$with_isqlxx = xyes)
 
 AC_ARG_WITH(tests,
 [  --without-tests         Don't build the test programs],
@@ -335,14 +311,8 @@ fi
 
 AC_MSG_CHECKING([whether to build test programs])
 AC_MSG_RESULT($with_tests)
-if test "x$with_tests" = xyes
-then
-	SUBDIR_TESTS=tests
-else
-	SUBDIR_TESTS=""
-fi
 
-AC_SUBST(SUBDIR_TESTS)
+AM_CONDITIONAL(BUILD_TESTS, test x$with_tests = xyes)
 
 # finally, add our we-are-in-the-library flag
 CXXFLAGS="-DIN_ODBCXX $CXXFLAGS"

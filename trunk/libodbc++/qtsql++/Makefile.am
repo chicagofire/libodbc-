@@ -17,8 +17,7 @@
 #  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #  Boston, MA 02111-1307, USA.
 
-if QTSQLXX
-then
+if BUILD_QTSQLXX
 bin_PROGRAMS = qtsql++
 else
 EXTRA_PROGRAMS = qtsql++

@@ -17,6 +17,8 @@
 #  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #  Boston, MA 02111-1307, USA.
 
+if BUILD_TESTS
+
 noinst_PROGRAMS=\
 streams \
 dbmetadata \
@@ -24,6 +26,8 @@ scroll \
 oracle \
 mysql \
 dmtest
+
+endif
 
 
 INCLUDES=@INCLUDES@ @QT_INCLUDES@
