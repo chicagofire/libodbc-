@@ -130,13 +130,14 @@ AC_CHECK_SIZEOF(int,0)
 AC_CHECK_SIZEOF(long,0)
 AC_CHECK_SIZEOF(long long,0)
 
-with_isqlxx=no
 LIBREADLINE=""
 
 AC_MSG_CHECKING(whether to build isql++)
 
 AC_ARG_WITH(isqlxx,
-[  --with-isqlxx           Build isql++ [default=no]])
+[  --with-isqlxx           Build isql++ [default=no]],
+with_isqlxx=yes,
+with_isqlxx=no)
 
 AC_MSG_RESULT($with_isqlxx)
 
