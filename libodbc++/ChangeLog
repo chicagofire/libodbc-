@@ -1,3 +1,8 @@
+2003-12-02  Alex Hornby <alex@anvil.com>
+
+	* m4/ac_check_odbc.m4: allow user to deselect unixODBC even when
+	it has been installed on the system (e.g. as an RPM).
+
 2003-06-17  Alex Hornby <alex@anvil.com>
 
 	* NEWS: update for 0.2.3 release
