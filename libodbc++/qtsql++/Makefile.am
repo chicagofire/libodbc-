@@ -17,7 +17,12 @@
 #  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #  Boston, MA 02111-1307, USA.
 
-bin_PROGRAMS=qtsql++
+if QTSQLXX
+then
+bin_PROGRAMS = qtsql++
+else
+EXTRA_PROGRAMS = qtsql++
+endif
 
 if THREADS
 thelib=../src/libodbc++_qt-mt.la
@@ -25,30 +30,29 @@ else
 thelib=../src/libodbc++_qt.la
 endif
 
-INCLUDES=@INCLUDES@ @QT_INCLUDES@
+INCLUDES += $(QT_INCLUDES)
 DEFS=@DEFS@ @QT_DEFS@
 
-MOCS=\
+MOCS = \
 mainwindow.moc.cpp \
 connectwindow.moc.cpp \
 resultwindow.moc.cpp
 
-qtsql___SOURCES=\
+dist_qtsql___SOURCES = \
 main.cpp \
 mainwindow.cpp \
 mainwindow.h \
 connectwindow.cpp \
 connectwindow.h \
 resultwindow.cpp \
-resultwindow.h \
+resultwindow.h
+
+nodist_qtsql___SOURCES = \
 $(MOCS)
 
-qtsql___LDADD=$(thelib)
+qtsql___LDADD = $(thelib)
 
 %.moc.cpp : %.h
-	@QT_MOC@ -o $@ $<
+	$(QT_MOC) -o $@ $<
 
-CLEANFILES=$(MOCS)
-
-dist-hook:
-	@for i in $(MOCS); do rm -f $(distdir)/$$i; done
+CLEANFILES = $(MOCS)
