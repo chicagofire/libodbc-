@@ -1,3 +1,15 @@
+2003-04-10  Alex Hornby <alex@anvil.com>
+
+	* configure.ac.in: remind users of --with-odbc option if ODBC is
+	not found.
+
+	* include/odbc++/setup.h: Check for __WIN32__ define from
+	borland. Thanks to Alexander J. Oss <alex.oss@films.com> for the
+	patch.
+
+	* include/odbc++/types.h: reference time_t as std::time_t to fix
+	builds on windows with BCB.
+
 2003-04-08  Alex Hornby <alex@hornby.org.uk>
 
 	* configure.ac: check for sqlucode.h for unicode types

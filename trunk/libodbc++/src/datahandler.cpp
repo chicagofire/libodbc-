@@ -158,8 +158,10 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
   switch(sqlType_) {
   case Types::CHAR:
   case Types::VARCHAR:
+#if ODBCXX_HAVE_SQLUCODE_H
   case Types::WVARCHAR:   //convert unicode columns to ANSI
   case Types::WCHAR:              //
+#endif
     cType_=SQL_C_CHAR;
     scale_=0;
     bs=precision_+1; //string+null
@@ -244,7 +246,9 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
     break;
 
   case Types::LONGVARCHAR:
+#if ODBCXX_HAVE_SQLUCODE_H
   case Types::WLONGVARCHAR:
+#endif
     cType_=SQL_C_CHAR;
     bs=0; // this one is streamed
     isStreamed_=true;

@@ -46,7 +46,7 @@ class QIODevice;
 # error "Whoops. Can not recognize the ODBC subsystem."
 #endif
 
-#if HAVE_SQLUCODE_H
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
 # include <sqlucode.h>
 #endif
 
@@ -331,7 +331,7 @@ namespace odbc {
      * 
      * Sets this date to the specified time_t value.
      */
-    Date(time_t t) {
+    Date(std::time_t t) {
       this->setTime(t);
     }
 
@@ -361,10 +361,10 @@ namespace odbc {
     virtual ~Date() {}
 
     /** Sets this date to the specified time_t value */
-    virtual void setTime(time_t t);
+    virtual void setTime(std::time_t t);
 
     /** Returns the time_t value of <tt>00:00:00</tt> at this date */
-    time_t getTime() const;
+    std::time_t getTime() const;
 
     /** Sets this date from a string in the <tt>YYYY-MM-DD</tt> format */
     void parse(const ODBCXX_STRING& str);
@@ -451,7 +451,7 @@ namespace odbc {
      * 
      * Sets the time to the specified <tt>time_t</tt> value.
      */
-    Time(time_t t) {
+    Time(std::time_t t) {
       this->setTime(t);
     }
 
@@ -481,10 +481,10 @@ namespace odbc {
     virtual ~Time() {}
 
     /** Sets the time to the specified <tt>time_t</tt> value */
-    virtual void setTime(time_t t);
+    virtual void setTime(std::time_t t);
 
     /** Returns the <tt>time_t</tt> value of <tt>1970-01-01</tt> at this time */
-    time_t getTime() const;
+    std::time_t getTime() const;
 
     /** Sets this time from a string in the <tt>HH:MM:SS</tt> format */
     void parse(const ODBCXX_STRING& str);
@@ -557,7 +557,7 @@ namespace odbc {
      *
      * Sets this timestamp to the specified <tt>time_t</tt> value.
      */
-    Timestamp(time_t t) {
+    Timestamp(std::time_t t) {
       this->setTime(t);
     }
 
@@ -586,10 +586,10 @@ namespace odbc {
     virtual ~Timestamp() {}
 
     /** Sets this timestamp to the specified <tt>time_t</tt> value */
-    virtual void setTime(time_t t);
+    virtual void setTime(std::time_t t);
     
     /** Gets the time_t value of this timestamp */
-    virtual time_t getTime() {
+    virtual std::time_t getTime() {
       return Date::getTime()+Time::getTime();
     }
 

@@ -138,7 +138,7 @@ fi
 if test "x$iodbc_ok" != "xyes" &&
    test "x$odbc_ok" != "xyes" 
 then
-	AC_MSG_ERROR([No ODBC driver manager configured])
+	AC_MSG_ERROR([No ODBC driver manager configured. Pperhaps you need to give configure --with-odbc=/some/location?])
 fi
 
 AC_ARG_WITH(odbc-version,
