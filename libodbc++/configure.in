@@ -19,7 +19,7 @@
 
 
 AC_INIT(src/connection.cpp)
-AM_INIT_AUTOMAKE(libodbc++,0.2.2pre5)
+AM_INIT_AUTOMAKE(libodbc++,0.2.2)
 AM_CONFIG_HEADER(config.h)
 
 # version is current:revision:age
