@@ -1,4 +1,12 @@
 .deps
 .libs
+Makefile
+Makefile.in
 connect
+dbmetadata
+dmtest
+mysql
+oracle
+scroll
 select
+streams
