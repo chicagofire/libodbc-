@@ -71,8 +71,9 @@ else
         CXXFLAGS="-O2 $CXXFLAGS"
 fi
 
-
+AC_LANG_C
 AM_PROG_LIBTOOL
+AC_LANG_CPLUSPLUS
 
 AC_PROG_INSTALL
 
@@ -118,28 +119,30 @@ AM_CONDITIONAL(THREADS, test x$enable_threads = xyes)
 
 AC_CHECK_FUNCS(strtoll strtoq snprintf)
 
-AC_CHECK_CXX_EH
 
-if test "x$ac_cv_cxx_eh" != "xyes" 
-then
-	AC_MSG_ERROR([$CXX does provide correct exception handling])
-fi
+# Those are removed as of now
+#AC_CHECK_CXX_EH
 
-
-AC_CHECK_CXX_NS
-
-if test "x$ac_cv_cxx_ns" != "xyes"
-then
-	AC_MSG_ERROR([$CXX does not support namespaces])
-fi
+#if test "x$ac_cv_cxx_eh" != "xyes" 
+#then
+#	AC_MSG_ERROR([$CXX does provide correct exception handling])
+#fi
 
 
-AC_CHECK_CXX_STL
+#AC_CHECK_CXX_NS
 
-if test "x$ac_cv_cxx_stl" != "xyes"
-then
-	AC_MSG_ERROR([STL is not available])
-fi
+#if test "x$ac_cv_cxx_ns" != "xyes"
+#then
+#	AC_MSG_ERROR([$CXX does not support namespaces])
+#fi
+
+
+#AC_CHECK_CXX_STL
+
+#if test "x$ac_cv_cxx_stl" != "xyes"
+#then
+#	AC_MSG_ERROR([STL is not available])
+#fi
 
 
 AC_CHECK_ODBC
