@@ -165,6 +165,14 @@ fi
 
 if test "x$pthreads_ok" != xyes
 then
+# hpux 11 uses macros for pthread_create so test another function
+AC_CHECK_LIB(pthread,pthread_join,
+	pthreads_ok=yes
+	THREAD_LIBS="-lpthread",pthreads_ok=no)
+fi
+
+if test "x$pthreads_ok" != xyes
+then
 
 # try libc_r (*BSD)
 	AC_CHECK_LIB(c_r,pthread_create,
