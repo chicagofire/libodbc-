@@ -14,6 +14,10 @@
 
 2003-04-17  Alex Hornby <alex@anvil.com>
 
+	* tests/dbmetadata.cpp: include memory header
+
+2003-04-17  Alex Hornby <alex@anvil.com>
+
 	* NEWS: Update for release of 0.2.3pre1
 	
 	* doc/progref/Makefile.am: Test for doc file presence before
