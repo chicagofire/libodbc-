@@ -1,5 +1,11 @@
 2003-06-17  Alex Hornby <alex@anvil.com>
 
+	* NEWS: update for 0.2.3 release
+	
+	* configure.ac: update for 0.2.3 release
+
+2003-06-17  Alex Hornby <alex@anvil.com>
+
 	* src/resultset.cpp: Add tests for stricmp defines. Should fix
 	build with BCB.
 
