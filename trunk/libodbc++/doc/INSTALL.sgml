@@ -13,7 +13,7 @@
       </author>
     </authorgroup>
     <date>2000-06-09</date>
-    <releaseinfo>Version 0.2.2</releaseinfo>
+    <releaseinfo>Version 0.2.3</releaseinfo>
     <abstract>
       <para>This tries to explain the installation procedure for libodbc++</para>
     </abstract>
