@@ -27,8 +27,8 @@ include \
 src \
 @SUBDIR_TESTS@ \
 @SUBDIR_QTSQLXX@ \
-doc \
 @SUBDIR_ISQLXX@ \
+doc \
 win32
 
 dist-hook:

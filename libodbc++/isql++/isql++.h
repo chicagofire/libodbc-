@@ -38,9 +38,9 @@ public:
   class CommandException : public exception {
   public:
     CommandException(const string& str) : msg_(str) {}
-    virtual ~CommandException() {}
+    virtual ~CommandException() throw() {}
     
-    virtual const char* what() const {
+    virtual const char* what() const throw() {
       return msg_.c_str();
     }
 

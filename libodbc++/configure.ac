@@ -17,9 +17,10 @@
 #  the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 #  Boston, MA 02111-1307, USA.
 
-
-AC_INIT(src/connection.cpp)
-AM_INIT_AUTOMAKE(libodbc++,0.2.3pre1)
+AC_PREREQ(2.53)
+AC_INIT(src/connection.cpp, 0.2.3pre1)
+AC_CONFIG_SRCDIR(src/connection.cpp)
+AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
 
 # version is current:revision:age
@@ -35,6 +36,8 @@ AC_SUBST(lib_version)
 AM_ENABLE_SHARED(yes)
 AM_ENABLE_STATIC(no)
 
+# Prevents the Makefile rebuild rules runnning automatically. Use
+# autogen.sh instead.
 AM_MAINTAINER_MODE
 
 AC_CANONICAL_HOST
@@ -47,32 +50,11 @@ then
 For example, GNU sed can be obtained at ftp://prep.ai.mit.edu/pub/gnu/sed/.])
 fi
 
-if test -z "$CXXFLAGS"
-then
-	CXXFLAGS=""
-fi
-
 AC_PROG_CXX
 AC_PROG_CXXCPP
-AC_LANG_CPLUSPLUS
-
-AC_ARG_ENABLE(debug,
-[  --disable-debug         Disable debug and turn on optimization [no] ],
-enable_debug=$enableval,enable_debug=yes)
-
-if test "x$enable_debug" = "xyes"
-then
-        if test "x$ac_cv_prog_cxx_g" = xyes
-        then
-                CXXFLAGS="-g $CXXFLAGS"
-        fi
-	AC_DEFINE(DEBUG)
-else
-        CXXFLAGS="-O2 $CXXFLAGS"
-fi
-
 AC_LANG_C
 AM_PROG_LIBTOOL
+AC_C_LONG_LONG
 AC_LANG_CPLUSPLUS
 
 AC_PROG_INSTALL
@@ -164,7 +146,7 @@ AC_ARG_WITH(odbc-version,
 [
 if test "x$withval" != "xyes"
 then
-	AC_DEFINE_UNQUOTED(ODBCVER,$withval)
+	AC_DEFINE_UNQUOTED(ODBCVER, $withval, ODBC version)
 fi
 ])
 
