@@ -1,4 +1,4 @@
-22003-04-30 Alex Hornby <alex@anvil.com>
+2003-04-30 Alex Hornby <alex@anvil.com>
 
 	* libodbc++.pc.in: Add initial support for pkg-config
 
