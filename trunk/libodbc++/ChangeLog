@@ -1,5 +1,25 @@
 2003-03-28  Alex Hornby <alex@anvil.com>
 
+	* autogen.sh: Make this a bit more informative
+	
+	* configure.ac: Added for autoconf 2.53+. Let configure work out
+	the default CXXFLAGS. People will be getting optimization for the
+	first time.
+	
+	* configure.in: Remove as part of update to autoconf 2.53+
+
+	* m4/ac_c_long_long.m4: Work around unixODBC long long
+	problem
+	
+	* src/datahandler.cpp: Work around unixODBC long long
+	problem by including config.h
+
+	* isql++/isql++.h: Get it building with GCC 3.2
+
+	* isql++/isql++.cpp: Get it building with GCC 3.2
+
+2003-03-28  Alex Hornby <alex@anvil.com>
+
 	* src/connection.cpp: Fix memory error in string handling
 
 2003-03-28  Alex Hornby <alex@anvil.com>

@@ -23,6 +23,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <iostream>
 
 extern "C" {
 #if defined(ODBCXX_DISABLE_READLINE_HACK)
@@ -52,7 +53,7 @@ extern "C" {
 }
 
 using namespace odbc;
-
+using namespace std;
 
 const char* SQLPROMPT1="SQL> ";
 const char* SQLPROMPT2="  +> ";

@@ -46,7 +46,7 @@ ac_cv_cxx_stl=no)
 AC_MSG_RESULT($ac_cv_cxx_stl)
 if test "x$ac_cv_cxx_stl" = "xyes"
 then
-	AC_DEFINE(HAVE_CXX_STL)
+	AC_DEFINE(HAVE_CXX_STL, 1,Defined if you have stl)
 fi
 AC_LANG_RESTORE
 ])
@@ -91,7 +91,7 @@ ac_cv_cxx_eh=no)
 AC_MSG_RESULT([$ac_cv_cxx_eh])
 if test "x$ac_cv_cxx_eh" = "xyes"
 then
-	AC_DEFINE(HAVE_CXX_EH)
+	AC_DEFINE(HAVE_CXX_EH, 1,Defined if we have exception handling)
 fi
 AC_LANG_RESTORE
 ])
@@ -126,7 +126,7 @@ AC_MSG_RESULT([$ac_cv_cxx_ns])
 
 if test "x$ac_cv_cxx_ns" = "xyes"
 then
-	AC_DEFINE(HAVE_CXX_NS)
+	AC_DEFINE(HAVE_CXX_NS, 1,Defined if we have namespaces)
 fi
 AC_LANG_RESTORE
 ])
@@ -148,7 +148,7 @@ then
 
 # ok, now check for pthreads
 AC_CHECK_HEADER(pthread.h,[
-	AC_DEFINE(HAVE_PTHREAD_H)
+	AC_DEFINE(HAVE_PTHREAD_H, 1,Defined if pthreads are available )
 	],[AC_MSG_ERROR([pthread.h not found. Consider not using --enable-threads])])
 
 # check if pthreads are in our default library environment
@@ -175,7 +175,7 @@ fi
 if test "x$pthreads_ok" = xyes
 then
 # now we know we can use pthreads
-	AC_DEFINE(ENABLE_THREADS)
+	AC_DEFINE(ENABLE_THREADS,1,Defined if threads enabled)
 	CXXFLAGS="-D_REENTRANT $CXXFLAGS"
 	CFLAGS="-D_REENTRANT $CFLAGS"
 else
@@ -243,9 +243,9 @@ fi
 if test "x$iodbc_ok" = "xyes"
 then
 	LIBS="$LIBS -liodbc"
-	AC_DEFINE(HAVE_LIBIODBC)
-	AC_DEFINE(HAVE_ISQL_H)
-	AC_DEFINE(HAVE_ISQLEXT_H)
+	AC_DEFINE(HAVE_LIBIODBC,1,Defined if using iodbc)
+	AC_DEFINE(HAVE_ISQL_H,1,Defined if using iodbc)
+	AC_DEFINE(HAVE_ISQLEXT_H,1,Defined if using iodbc)
 else
 	CPPFLAGS="$save_CPPFLAGS"
 	LIBS="$save_LIBS"
@@ -314,9 +314,9 @@ fi
 if test "x$odbc_ok" = "xyes"
 then
 	LIBS="$LIBS -lodbc"
-	AC_DEFINE(HAVE_LIBODBC)
-	AC_DEFINE(HAVE_SQL_H)
-	AC_DEFINE(HAVE_SQLEXT_H)
+	AC_DEFINE(HAVE_LIBODBC,,defined if using unixodbc)
+	AC_DEFINE(HAVE_SQL_H,,)
+	AC_DEFINE(HAVE_SQLEXT_H,,)
 else
 	CPPFLAGS="$save_CPPFLAGS"
 	LIBS="$save_LIBS"
@@ -363,6 +363,6 @@ then
 	AC_MSG_RESULT(yes)
 else
 	AC_MSG_RESULT([no ($2)])
-	AC_DEFINE($1,$2)
+	AC_DEFINE($1,$2, No description)
 fi
 ])
