@@ -26,6 +26,7 @@
 #include <odbc++/databasemetadata.h>
 
 #include <iostream>
+#include <memory>
 
 using namespace odbc;
 using namespace std;
