@@ -678,7 +678,7 @@ int Statement::getUpdateCount()
     return res;
 
   } else {
-    return 0;
+    return -1;
   }
 }
 
@@ -739,6 +739,9 @@ bool Statement::getMoreResults()
   if(this->_getDriverInfo()->supportsFunction(SQL_API_SQLMORERESULTS)) {
     SQLRETURN r=SQLMoreResults(hstmt_);
     this->_checkStmtError(hstmt_,r,"Error checking for more results");
+    // needed for getUpdateCount() to correctly
+    // support the traversal of multiple results
+    lastExecute_=r;
 
     return (r==SQL_SUCCESS ||
 	    r==SQL_SUCCESS_WITH_INFO);

@@ -168,9 +168,9 @@ ldconfig -n /usr/lib
 
 %files -f instdocs-files
 %defattr(-,root,root)
-%attr(0755,root,root) %{_libdir}/libodbc++.so.*
+%attr(0755,root,root) %{_libdir}/libodbc++.so*
 %attr(0755,root,root) %{_libdir}/libodbc++.la
-%attr(0755,root,root) %{_libdir}/libodbc++-mt.so.*
+%attr(0755,root,root) %{_libdir}/libodbc++-mt.so*
 %attr(0755,root,root) %{_libdir}/libodbc++-mt.la
 
 %files devel -f progref-files
@@ -179,9 +179,9 @@ ldconfig -n /usr/lib
 
 %files qt
 %defattr(-,root,root)
-%attr(0755,root,root) %{_libdir}/libodbc++_qt.so.*
+%attr(0755,root,root) %{_libdir}/libodbc++_qt.so*
 %attr(0755,root,root) %{_libdir}/libodbc++_qt.la
-%attr(0755,root,root) %{_libdir}/libodbc++_qt-mt.so.*
+%attr(0755,root,root) %{_libdir}/libodbc++_qt-mt.so*
 %attr(0755,root,root) %{_libdir}/libodbc++_qt-mt.la
 
 %changelog

@@ -1,4 +1,16 @@
+2001-11-06  Manush Dodunekov  <manush@stendahls.net>
+
+	* libodbc++.spec.in: Minor fix to the filelist
+
+2001-11-02  Manush Dodunekov  <manush@stendahls.net>
+
+	* src/statement.cpp: getUpdateCount(): Return -1 if the last execute
+	returns SQL_NO_DATA. getMoreResults(): store return value in lastExecute_.
+
+
 2001-10-31  Manush Dodunekov  <manush@stendahls.net>
+
+	* libodbc++.spec.in: Hack even more. Now it works as I want it to.
 
 	* include/odbc++/setup.h: Check for gcc 3.x.
 
