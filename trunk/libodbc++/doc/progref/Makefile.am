@@ -21,8 +21,8 @@ progref_dir=@docdir@/@PACKAGE@-@VERSION@/progref
 
 stamp=progref-stamp
 
-progref_dist_files=$(srcdir)/*.html $(srcdir)/*.css $(srcdir)/*.gif
-progref_local_files=*.html *.css *.gif
+progref_dist_files=$(srcdir)/*.html $(srcdir)/*.css $(srcdir)/*.gif $(srcdir)/*.png
+progref_local_files=*.html *.css *.gif *.png
 
 incdir=$(top_srcdir)/include/odbc++
 stripdir=$(top_srcdir)/include/
