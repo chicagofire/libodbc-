@@ -1,6 +1,9 @@
 %define src_dir ../@PACKAGE@-@VERSION@
 %define build_subdir @PACKAGE@-@VERSION@-build
 %define build_subdir_mt @PACKAGE@-@VERSION@-build-mt
+%define build_subdir_qt @PACKAGE@-@VERSION@-build_qt
+%define build_subdir_qt_mt @PACKAGE@-@VERSION@-build_qt-mt
+
 
 Summary: An ODBC class library that emulates the JDBC interface
 Name: @PACKAGE@
@@ -56,62 +59,74 @@ interface. This package includes additional support for QT integration.
 %setup -q
 
 %build
-rm -rf $RPM_BUILD_DIR/%{build_subdir}
-rm -rf $RPM_BUILD_DIR/%{build_subdir_mt}
-mkdir $RPM_BUILD_DIR/%{build_subdir}
-mkdir $RPM_BUILD_DIR/%{build_subdir_mt}
+for d in %{build_subdir} %{build_subdir_mt} %{build_subdir_qt} %{build_subdir_qt_mt}; do
+	rm -rf $RPM_BUILD_DIR/$d
+	mkdir $RPM_BUILD_DIR/$d
+done
 
 {
+	# first, build singlethreaded non-qt
 	pushd $RPM_BUILD_DIR/%{build_subdir}
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
 		--with-odbc=/usr \
-		--with-qt=$QTDIR --with-gnu-ld \
-		--without-tests 
-	make clean
+		--with-gnu-ld \
+		--without-tests \
+		--with-docdir=$RPM_DOC_DIR
 	make all
-
 	popd
 }
 
 {
+	# build multithreaded non-qt
 	pushd $RPM_BUILD_DIR/%{build_subdir_mt}
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
 		--with-odbc=/usr \
-		--with-qt=$QTDIR --with-gnu-ld \
+		--with-gnu-ld \
 		--without-tests \
-		--enable-threads \
-		--with-isqlxx \
-		--with-qtsqlxx \
-		--with-docdir=$RPM_DOC_DIR
-	make clean
+		--enable-threads
 	make all
+	popd
+}
 
+{
+	# first, build singlethreaded qt
+	pushd $RPM_BUILD_DIR/%{build_subdir_qt}
+
+	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
+		--prefix=/usr \
+		--with-qt=$QTDIR \
+		--with-odbc=/usr \
+		--with-gnu-ld \
+		--without-tests \
+		--with-docdir=$RPM_DOC_DIR
+	make all
+	popd
+}
+
+{
+	# build multithreaded non-qt
+	pushd $RPM_BUILD_DIR/%{build_subdir_qt_mt}
+
+	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
+		--prefix=/usr \
+		--with-qt=$QTDIR \
+		--with-odbc=/usr \
+		--with-gnu-ld \
+		--without-tests \
+		--enable-threads
+	make all
 	popd
 }
 
 %install
 rm -rf $RPM_BUILD_ROOT
 {
-	# from here, we only need the non-threaded library
-	pushd $RPM_BUILD_DIR/%{build_subdir}
-	for d in src qt
-	do
-		pushd $d
-		make DESTDIR=$RPM_BUILD_ROOT install
-		popd
-	done
-	popd
-}
-
-{
-	# from here, we install everything, including the docs
-	pushd $RPM_BUILD_DIR/%{build_subdir_mt}
-	make DESTDIR=$RPM_BUILD_ROOT install
-	popd
+	# from here, we install the whole kit and the single-threaded library
+	(cd $RPM_BUILD_DIR/%{build_subdir} && make DESTDIR=$RPM_BUILD_ROOT install)
 
 	# we should now be in the source directory
 	# generate the file lists for the docs
@@ -135,6 +150,13 @@ rm -rf $RPM_BUILD_ROOT
 	sed -e 's/^\.//' -e 's/^\(.*\)$/%attr(0644,root,root) \1/' >> progref-files
 }
 
+{
+	# now go ahead and install the libraries from the rest of the builds
+	for d in %{build_subdir_mt} %{build_subdir_qt} %{build_subdir_qt_mt}; do
+		(cd $RPM_BUILD_DIR/$d/src && make DESTDIR=$RPM_BUILD_ROOT install)
+	done
+}
+
 %clean
 rm -rf %RPM_BUILD_ROOT
 
@@ -150,7 +172,6 @@ ldconfig -n /usr/lib
 %attr(0755,root,root) %{_libdir}/libodbc++.la
 %attr(0755,root,root) %{_libdir}/libodbc++-mt.so.*
 %attr(0755,root,root) %{_libdir}/libodbc++-mt.la
-%attr(0755,root,root) %{_bindir}/isql++
 
 %files devel -f progref-files
 %defattr(-,root,root)
@@ -162,9 +183,10 @@ ldconfig -n /usr/lib
 %attr(0755,root,root) %{_libdir}/libodbc++_qt.la
 %attr(0755,root,root) %{_libdir}/libodbc++_qt-mt.so.*
 %attr(0755,root,root) %{_libdir}/libodbc++_qt-mt.la
-%attr(0755,root,root) %{_bindir}/qtsql++
 
 %changelog
+* Wed Oct 31 2001 Manush Dodunekov <manush@stendahls.net>
+- Err, rebuilt the build.
 * Tue Dec 13 2000 Manush Dodunekov <manush@stendahls.net>
 - libodbc++-0.2.2pre5
 - Hopefully made docs work right
