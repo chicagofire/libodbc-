@@ -371,7 +371,7 @@ int DatabaseMetaData::getDriverMinorVersion()
 		       );
   }
   throw SQLException
-    ("[libodbc++]: Invalid ODBC version string received from dirver: "+s);
+    ("[libodbc++]: Invalid ODBC version string received from driver: "+s);
   ODBCXX_DUMMY_RETURN(0);
 }
 
