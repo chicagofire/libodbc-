@@ -25,12 +25,19 @@
 #include <odbc++/setup.h>
 
 #include <exception>
+
 #if !defined(ODBCXX_QT)
 # include <string>
 # else
 # include <qstring.h>
 #endif
+
 #include <ctime>
+#if defined(ODBCXX_NO_STD_TIME_T)
+namespace std {
+  using ::time_t;
+};
+#endif
 
 #if defined(ODBCXX_QT)
 class QIODevice;
