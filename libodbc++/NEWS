@@ -1,3 +1,21 @@
+* News in version 0.2.3pre1
+
+	* Uses newer autotools
+	
+	* Optimize by default
+
+	* Fix isql++ build with gcc 3.2
+
+	* Automatically detect system unixODBC if installed
+
+	* Disable maintainer mode by default.
+
+	* Added close() method to statements
+
+	* Added registerInParameter() to CallableStatement
+
+	* Built/tested on Redhat Linux 8 and 9 with unixODBC
+
 * News in version 0.2.2:
 
 	* Compiles with gcc 3.0.
