@@ -56,6 +56,11 @@
 # include <cassert>
 #endif
 
+// this should do the trick
+#if defined(__GNUC__) && __GNUC__>=3
+# define ODBCXX_HAVE_ISO_CXXLIB
+#endif
+
 
 #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__MINGW32__)
 # if defined(ODBCXX_DLL)

@@ -1,3 +1,10 @@
+2001-10-31  Manush Dodunekov  <manush@stendahls.net>
+
+	* include/odbc++/setup.h: Check for gcc 3.x.
+
+	* configure.in: Commented out checks for c++ EH, STL and namespaces.
+	Made AM_PROG_LIBTOOL run in C-mode (don't ask).
+
 2001-07-27  Manush Dodunekov  <manush@stendahls.net>
 
 	* src/errorhandler.cpp: Fix _checkErrorODBCx methods to actually
