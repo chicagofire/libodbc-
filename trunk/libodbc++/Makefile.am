@@ -44,3 +44,7 @@ dist-hook:
 		rm -f $(distdir).tar.bz2; \
 		tar chof - $(distdir) | $(bzip2) > $(distdir).tar.bz2; \
 	fi
+
+
+pkgconfdir=$(libdir)/pkgconfig
+pkgconf_DATA = libodbc++.pc
