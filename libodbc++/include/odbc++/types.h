@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -114,7 +114,7 @@ namespace odbc {
   // We want Long to be at least 64 bits
 
 #if defined(WIN32)
-  
+
   typedef __int64 Long;
 
 #elif defined(ODBCXX_HAVE_INTTYPES_H)
@@ -128,7 +128,7 @@ namespace odbc {
   typedef int Long;
 
 # elif ODBCXX_SIZEOF_LONG == 8
-  
+
   typedef long Long;
 
 # elif ODBCXX_SIZEOF_LONG_LONG == 8
@@ -136,7 +136,7 @@ namespace odbc {
   typedef long long Long;
 
 # else
-  
+
 #  error "Can't find an appropriate at-least-64-bit integer"
 
 # endif
@@ -166,7 +166,7 @@ namespace odbc {
      */
     enum SQLType {
       /** An SQL BIGINT */
-      BIGINT		= SQL_BIGINT, 
+      BIGINT		= SQL_BIGINT,
       /** An SQL BINARY (fixed length) */
       BINARY		= SQL_BINARY,
       /** An SQL BIT */
@@ -217,8 +217,8 @@ namespace odbc {
 
 
 #if !defined(ODBCXX_QT)
-  /** A chunk of bytes. 
-   * 
+  /** A chunk of bytes.
+   *
    * Used for setting and getting binary values.
    * @warning This class uses reference counting. An instance that is
    * referred to from different threads is likely to cause trouble.
@@ -272,16 +272,27 @@ namespace odbc {
       rep_->refCount_++;
       return *this;
     }
-    
+
+    /** Comparison */
+    bool operator==(const Bytes& b) {
+			if (getSize()!=b.getSize())
+				return false;
+			for(size_t i=0;i<getSize();i++) {
+				if(*(getData()+i)!=*(b.getData()+i))
+					return false;
+			}
+      return true;
+    }
+
     /** Destructor */
-    ~Bytes() { 
+    ~Bytes() {
       if(--rep_->refCount_==0) {
 	delete rep_;
       }
     }
 
     /** Returns a pointer to the data */
-    const signed char* getData() const { 
+    const signed char* getData() const {
       return rep_->buf_;
     }
 
@@ -304,14 +315,14 @@ namespace odbc {
     int _validateYear(int y) {
       return y;
     }
-    
+
     int _validateMonth(int m) {
       if(m<1 || m>12) {
 	this->_invalid("month",m);
       }
       return m;
     }
-    
+
     int _validateDay(int d) {
       if(d<1 || d>31) {
 	this->_invalid("day",d);
@@ -320,7 +331,7 @@ namespace odbc {
     }
 
   public:
-    /** Constructor. 
+    /** Constructor.
      */
     Date(int year, int month, int day) {
       this->setYear(year);
@@ -328,14 +339,14 @@ namespace odbc {
       this->setDay(day);
     }
 
-    /** Constructor. 
-     * 
+    /** Constructor.
+     *
      * Sets this date to today.
      */
     explicit Date();
 
     /** Constructor.
-     * 
+     *
      * Sets this date to the specified time_t value.
      */
     Date(std::time_t t) {
@@ -343,7 +354,7 @@ namespace odbc {
     }
 
     /** Constructor.
-     * 
+     *
      * Sets this date to the specified string in the <tt>YYYY-MM-DD</tt> format.
      */
     Date(const ODBCXX_STRING& str) {
@@ -449,13 +460,13 @@ namespace odbc {
     }
 
     /** Constructor.
-     * 
+     *
      * Sets the time to now.
      */
     explicit Time();
 
     /** Constructor.
-     * 
+     *
      * Sets the time to the specified <tt>time_t</tt> value.
      */
     Time(std::time_t t) {
@@ -463,7 +474,7 @@ namespace odbc {
     }
 
     /** Constructor.
-     * 
+     *
      * Sets the time to the specified string in the <tt>HH:MM:SS</tt> format.
      */
     Time(const ODBCXX_STRING& str) {
@@ -530,12 +541,12 @@ namespace odbc {
   };
 
 
-  /** An SQL TIMESTAMP 
+  /** An SQL TIMESTAMP
    */
   class ODBCXX_EXPORT Timestamp : public Date, public Time {
   private:
     int nanos_;
-    
+
     virtual void _invalid(const char* what, int value);
 
     int _validateNanos(int n) {
@@ -594,7 +605,7 @@ namespace odbc {
 
     /** Sets this timestamp to the specified <tt>time_t</tt> value */
     virtual void setTime(std::time_t t);
-    
+
     /** Gets the time_t value of this timestamp */
     virtual std::time_t getTime() {
       return Date::getTime()+Time::getTime();
@@ -620,7 +631,7 @@ namespace odbc {
 
   //this is used for several 'lists of stuff' below
   //expects T to be a pointer-to-something, and
-  //the contents will get deleted when the vector 
+  //the contents will get deleted when the vector
   //itself is deleted
   template <class T> class CleanVector : public std::vector<T> {
   private:
@@ -641,7 +652,7 @@ namespace odbc {
   };
 
 
-  /** Used internally - represents the result of an SQLError call 
+  /** Used internally - represents the result of an SQLError call
    */
   class ODBCXX_EXPORT DriverMessage {
     friend class ErrorHandler;
@@ -678,7 +689,7 @@ namespace odbc {
     }
   };
 
-  
+
   /** The exception thrown when errors occur inside the library.
    */
   class SQLException : public std::exception {
@@ -689,15 +700,15 @@ namespace odbc {
 #if defined(ODBCXX_QT)
     QCString reason8_;
 #endif
-    
+
   public:
     /** Constructor */
-    SQLException(const ODBCXX_STRING& reason ="", 
+    SQLException(const ODBCXX_STRING& reason ="",
 		 const ODBCXX_STRING& sqlState ="",
 		 int vendorCode =0)
-      :reason_(reason), 
+      :reason_(reason),
        sqlState_(sqlState),
-       errorCode_(vendorCode) 
+       errorCode_(vendorCode)
 #if defined(ODBCXX_QT)
       ,reason8_(reason.local8Bit())
 #endif
@@ -716,15 +727,15 @@ namespace odbc {
     int getErrorCode() const {
       return errorCode_;
     }
-    
-    /** Gets the SQLSTATE of this exception. 
-     * 
+
+    /** Gets the SQLSTATE of this exception.
+     *
      * Consult your local ODBC reference for SQLSTATE values.
      */
     const ODBCXX_STRING& getSQLState() const {
       return sqlState_;
     }
-    
+
     /** Gets the description of this message */
     const ODBCXX_STRING& getMessage() const {
       return reason_;
@@ -745,7 +756,7 @@ namespace odbc {
 
 
   /** Represents an SQL warning.
-   * 
+   *
    * Contains the same info as an SQLException.
    */
   class SQLWarning : public SQLException {
@@ -759,17 +770,17 @@ namespace odbc {
 	       const ODBCXX_STRING& sqlState ="",
 	       int vendorCode =0)
       :SQLException(reason,sqlState,vendorCode) {}
-    
+
     /** Copy from a DriverMessage */
     SQLWarning(const DriverMessage& dm)
       :SQLException(dm) {}
-    
+
     /** Destructor */
     virtual ~SQLWarning() throw() {}
   };
 
   typedef CleanVector<SQLWarning*> WarningList;
-  
+
 
   template <class T> class Deleter {
   private:
@@ -780,7 +791,7 @@ namespace odbc {
     Deleter<T>& operator=(const Deleter<T>&);
 
   public:
-    explicit Deleter(T* ptr, bool isArray =false) 
+    explicit Deleter(T* ptr, bool isArray =false)
       :ptr_(ptr), isArray_(isArray) {}
     ~Deleter() {
       if(!isArray_) {
