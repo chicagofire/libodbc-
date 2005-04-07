@@ -183,10 +183,22 @@ Connection* DriverManager::_createConnection()
 //static
 Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
 {
+	Connection*		con = NULL;
+
+
   DriverManager::_checkInit();
 
-  Connection* con=DriverManager::_createConnection();
-  con->_connect(connectString);
+	try
+	{
+	  con=DriverManager::_createConnection();
+	  con->_connect(connectString);
+	}
+	catch (SQLException & e)
+	{
+		delete con;
+		throw e;
+	}
+
   return con;
 }
 
@@ -196,9 +208,22 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
 					 const ODBCXX_STRING& user,
 					 const ODBCXX_STRING& password)
 {
+	Connection*		con = NULL;
+
+
   DriverManager::_checkInit();
-  Connection* con=DriverManager::_createConnection();
-  con->_connect(dsn,user,password);
+
+	try
+	{
+	  con=DriverManager::_createConnection();
+		con->_connect(dsn,user,password);
+	}
+	catch (SQLException & e)
+	{
+		delete con;
+		throw e;
+	}
+
   return con;
 }
 
