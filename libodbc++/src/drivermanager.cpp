@@ -28,7 +28,7 @@ using namespace odbc;
 using namespace std;
 
 SQLHENV DriverManager::henv_=SQL_NULL_HENV;
-ErrorHandler* DriverManager::eh_=NULL;
+ErrorHandler* DriverManager::eh_=0;
 
 //-1 means don't touch, 0 means wait forever, >0 means set it for every opened
 //connection
@@ -54,44 +54,53 @@ odbc::Mutex & DMAccessMutex(bool shutdown=0)
 
 #endif /* ODBCXX_ENABLE_THREADS */
 
+
+
 void DriverManager::shutdown()
 {
+  char*		pszErr = 0;
+
   {
     ODBCXX_LOCKER(DMAccess);
 
-    if(henv_!=SQL_NULL_HENV) {
+    if (henv_ != SQL_NULL_HENV)
+    {
 
       SQLRETURN r=ODBC3_C
         (SQLFreeHandle(SQL_HANDLE_ENV, henv_),
          SQLFreeEnv(henv_));
 
-      switch(r) {
-      case SQL_SUCCESS:
-        break;
+      switch(r)
+      {
+        case SQL_SUCCESS:
+          break;
 
-      case SQL_INVALID_HANDLE:
-        // the check above should prevent this
-        assert(false);
-        break;
+        case SQL_INVALID_HANDLE:
+          // the check above should prevent this
+          assert(false);
+          break;
 
-      case SQL_ERROR:
-        // try to obtain an error description
-        eh_->_checkEnvError(henv_, r, "Failed to shutdown DriverManager");
-        break;
+        case SQL_ERROR:
+          // set error message but continue and throw later
+          pszErr = "Failed to shutdown DriverManager";
+          break;
       }
 
-      henv_=SQL_NULL_HENV;
+      henv_ = SQL_NULL_HENV;
 
       //if henv_ was valid, so is eh_
       delete eh_;
-      eh_=NULL;
+      eh_ = 0;
     }
-  }
+  } // lock scope end
 
 #ifdef ODBCXX_ENABLE_THREADS
   // remove the mutex as we can't rely on static destructors
   DMAccessMutex(1);
 #endif /* ODBCXX_ENABLE_THREADS */
+
+  if (pszErr!=0)
+    throw SQLException(pszErr);
 }
 
 
@@ -102,18 +111,19 @@ void DriverManager::_checkInit()
   //in several HENVs being allocated
   ODBCXX_LOCKER(DMAccess);
 
-  if(henv_==SQL_NULL_HENV) {
-    SQLRETURN r=
+  if(henv_==SQL_NULL_HENV)
+  {
 #if ODBCVER >= 0x0300
-      SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv_)
+    SQLRETURN r = SQLAllocHandle(SQL_HANDLE_ENV,SQL_NULL_HANDLE,&henv_);
 #else
-      SQLAllocEnv(&henv_)
+    SQLRETURN r = SQLAllocEnv(&henv_);
 #endif
-      ;
-    if(r!=SQL_SUCCESS && r!=SQL_SUCCESS_WITH_INFO) {
-      throw SQLException
-	("Failed to allocate environment handle");
+
+    if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
+    {
+      throw SQLException("Failed to allocate environment handle");
     }
+
 #if ODBCVER >= 0x0300
     // this should immediately follow an AllocEnv per ODBC3
     SQLSetEnvAttr(henv_,
@@ -121,10 +131,21 @@ void DriverManager::_checkInit()
 		  (SQLPOINTER)SQL_OV_ODBC3,
 		  SQL_IS_UINTEGER);
 #endif
-    //don't collect warnings
-    eh_=new ErrorHandler(false);
+
+    try
+    {
+      // don't collect warnings
+      eh_ = new ErrorHandler(false);
+    }
+    catch (...)
+    {
+      eh_ = 0;
+      throw SQLException("Failed to allocate error handler");
+    }
   }
 }
+
+
 
 //static
 void DriverManager::setLoginTimeout(int to)
@@ -133,6 +154,8 @@ void DriverManager::setLoginTimeout(int to)
   loginTimeout_=to;
 }
 
+
+
 //static
 int DriverManager::getLoginTimeout()
 {
@@ -140,41 +163,55 @@ int DriverManager::getLoginTimeout()
   return loginTimeout_;
 }
 
+
+
 //static
 // This assumes _checkInit has been called
 Connection* DriverManager::_createConnection()
 {
-  SQLHDBC hdbc;
-  SQLRETURN r;
+  Connection*		con=0;
+  SQLHDBC		hdbc;
+  SQLRETURN		r;
 
   //allocate a handle
-  r=
 #if ODBCVER >= 0x0300
-    SQLAllocHandle(SQL_HANDLE_DBC,henv_,&hdbc)
+  r = SQLAllocHandle(SQL_HANDLE_DBC,henv_,&hdbc);
 #else
-    SQLAllocConnect(henv_,&hdbc)
+  r = SQLAllocConnect(henv_,&hdbc);
 #endif
-    ;
 
-  eh_->_checkEnvError(henv_,r,"Failed to allocate connection handle");
-
-  Connection* con=new Connection(hdbc);
+  try
   {
-    ODBCXX_LOCKER(DMAccess); //since we read loginTimeout_
+    eh_->_checkEnvError(henv_,r,"Failed to allocate connection handle");
 
-    //apply the login timeout. -1 means do-not-touch (the default)
-    if(loginTimeout_>-1) {
+    con = new Connection(hdbc);
+    {
+      ODBCXX_LOCKER(DMAccess); //since we read loginTimeout_
 
-      con->_setNumericOption(
+      //apply the login timeout. -1 means do-not-touch (the default)
+      if (loginTimeout_>-1)
+      {
 #if ODBCVER < 0x0300
-			     SQL_LOGIN_TIMEOUT
+	con->_setNumericOption(SQL_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
 #else
-			     SQL_ATTR_LOGIN_TIMEOUT
+	con->_setNumericOption(SQL_ATTR_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
 #endif
-			
-			     ,(SQLUINTEGER)loginTimeout_);
-    }
-  } // end of lock scope
+      }
+    } // end of lock scope
+  }
+  catch (SQLException &)
+  {
+    delete con;
+    con = 0;
+    throw;
+  }
+  catch (...)
+  {
+    delete con;
+    con = 0;
+    throw SQLException("Failed to allocate connection handle");
+  }
+
   return con;
 }
 
@@ -183,21 +220,21 @@ Connection* DriverManager::_createConnection()
 //static
 Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
 {
-	Connection*		con = NULL;
+  Connection*		con = 0;
 
 
   DriverManager::_checkInit();
 
-	try
-	{
-	  con=DriverManager::_createConnection();
-	  con->_connect(connectString);
-	}
-	catch (...)
-	{
-		delete con;
-		throw;
-	}
+  try
+  {
+    con = DriverManager::_createConnection();
+    con->_connect(connectString);
+  }
+  catch (...)
+  {
+    delete con;
+    throw;
+  }
 
   return con;
 }
@@ -208,21 +245,21 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
 					 const ODBCXX_STRING& user,
 					 const ODBCXX_STRING& password)
 {
-	Connection*		con = NULL;
+  Connection*		con = 0;
 
 
   DriverManager::_checkInit();
 
-	try
-	{
-	  con=DriverManager::_createConnection();
-		con->_connect(dsn,user,password);
-	}
-	catch (...)
-	{
-		delete con;
-		throw;
-	}
+  try
+  {
+    con = DriverManager::_createConnection();
+    con->_connect(dsn,user,password);
+  }
+  catch (...)
+  {
+    delete con;
+    throw;
+  }
 
   return con;
 }
@@ -235,7 +272,7 @@ DataSourceList* DriverManager::getDataSources()
   SQLRETURN r;
   SQLSMALLINT dsnlen,desclen;
 
-  DataSourceList* l=new DataSourceList();
+  DataSourceList* l = new DataSourceList();
 
   char dsn[SQL_MAX_DSN_LENGTH+1];
   char desc[256];
