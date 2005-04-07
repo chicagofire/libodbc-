@@ -193,10 +193,10 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
 	  con=DriverManager::_createConnection();
 	  con->_connect(connectString);
 	}
-	catch (SQLException & e)
+	catch (...)
 	{
 		delete con;
-		throw e;
+		throw;
 	}
 
   return con;
@@ -218,10 +218,10 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
 	  con=DriverManager::_createConnection();
 		con->_connect(dsn,user,password);
 	}
-	catch (SQLException & e)
+	catch (...)
 	{
 		delete con;
-		throw e;
+		throw;
 	}
 
   return con;
