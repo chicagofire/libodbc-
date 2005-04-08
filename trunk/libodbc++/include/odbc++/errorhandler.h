@@ -127,6 +127,6 @@ namespace odbc {
   };
 
   
-}; // namespace odbc
+} // namespace odbc
 
 #endif

@@ -802,7 +802,7 @@ namespace odbc {
     }
   };
 
-}; // namespace odbc
+} // namespace odbc
 
 
 #endif // __ODBCXX_TYPES_H

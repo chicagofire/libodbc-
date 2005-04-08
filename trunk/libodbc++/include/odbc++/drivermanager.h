@@ -147,7 +147,7 @@ namespace odbc {
 
 
 
-};
+} // namespace odbc
 
 
 #endif // __ODBCXX_DRIVERMANAGER_H

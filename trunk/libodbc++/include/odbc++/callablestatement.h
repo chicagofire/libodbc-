@@ -160,7 +160,7 @@ namespace odbc {
   };
 
   
-}; // namespace odbc
+} // namespace odbc
 
 
 #endif // __ODBCXX_CALLABLESTATEMENT_H
