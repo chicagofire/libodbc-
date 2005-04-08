@@ -65,7 +65,7 @@ namespace odbc {
     }
   };
 
-}; //namespace odbc
+} //namespace odbc
 
 // macro used all over the place
 #define ODBCXX_LOCKER(mut) odbc::Locker _locker(mut)
