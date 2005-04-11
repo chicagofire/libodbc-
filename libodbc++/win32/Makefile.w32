@@ -26,6 +26,10 @@
 !MESSAGE   debug-lib    - Debug LIB
 !MESSAGE   prod-dll     - Production DLL
 !MESSAGE   prod-lib     - Production LIB
+!MESSAGE   unicode-debug-dll - Debug DLL
+!MESSAGE   unicode-debug-lib - Debug LIB
+!MESSAGE   unicode-prod-dll  - Production DLL
+!MESSAGE   unicode-prod-lib  - Production LIB
 !MESSAGE   qt-debug-dll - Debug DLL with QT
 !MESSAGE   qt-debug-lib - Debug LIB with QT
 !MESSAGE   qt-prod-dll  - Production DLL with QT
@@ -34,6 +38,8 @@
 
 !IF "$(CFG)" != "debug-dll" && "$(CFG)" != "prod-dll" && \
     "$(CFG)" != "debug-lib" && "$(CFG)" != "prod-lib" && \
+    "$(CFG)" != "unicode-debug-dll" && "$(CFG)" != "unicode-prod-dll" && \
+    "$(CFG)" != "unicode-debug-lib" && "$(CFG)" != "unicode-prod-lib" && \
     "$(CFG)" != "qt-debug-dll" && "$(CFG)" != "qt-prod-dll" && \
     "$(CFG)" != "qt-debug-lib" && "$(CFG)" != "qt-prod-lib"
 !ERROR Invalid configuration "$(CFG)"
@@ -62,6 +68,8 @@ DLL_CXXFLAGS=
 DLL_LDFLAGS=
 PROD_CXXFLAGS=
 PROD_LDFLAGS=
+UNICODE_CXXFLAGS=/DODBCXX_UNICODE
+UNICODE_LDFLAGS=
 
 # naming variables
 TARGET_BASE=odbc++
@@ -75,6 +83,7 @@ PROD=no
 QT=no
 
 !IF "$(CFG)" == "debug-dll" || "$(CFG)" == "prod-dll" || \
+    "$(CFG)" == "unicode-debug-dll" || "$(CFG)" == "unicode-prod-dll" || \
     "$(CFG)" == "qt-debug-dll" || "$(CFG)" == "qt-prod-dll"
 
 DLL=yes
@@ -82,6 +91,7 @@ DLL=yes
 !ENDIF
 
 !IF "$(CFG)" == "prod-dll" || "$(CFG)" == "prod-lib" || \
+    "$(CFG)" == "unicode-prod-dll" || "$(CFG)" == "unicode-prod-lib" || \
     "$(CFG)" == "qt-prod-dll" || "$(CFG)" == "qt-prod-lib"
 
 PROD=yes
@@ -95,6 +105,12 @@ QT=yes
 
 !ENDIF
 
+!IF "$(CFG)" == "unicode-debug-lib" || "$(CFG)" == "unicode-qt-prod-lib" || \
+    "$(CFG)" == "unicode-qt-debug-dll" || "$(CFG)" == "unicode-qt-prod-dll"
+
+UNICODE=yes
+
+!ENDIF
 
 
 !IF "$(DLL)" == "yes"
@@ -164,10 +180,10 @@ ILIB_NAME=$(TARGET_BASE)$(TARGET_QT)$(TARGET_S)$(TARGET_D).lib
 # /TP everything is c++
 
 CXXFLAGS=/nologo /GR /GX /W3 /DWIN32 /DIN_ODBCXX /I$(INCDIR) /Fd"$(PDB)" \
-$(QT_CXXFLAGS) $(DEBUG_CXXFLAGS) $(DLL_CXXFLAGS) $(PROD_CXXFLAGS)
+$(QT_CXXFLAGS) $(UNICODE_CXXFLAGS) $(DEBUG_CXXFLAGS) $(DLL_CXXFLAGS) $(PROD_CXXFLAGS)
 
 LDFLAGS=kernel32.lib user32.lib odbc32.lib odbccp32.lib \
-$(QT_LDFLAGS) $(DEBUG_LDFLAGS) $(DLL_LDFLAGS) $(PROD_LDFLAGS) \
+$(QT_LDFLAGS) $(UNICODE_LDFLAGS) $(DEBUG_LDFLAGS) $(DLL_LDFLAGS) $(PROD_LDFLAGS) \
 /NOLOGO /SUBSYSTEM:WINDOWS /DLL /implib:"$(ILIB)" /pdb:"$(PDB)" /incremental:no
 
 
