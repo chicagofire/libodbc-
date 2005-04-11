@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -32,21 +32,21 @@ namespace odbc {
   class DriverInfo;
 
   /** Provides several tons of information about a data source.
-   * 
+   *
    * @warning The column names in ResultSets returned by methods of
-   * DatabaseMetaData can differ depending on what ODBC version 
+   * DatabaseMetaData can differ depending on what ODBC version
    * the current driver supports. To avoid problems, columns should
-   * be referenced by number, and not by name. Also note that 
-   * ODBC version 2 drivers do not return some of the specified 
+   * be referenced by number, and not by name. Also note that
+   * ODBC version 2 drivers do not return some of the specified
    * columns.
    */
   class ODBCXX_EXPORT DatabaseMetaData {
     friend class Connection;
     friend class DriverInfo;
-    
+
   private:
     Connection* connection_;
-    
+
     DatabaseMetaData(Connection* c);
     ~DatabaseMetaData();
 
@@ -59,7 +59,7 @@ namespace odbc {
 
     ODBCXX_STRING _getStringInfo(int what);
     bool _ownXXXAreVisible(int type, int what);
-    
+
 #if ODBCVER >= 0x0300
     // returns all CA1 or-ed together
     SQLUINTEGER _getAllCursorAttributes1();
@@ -85,7 +85,7 @@ namespace odbc {
       bestRowPseudo		= SQL_PC_PSEUDO,
       bestRowNotPseudo		= SQL_PC_NOT_PSEUDO
     };
-    
+
 
     /** Version column constants for getVersionColumns()
      * @see #getVersionColumns()
@@ -97,7 +97,7 @@ namespace odbc {
     };
 
 
-    /** Nullability constants for the resultset returned by getTypes() 
+    /** Nullability constants for the resultset returned by getTypes()
      * @see getTypes()
      */
     enum {
@@ -149,7 +149,7 @@ namespace odbc {
       importedKeyNoAction	= SQL_RESTRICT,
       importedKeySetDefault
     };
-    
+
 #endif
 
 #if ODBCVER >= 0x0300
@@ -173,7 +173,7 @@ namespace odbc {
       tableIndexStatistic	= SQL_TABLE_STAT
     };
 
-    /** Procedure column type constants for getProcedureColumns() 
+    /** Procedure column type constants for getProcedureColumns()
      * @see #getProcedureColumns()
      */
     enum {
@@ -185,7 +185,7 @@ namespace odbc {
       procedureColumnUnknown	= SQL_PARAM_TYPE_UNKNOWN
     };
 
-    /** Procedure column nullability constants for getProcedureColumns() 
+    /** Procedure column nullability constants for getProcedureColumns()
      * @see #getProcedureColumns()
      */
     enum {
@@ -194,7 +194,7 @@ namespace odbc {
       procedureNullableUnknown	= SQL_NULLABLE_UNKNOWN
     };
 
-    /** Procedure type constants for PROCEDURE_TYPE in getProcedures() 
+    /** Procedure type constants for PROCEDURE_TYPE in getProcedures()
      * @see #getProcedures()
      */
     enum {
@@ -203,9 +203,9 @@ namespace odbc {
       procedureResultUnknown	= SQL_PT_UNKNOWN
     };
 
-    
 
-    /** Returns the name of the database product.       
+
+    /** Returns the name of the database product.
      */
     ODBCXX_STRING getDatabaseProductName();
 
@@ -257,15 +257,15 @@ namespace odbc {
 
     /** Returns the string used to separate a catalog
      * in a fully qualified identifier.
-     * 
+     *
      * For example Oracle would return a "@", while
-     * mysql would say ".". 
+     * mysql would say ".".
      */
     ODBCXX_STRING getCatalogSeparator();
 
     /** Returns true if the catalog is positioned at the
-     * beginning of a fully qualified identifier. 
-     * 
+     * beginning of a fully qualified identifier.
+     *
      * For example mysql would say true, while oracle would say false.
      */
     bool isCatalogAtStart();
@@ -274,8 +274,8 @@ namespace odbc {
      * to this data source.
      */
     ODBCXX_STRING getSQLKeywords();
-    
-    
+
+
     /** Returns true if the data source supports transactions.
      */
     bool supportsTransactions();
@@ -285,44 +285,44 @@ namespace odbc {
      */
     int getDefaultTransactionIsolation();
 
-    /** Returns true if the data source supports the specified transaction 
+    /** Returns true if the data source supports the specified transaction
      * isolation level.
      * @param lev The isolation level to check for
      */
     bool supportsTransactionIsolationLevel(int lev);
 
     /** Checks if the data source supports both DML and DDL in transactions
-     * 
+     *
      * @return <code>true</code> if the data source supports both data manipulation
      * (eg. <code>UPDATE</code>, <code>INSERT</code>) and data definition
      * (eg. <code>CREATE TABLE</code>) within a transaction.
      *
      *
      * If this method returns <code>true</code>,
-     * supportsDataManipulationTransactionsOnly(), 
+     * supportsDataManipulationTransactionsOnly(),
      * dataDefinitionCausesTransactionCommit() and
      * dataDefinitionIgnoredInTransactions() all return <code>false</code>.
      */
     bool supportsDataDefinitionAndDataManipulationTransactions();
 
     /** Checks if the data source only supports DML in transactions
-     * 
+     *
      * @return <code>true</code> if the data source only supports data manipulation
      * (eg. <code>UPDATE</code>, <code>INSERT</code>) within a transaction.
      *
-     * Attempts to use data definition 
-     * (eg. <code>CREATE TABLE</code>) in a transaction will trigger an 
+     * Attempts to use data definition
+     * (eg. <code>CREATE TABLE</code>) in a transaction will trigger an
      * error.
      *
      * If this method returns <code>true</code>,
-     * supportsDataDefinitionAndDataManipulationTransactions(), 
+     * supportsDataDefinitionAndDataManipulationTransactions(),
      * dataDefinitionCausesTransactionCommit() and
      * dataDefinitionIgnoredInTransactions() all return <code>false</code>.
      */
     bool supportsDataManipulationTransactionsOnly();
 
     /** Checks if DDL in a transaction will cause the transaction to be committed
-     * 
+     *
      * @return true if the data source only supports data manipulation
      * (eg. <code>UPDATE</code>, <code>INSERT</code>) within a transaction
      * and any data definition (eg. <code>CREATE TABLE</code>) will cause
@@ -336,7 +336,7 @@ namespace odbc {
     bool dataDefinitionCausesTransactionCommit();
 
     /** Checks if DDL in a transaction is ignored
-     * 
+     *
      * @return true if the data source only supports data manipulation
      * (eg. <code>UPDATE</code>, <code>INSERT</code>) within a transaction
      * and any data definition (eg. <code>CREATE TABLE</code>) will be
@@ -348,7 +348,7 @@ namespace odbc {
      * dataDefinitionCausesTransactionCommit() all return <code>false</code>.
      */
     bool dataDefinitionIgnoredInTransactions();
-    
+
 
     /**
      */
@@ -438,7 +438,7 @@ namespace odbc {
 
     /** Returns true if schemas are supported in privilege definition statements */
     bool supportsSchemasInPrivilegeDefinitions();
-    
+
 
     /** Returns true if NULL plus a non-NULL value yields NULL.
      */
@@ -465,7 +465,7 @@ namespace odbc {
      */
     bool supportsAlterTableWithAddColumn();
 
-    /** Returns the extra characters beyond A-Z, a-z, 0-9 and _ that can 
+    /** Returns the extra characters beyond A-Z, a-z, 0-9 and _ that can
      * be used in unquoted identifier names.
      */
     ODBCXX_STRING getExtraNameCharacters();
@@ -514,22 +514,22 @@ namespace odbc {
     /** Returns true if the data source supports the core ODBC SQL grammar.
      */
     bool supportsCoreSQLGrammar();
-    
+
     /** Returns true if the data source supports the ODBC extended SQL grammar.
      */
     bool supportsExtendedSQLGrammar();
 
 
-    /** Returns true if the data source supports the ANSI92 entry level 
+    /** Returns true if the data source supports the ANSI92 entry level
      * SQL grammar.
      */
     bool supportsANSI92EntryLevelSQL();
 
-    /** Returns true if the data source supports the ANSI92 intermediate level 
+    /** Returns true if the data source supports the ANSI92 intermediate level
      * SQL grammar.
      */
     bool supportsANSI92IntermediateSQL();
-    
+
     /** Returns true if the data source supports the full ANSI92 SQL grammar.
      */
     bool supportsANSI92FullSQL();
@@ -560,26 +560,26 @@ namespace odbc {
      * Enhancement Facility.
      */
     bool supportsIntegrityEnhancementFacility();
-    
+
     /** Whether the data source supports batch updates
      */
     bool supportsBatchUpdates();
 
-    /** Returns true if the data source supports subqueries in comparisons 
+    /** Returns true if the data source supports subqueries in comparisons
      */
     bool supportsSubqueriesInComparisons();
 
-    /** Returns true if the data source supports subqueries in 
+    /** Returns true if the data source supports subqueries in
      * <code>"EXISTS"</code> expressions.
      */
     bool supportsSubqueriesInExists();
 
-    /** Returns true if the data source supports subqueries in 
+    /** Returns true if the data source supports subqueries in
      * <code>"IN"</code> expressions.
      */
     bool supportsSubqueriesInIns();
 
-    /** Returns true if the data source supports subqueries in 
+    /** Returns true if the data source supports subqueries in
      * quantified expressions.
      */
     bool supportsSubqueriesInQuantifieds();
@@ -594,12 +594,12 @@ namespace odbc {
      * @param type The type of ResultSet of interest
      */
     bool ownUpdatesAreVisible(int type);
-    
+
     /** Returns true if deleted rows dissapear from a ResultSet
      * @param type The type of ResultSet of interest
      */
     bool ownDeletesAreVisible(int type);
-    
+
     /** Returns true if inserted rows become available in a ResultSet
      * @param type The type of ResultSet of interest
      */
@@ -616,7 +616,7 @@ namespace odbc {
      * @param type The type of ResultSet of interest
      */
     bool othersDeletesAreVisible(int type);
-    
+
     /** Returns true if rows inserted by others become available in
      * a ResultSet.
      * @param type The type of ResultSet of interest
@@ -628,13 +628,13 @@ namespace odbc {
      * @param type The type of ResultSet of interest
      */
     bool deletesAreDetected(int type);
-    
+
     /** Returns true if an inserted row can be detected with
      * ResultSet::rowInserted().
      * @param type The type of ResultSet of interest
      */
     bool insertsAreDetected(int type);
-    
+
     /** Returns true if ResultSet::rowUpdated can determine whether
      * a row has been updated.
      * @param type The type of ResultSet of interest
@@ -663,7 +663,7 @@ namespace odbc {
     /** Returns the maximum number of columns allowed in an index.
      */
     int getMaxColumnsInIndex();
-    
+
     /** Returns the maximum number of columns this data source can have in
      * an ORDER BY clause.
      */
@@ -706,7 +706,7 @@ namespace odbc {
      */
     bool doesMaxRowSizeIncludeBlobs();
 
-    
+
     /** Returns the maximum length of a statement (query).
      */
     int getMaxStatementLength();
@@ -739,7 +739,7 @@ namespace odbc {
      * mixed case identifiers.
      */
     bool supportsMixedCaseIdentifiers();
-    
+
     /** Returns true if the data source supports case sensitive
      * mixed case quoted identifiers.
      */
@@ -751,7 +751,7 @@ namespace odbc {
     bool supportsStoredProcedures();
 
 
-    /** Returns true if the data source supports the 
+    /** Returns true if the data source supports the
      * GROUP BY clause.
      */
     bool supportsGroupBy();
@@ -775,7 +775,7 @@ namespace odbc {
      */
     bool supportsUnionAll();
 
-    /** Returns true if the data source supports some form of 
+    /** Returns true if the data source supports some form of
      * outer joins.
      */
     bool supportsOuterJoins();
@@ -784,7 +784,7 @@ namespace odbc {
      */
     bool supportsFullOuterJoins();
 
-    /** Returns true if the data source only supports certain types of 
+    /** Returns true if the data source only supports certain types of
      * outer joins.
      */
     bool supportsLimitedOuterJoins();
@@ -799,12 +799,12 @@ namespace odbc {
      * the sort order.
      */
     bool nullsAreSortedAtStart();
-    
+
     /** Returns true if NULL values are sorted last, regardless of
      * the sort order.
      */
     bool nullsAreSortedAtEnd();
-    
+
     /** Returns true if NULL values are sorted high.
      */
     bool nullsAreSortedHigh();
@@ -818,7 +818,7 @@ namespace odbc {
      */
     bool allProceduresAreCallable();
 
-    /** Returns true if all tables returned by getTables() are selectable by 
+    /** Returns true if all tables returned by getTables() are selectable by
      * the current user.
      */
     bool allTablesAreSelectable();
@@ -842,7 +842,7 @@ namespace odbc {
      * insensitive and stores them in mixed case.
      */
     bool storesMixedCaseIdentifiers();
-    
+
     /** Returns true if the data source treats quoted identifiers as case
      * insensitive and stores them in mixed case.
      */
@@ -852,7 +852,7 @@ namespace odbc {
      * insensitive and stores them in upper case.
      */
     bool storesUpperCaseIdentifiers();
-    
+
     /** Returns true if the data source treats quoted identifiers as case
      * insensitive and stores them in upper case.
      */
@@ -860,7 +860,7 @@ namespace odbc {
 
 
     /** Fetches a list of data types supported by this data source.
-     * 
+     *
      * The returned ResultSet is ordered by <code>DATA_TYPE</code> and then
      * by how closely the type maps to the corresponding ODBC SQL type.
      * It contains the following columns:
@@ -892,7 +892,7 @@ namespace odbc {
      *     <li><code>typeSearchable</code> - yes
      *     </ul>
      * <li><b>UNSIGNED_ATTRIBUTE</b> - bool - <code>true</code> if this type is unsigned
-     * <li><b>FIXED_PREC_SCALE</b> - bool - whether this type has predefined fixed 
+     * <li><b>FIXED_PREC_SCALE</b> - bool - whether this type has predefined fixed
      *     precision and scale (eg is useful for money)
      * <li><b>AUTO_UNIQUE_VALUE</b> - bool - whether this type can be used for an
      *     autoincrementing value. <code>NULL</code> if not applicable.
@@ -908,7 +908,7 @@ namespace odbc {
     ResultSet* getTypeInfo();
 
     /** Fetches the available columns in a catalog.
-     * 
+     *
      * The returned ResultSet has the following columns:
      * <ol>
      * <li><b>TABLE_CAT</b> - string - table catalog (can be NULL)
@@ -916,7 +916,7 @@ namespace odbc {
      * <li><b>TABLE_NAME</b> - string - table name
      * <li><b>COLUMN_NAME</b> - string - column name
      * <li><b>COLUMN_TYPE</b> - short - see Types
-     * <li><b>TYPE_NAME</b> - string - the name of the type. Data source 
+     * <li><b>TYPE_NAME</b> - string - the name of the type. Data source
      * dependent.
      * <li><b>COLUMN_SIZE</b> - int - column size. For character and date
      * types, this is the maximum number of characters. For numeric types
@@ -932,8 +932,8 @@ namespace odbc {
      *    </ul>
      * <li><b>REMARKS</b> - string - comments on the column (can be NULL)
      * <li><b>COLUMN_DEF</b> - string - default value (can be NULL)
-     * <li><b>SQL_DATA_TYPE</b> - short - 
-     * <li><b>SQL_DATETIME_SUB</b> - short - 
+     * <li><b>SQL_DATA_TYPE</b> - short -
+     * <li><b>SQL_DATETIME_SUB</b> - short -
      * <li><b>CHAR_OCTET_LENGTH</b> - int - for character data types the maximum
      * number of bytes in the column
      * <li><b>ORDINAL_POSITION</b> - int - 1-based index in the table
@@ -946,7 +946,7 @@ namespace odbc {
 			  const ODBCXX_STRING& schemaPattern,
 			  const ODBCXX_STRING& tableNamePattern,
 			  const ODBCXX_STRING& columnNamePattern);
-    
+
 
     /** Fetches the available tables in the data source.
      * The returned ResultSet has the following columns:
@@ -968,11 +968,11 @@ namespace odbc {
 			 const std::vector<ODBCXX_STRING>& types);
 
     /** Fetches a list of access rights for tables in a catalog.
-     * 
-     * A table privilege applies to one or more columns in a table. 
+     *
+     * A table privilege applies to one or more columns in a table.
      * Do not assume that this privilege is valid for all columns.
-     * 
-     * The returned ResultSet is ordered by 
+     *
+     * The returned ResultSet is ordered by
      * <code>TABLE_CAT</code>, <code>TABLE_SCHEM</code>, <code>TABLE_NAME</code>
      * and <code>PRIVILEGE</code>. It contains the following columns:
      * <ol>
@@ -983,7 +983,7 @@ namespace odbc {
      *    <code>GRANTEE</code> owns the object, <code>GRANTOR</code> is
      *    <code>"SYSTEM"</code>.
      * <li><b>GRANTEE</b> - string - grantee
-     * <li><b>PRIVILEGE</b> - string - one of <code>"SELECT"</code>, 
+     * <li><b>PRIVILEGE</b> - string - one of <code>"SELECT"</code>,
      *     <code>"INSERT"</code>, <code>"UPDATE"</code>, <code>"DELETE"</code>,
      *     <code>"REFERENCES"</code> or a data source specific value
      * <li><b>IS_GRANTABLE</b> - string - <code>"YES"</code> if <code>GRANTEE</code>
@@ -994,10 +994,10 @@ namespace odbc {
     ResultSet* getTablePrivileges(const ODBCXX_STRING& catalog,
 				  const ODBCXX_STRING& schemaPattern,
 				  const ODBCXX_STRING& tableNamePattern);
-    
+
 
     /** Fetches a list of access rights for a table's columns.
-     * 
+     *
      * The returned ResultSet is ordered by
      * <code>COLUMN_NAME</code> and <code>PRIVILEGE</code>.
      * It contains the following columns:
@@ -1010,7 +1010,7 @@ namespace odbc {
      *    <code>GRANTEE</code> owns the object, <code>GRANTOR</code> is
      *    <code>"SYSTEM"</code>.
      * <li><b>GRANTEE</b> - string - grantee
-     * <li><b>PRIVILEGE</b> - string - one of <code>"SELECT"</code>, 
+     * <li><b>PRIVILEGE</b> - string - one of <code>"SELECT"</code>,
      *     <code>"INSERT"</code>, <code>"UPDATE"</code>, <code>"DELETE"</code>,
      *     <code>"REFERENCES"</code> or a data source specific value
      * <li><b>IS_GRANTABLE</b> - string - <code>"YES"</code> if <code>GRANTEE</code>
@@ -1024,8 +1024,8 @@ namespace odbc {
 				   const ODBCXX_STRING& columnNamePattern);
 
     /** Fetches a list of primary keys for a table.
-     * 
-     * The returned ResultSet is ordered by 
+     *
+     * The returned ResultSet is ordered by
      * <code>TABLE_CAT</code>, <code>TABLE_SCHEM</code>, <code>TABLE_NAME</code>
      * and <code>KEY_SEQ</code>. It contains the following columns:
      * <ol>
@@ -1034,7 +1034,7 @@ namespace odbc {
      * <li><b>TABLE_NAME</b> - string - table name
      * <li><b>COLUMN_NAME</b> - string - column name
      * <li><b>KEY_SEQ</b> - string - sequence number in primary key (1-based)
-     * <li><b>PK_NAME</b> - string - primary key (constraint) name. 
+     * <li><b>PK_NAME</b> - string - primary key (constraint) name.
      *     Can be <code>NULL</code>.
      * </ol>
      */
@@ -1044,7 +1044,7 @@ namespace odbc {
 
 
     /** Fetches a list of indices and statistics for a table.
-     * 
+     *
      * The returned ResultSet is ordered by
      * <code>NON_UNIQUE</code>, <code>TYPE</code>, <code>INDEX_QUALIFIER</code>,
      * <code>INDEX_NAME</code> and <code>ORDINAL_POSITION</code>.
@@ -1054,7 +1054,7 @@ namespace odbc {
      * <li><b>TABLE_SCHEM</b> - string - table schema (can be <code>NULL</code>)
      * <li><b>TABLE_NAME</b> - string - table name
      * <li><b>NON_UNIQUE</b> - bool - <code>true</code> if index values can
-     *     be non-unique. <code>NULL</code> if <code>TYPE</code> is 
+     *     be non-unique. <code>NULL</code> if <code>TYPE</code> is
      *     <code>tableIndexStatistic</code>
      * <li><b>INDEX_QUALIFIER</b> - string - index catalog, <code>NULL</code>
      *     if <code>TYPE</code> is <code>tableIndexStatistic</code>
@@ -1071,10 +1071,10 @@ namespace odbc {
      *     <code>NULL</code> if <code>TYPE</code> is <code>tableIndexStatistic</code>.
      * <li><b>COLUMN_NAME</b> - string - column name.
      *     <code>NULL</code> if <code>TYPE</code> is <code>tableIndexStatistic</code>.
-     * <li><b>ASC_OR_DESC</b> - string - <code>"A"</code> for ascending, 
+     * <li><b>ASC_OR_DESC</b> - string - <code>"A"</code> for ascending,
      *     <code>"D"</code> for descending index. <code>NULL</code> if <code>TYPE</code>
      *     is <code>tableIndexStatistic</code>.
-     * <li><b>CARDINALITY</b> - int - If <code>TYPE</code> is 
+     * <li><b>CARDINALITY</b> - int - If <code>TYPE</code> is
      *     <code>tableIndexStatistic</code>, the number of rows in the
      *     table. Otherwise, the number of unique values in the index.
      * <li><b>PAGES</b> - int - Number of pages used for the table if
@@ -1093,10 +1093,10 @@ namespace odbc {
 			    const ODBCXX_STRING& table,
 			    bool unique, bool approximate);
 
-    /** Figures out in which way a foreign key table references a 
+    /** Figures out in which way a foreign key table references a
      * primary key table. Returns it's findings in a ResultSet, ordered
-     * by <code>FKTABLE_CAT</code>, <code>FKTABLE_SCHEM</code>, 
-     * <code>FKTABLE_NAME</code> and <code>KEY_SEQ</code>. The 
+     * by <code>FKTABLE_CAT</code>, <code>FKTABLE_SCHEM</code>,
+     * <code>FKTABLE_NAME</code> and <code>KEY_SEQ</code>. The
      * ResultSet contains the following columns:
      * <ol>
      * <li><b>PKTABLE_CAT</b> - string - primary key table catalog
@@ -1115,11 +1115,11 @@ namespace odbc {
      *     the primary key can not be updated
      *     <li><code>importedKeyCascade</code> - change imported key to
      *     match the primary key
-     *     <li><code>importedKeySetNull</code> - update the imported key to 
+     *     <li><code>importedKeySetNull</code> - update the imported key to
      *     <code>NULL</code>
      *     <li><code>importedKeySetDefault</code> - update the impored key to
      *     it's default value
-     *     <li><code>importedKeyRestrict</code> - same as 
+     *     <li><code>importedKeyRestrict</code> - same as
      *     <code>importedKeyNoAction</code>
      *     </ul>
      * <li><b>DELETE_RULE</b> - short - what happens to the foreign key
@@ -1128,11 +1128,11 @@ namespace odbc {
      *     <li><code>importedKeyNoAction</code> - nothing happends since
      *     the primary key can not be deleted
      *     <li><code>importedKeyCascade</code> - imported key is deleted as well
-     *     <li><code>importedKeySetNull</code> - imported key is set 
+     *     <li><code>importedKeySetNull</code> - imported key is set
      *     to <code>NULL</code>
      *     <li><code>importedKeySetDefault</code> - imported key is set to it's
      *     default value
-     *     <li><code>importedKeyRestrict</code> - same as 
+     *     <li><code>importedKeyRestrict</code> - same as
      *     <code>importedKeyNoAction</code>
      *     </ul>
      * </ol>
@@ -1143,35 +1143,45 @@ namespace odbc {
 				 const ODBCXX_STRING& foreignCatalog,
 				 const ODBCXX_STRING& foreignSchema,
 				 const ODBCXX_STRING& foreignTable);
-    
+
     /** Fetches a list of columns that are foreign keys to other tables'
-     * primary keys. 
-     * 
+     * primary keys.
+     *
      * The returned ResultSet is identical to the one
      * returned by getCrossReference(), except it's ordered by
-     * <code>PKTABLE_CAT</code>, <code>PKTABLE_SCHEM</code>, 
+     * <code>PKTABLE_CAT</code>, <code>PKTABLE_SCHEM</code>,
      * <code>PKTABLE_NAME</code> and <code>KEY_SEQ</code>.
      */
     ResultSet* getImportedKeys(const ODBCXX_STRING& catalog,
 			       const ODBCXX_STRING& schema,
 			       const ODBCXX_STRING& table) {
-      return this->getCrossReference("","","",catalog,schema,table);
+      return this->getCrossReference(ODBCXX_STRING_CONST(""),
+                                     ODBCXX_STRING_CONST(""),
+                                     ODBCXX_STRING_CONST(""),
+                                     catalog,
+                                     schema,
+                                     table);
     }
 
     /** Fetches a list of columns that reference a table's primary
-     * keys. 
-     * 
-     * The returned ResultSet is identical to the one returned 
+     * keys.
+     *
+     * The returned ResultSet is identical to the one returned
      * by getCrossReference().
      */
     ResultSet* getExportedKeys(const ODBCXX_STRING& catalog,
 			       const ODBCXX_STRING& schema,
 			       const ODBCXX_STRING& table) {
-      return this->getCrossReference(catalog,schema,table,"","","");
+      return this->getCrossReference(catalog,
+                                     schema,
+                                     table,
+                                     ODBCXX_STRING_CONST(""),
+                                     ODBCXX_STRING_CONST(""),
+                                     ODBCXX_STRING_CONST(""));
     }
 
     /** Returns available procedures in a catalog.
-     * 
+     *
      * The returned ResultSet is ordered by
      * <code>PROCEDURE_CAT</code>, <code>PROCEDURE_SCHEM</code> and
      * <code>PROCEDURE_NAME</code>. It contains the following columns:
@@ -1197,10 +1207,10 @@ namespace odbc {
 			     const ODBCXX_STRING& procedureNamePattern);
 
     /** Returns available procedure columns in a catalog.
-     * 
-     * The returned ResultSet is ordered by 
-     * <code>PROCEDURE_CAT</code>, <code>PROCEDURE_SCHEM</code>, 
-     * <code>PROCEDURE_NAME</code> and <code>COLUMN_NAME</code>. 
+     *
+     * The returned ResultSet is ordered by
+     * <code>PROCEDURE_CAT</code>, <code>PROCEDURE_SCHEM</code>,
+     * <code>PROCEDURE_NAME</code> and <code>COLUMN_NAME</code>.
      * It contains the following columns:
      * <ol>
      * <li><b>PROCEDURE_CAT</b> - string - the procedure catalog
@@ -1232,7 +1242,7 @@ namespace odbc {
      *     </ul>
      * <li><b>REMARKS</b> - string - comments on the column
      * </ol>
-     * 
+     *
      * Note: more columns can be returned depending on the driver.
      */
     ResultSet* getProcedureColumns(const ODBCXX_STRING& catalog,
@@ -1240,9 +1250,9 @@ namespace odbc {
 				   const ODBCXX_STRING& procedureNamePattern,
 				   const ODBCXX_STRING& columnNamePattern);
 
-    
+
     /** Returns the optimal set of columns that identifies a row.
-     * 
+     *
      * The returned ResultSet is ordered by <code>SCOPE</code> and has
      * the following columns:
      * <ol>
@@ -1250,7 +1260,7 @@ namespace odbc {
      *     <ul>
      *     <li><code>bestRowTemporary</code> - temporary, only while
      *     a ResultSet is using the row
-     *     <li><code>bestRowTransaction</code> - valid until the 
+     *     <li><code>bestRowTransaction</code> - valid until the
      *     current transaction ends
      *     <li><code>bestRowSession</code> - valid through the whole
      *     session - until the connection is closed
@@ -1260,7 +1270,7 @@ namespace odbc {
      * <li><b>TYPE_NAME</b> - string - native type name (data source dependent)
      * <li><b>COLUMN_SIZE</b> - int - the size (precision) of the column.
      * <li><b>BUFFER_LENGTH</b> - int - unused
-     * <li><b>DECIMAL_DIGITS</b> - short - scale if applicable. 
+     * <li><b>DECIMAL_DIGITS</b> - short - scale if applicable.
      *     Can be <code>NULL</code>.
      * <li><b>PSEUDO_COLUMN</b> - short - whether this is a pseudo column:
      *     <ul>
@@ -1293,7 +1303,7 @@ namespace odbc {
      * <li><b>TYPE_NAME</b> - string - native type name (data source dependent)
      * <li><b>COLUMN_SIZE</b> - int - the size (precision) of the column.
      * <li><b>BUFFER_LENGTH</b> - int - unused
-     * <li><b>DECIMAL_DIGITS</b> - short - scale if applicable. 
+     * <li><b>DECIMAL_DIGITS</b> - short - scale if applicable.
      *     Can be <code>NULL</code>.
      * <li><b>PSEUDO_COLUMN</b> - short - whether this is a pseudo column:
      *     <ul>
@@ -1307,10 +1317,10 @@ namespace odbc {
     ResultSet* getVersionColumns(const ODBCXX_STRING& catalog,
 				 const ODBCXX_STRING& schema,
 				 const ODBCXX_STRING& table);
-				       
+				
 
 
-    /** Fetches the table types the database supports. 
+    /** Fetches the table types the database supports.
      *
      * The returned ResultSet is the same as with getTables(), except
      * that all columns but <b>TABLE_TYPE</b> contain NULL values.
@@ -1318,21 +1328,21 @@ namespace odbc {
     ResultSet* getTableTypes();
 
     /** Returns a list of available schemas in the database.
-     * 
+     *
      * The returned ResultSet is the same as with getTables(), except
      * that all columns but <b>TABLE_SCHEM</b> contain NULL values.
      */
     ResultSet* getSchemas();
 
     /** Returns a list of available catalogs in the database.
-     * 
+     *
      * The returned ResultSet is the same as with getTables(), except
      * that all columns but <b>TABLE_CAT</b> are NULL values.
      */
     ResultSet* getCatalogs();
   };
 
-  
+
 } // namespace odbc
 
 

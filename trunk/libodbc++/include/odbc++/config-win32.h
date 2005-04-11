@@ -11,7 +11,7 @@
 #define ODBCXX_HAVE_CSTRING
 #define ODBCXX_HAVE_CTIME
 #define ODBCXX_HAVE_IOSTREAM
-#define ODBCXX_HAVE_STRSTREAM
+#define ODBCXX_HAVE_SSTREAM
 #define ODBCXX_HAVE_SET
 #define ODBCXX_HAVE_VECTOR
 
@@ -88,4 +88,17 @@
 #endif // __MINGW32__
 
 #define WIN32_LEAN_AND_MEAN
+
+#if defined(ODBCXX_UNICODE)
+# if !defined(_UNICODE)
+#  define _UNICODE
+# endif
+# if !defined(UNICODE)
+#  define UNICODE
+# endif
+# if defined(_MBCS)
+#  undef _MBCS
+# endif
+#endif
+
 #include <windows.h>
