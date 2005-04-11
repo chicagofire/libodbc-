@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -44,10 +44,14 @@
 
 // check whether we use strstream or stringstream
 #if defined(IN_ODBCXX)
+# if defined(ODBCXX_UNICODE)
+#   define ODBCXX_SSTREAM std::wstringstream
+# else
 # if defined(ODBCXX_HAVE_SSTREAM)
 #  define ODBCXX_SSTREAM std::stringstream
 # else
 #  define ODBCXX_SSTREAM std::strstream
+# endif
 # endif
 #endif
 
@@ -62,7 +66,7 @@
 #endif
 
 // NDEBUG and cassert
-#if defined(IN_ODBCXX) 
+#if defined(IN_ODBCXX)
 # if !defined(ODBCXX_DEBUG)
 #  define NDEBUG
 # endif
@@ -116,6 +120,25 @@
 
 #else
 
+# if defined(ODBCXX_UNICODE)
+
+#  define ODBCXX_STRING std::wstring
+#  define ODBCXX_STRING_C(s) std::wstring(s)
+#  define ODBCXX_STRING_CL(s,l) std::wstring(s,l)
+#  define ODBCXX_STRING_LEN(s) s.length()
+#  define ODBCXX_STRING_DATA(s) s.data()
+#  define ODBCXX_STRING_CSTR(s) s.c_str()
+
+#  define ODBCXX_STREAM std::wistream
+#  define ODBCXX_STREAMBUF std::wstreambuf
+
+#  define ODBCXX_BYTES odbc::Bytes
+#  define ODBCXX_BYTES_SIZE(b) b.getSize()
+#  define ODBCXX_BYTES_DATA(b) b.getData()
+#  define ODBCXX_BYTES_C(buf,len) odbc::Bytes((wchar_t*)buf,(size_t)len)
+
+# else
+
 # define ODBCXX_STRING std::string
 # define ODBCXX_STRING_C(s) std::string(s)
 # define ODBCXX_STRING_CL(s,l) std::string(s,l)
@@ -124,13 +147,33 @@
 # define ODBCXX_STRING_CSTR(s) s.c_str()
 
 # define ODBCXX_STREAM std::istream
+#  define ODBCXX_STREAMBUF std::streambuf
 
 # define ODBCXX_BYTES odbc::Bytes
 # define ODBCXX_BYTES_SIZE(b) b.getSize()
 # define ODBCXX_BYTES_DATA(b) b.getData()
 # define ODBCXX_BYTES_C(buf,len) odbc::Bytes((signed char*)buf,(size_t)len)
 
+# endif // ODBCXX_UNICODE
+
 #endif // ODBCXX_QT
 
+#if defined(ODBCXX_UNICODE)
+# define ODBCXX_CHAR_TYPE wchar_t
+# define ODBCXX_SIGNED_CHAR_TYPE wchar_t
+# define ODBCXX_SQLCHAR SQLWCHAR
+# define ODBCXX_STRING_CONST(s) L ## s
+# define ODBCXX_COUT wcout
+# define ODBCXX_CERR wcerr
+# define ODBCXX_STRTOL wcstol
+#else
+# define ODBCXX_CHAR_TYPE char
+# define ODBCXX_SIGNED_CHAR_TYPE signed char
+# define ODBCXX_SQLCHAR SQLCHAR
+# define ODBCXX_STRING_CONST(s) s
+# define ODBCXX_COUT cout
+# define ODBCXX_CERR cerr
+# define ODBCXX_STRTOL strtol
+#endif
 
 #endif // __ODBCXX_SETUP_H

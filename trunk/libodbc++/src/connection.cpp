@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -51,7 +51,7 @@ Connection::Connection(SQLHDBC h)
 Connection::~Connection()
 {
   while(!pd_->statements_.empty()) {
-    PD::StatementList::iterator 
+    PD::StatementList::iterator
       i=pd_->statements_.begin();
     delete *i;
   }
@@ -74,11 +74,11 @@ Connection::~Connection()
 //We have a case where the calling statement won't be registered
 //with this connection. When a constructor in a subclass
 //of Statement fails, the Statement destructor will still
-//be called. 
+//be called.
 void Connection::_unregisterStatement(Statement* stmt)
 {
   ODBCXX_LOCKER(pd_->access_);
-  PD::StatementList::iterator 
+  PD::StatementList::iterator
     i=pd_->statements_.find(stmt);
   if(i!=pd_->statements_.end()) {
     pd_->statements_.erase(i);
@@ -99,17 +99,17 @@ SQLUINTEGER Connection::_getNumericOption(SQLINTEGER optnum)
 
   SQLUINTEGER res;
   SQLRETURN r=SQLGetConnectOption(hdbc_,optnum,(SQLPOINTER)&res);
-  
+
   this->_checkConError(hdbc_,r,"Error fetching numeric connection option");
-  
+
   return res;
 
 #else
-  // ODBC 3 
+  // ODBC 3
   SQLUINTEGER res;
   SQLINTEGER dummy;
   SQLRETURN r=SQLGetConnectAttr(hdbc_,optnum,(SQLPOINTER)&res, sizeof(res),&dummy);
-  this->_checkConError(hdbc_,r,"Error fetching numeric connection attribute");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching numeric connection attribute"));
   return res;
 #endif
 }
@@ -120,26 +120,26 @@ ODBCXX_STRING Connection::_getStringOption(SQLINTEGER optnum)
 {
 #if ODBCVER < 0x0300
 
-  char buf[SQL_MAX_OPTION_STRING_LENGTH+1]; //paranoia
-  SQLRETURN r=SQLGetConnectOption(hdbc_,optnum,(SQLCHAR*)buf);
-  
-  this->_checkConError(hdbc_,r,"Error fetching string connection option");
-  
+  ODBCXX_CHAR_TYPE buf[SQL_MAX_OPTION_STRING_LENGTH+1]; //paranoia
+  SQLRETURN r=SQLGetConnectOption(hdbc_,optnum,(ODBCXX_SQLCHAR*)buf);
+
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching string connection option"));
+
   return ODBCXX_STRING_C(buf);
 
 #else
 
-  char buf[256];
+  ODBCXX_CHAR_TYPE buf[256];
   SQLINTEGER optSize;
   SQLRETURN r=SQLGetConnectAttr(hdbc_,optnum,(SQLPOINTER)buf, 255, &optSize);
 
-  this->_checkConError(hdbc_,r,"Error fetching string connection attribute");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching string connection attribute"));
 
   if(optSize>255) {
-    char* tmp=new char[optSize+1];
-    odbc::Deleter<char> _tmp(tmp,true);
+    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[optSize+1];
+    odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
     r=SQLGetConnectAttr(hdbc_,optnum,(SQLPOINTER)tmp,optSize,&optSize);
-    this->_checkConError(hdbc_,r,"Error fetching string connection attribute");
+    this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching string connection attribute"));
     return ODBCXX_STRING_C(tmp);
   }
   return ODBCXX_STRING_C(buf);
@@ -158,9 +158,9 @@ void Connection::_setNumericOption(SQLINTEGER optnum, SQLUINTEGER value)
     SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,sizeof(value))
 #endif
     ;
-  
-  this->_checkConError(hdbc_,r,"Error setting numeric connection option");
-}          
+
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting numeric connection option"));
+}
 
 
 //private
@@ -176,8 +176,8 @@ void Connection::_setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value)
 		      ODBCXX_STRING_LEN(value));
 #endif
     ;
-  
-  this->_checkConError(hdbc_,r,"Error setting string connection option");
+
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting string connection option"));
 }
 
 
@@ -187,35 +187,35 @@ void Connection::_connect(const ODBCXX_STRING& dsn,
 			  const ODBCXX_STRING& password)
 {
   SQLRETURN r=SQLConnect(hdbc_,
-			 (SQLCHAR*) ODBCXX_STRING_DATA(dsn),
+			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(dsn),
 			 ODBCXX_STRING_LEN(dsn),
-			 (SQLCHAR*) ODBCXX_STRING_DATA(user),
+			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(user),
 			 ODBCXX_STRING_LEN(user),
-			 (SQLCHAR*) ODBCXX_STRING_DATA(password),
+			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(password),
 			 ODBCXX_STRING_LEN(password));
-  
-  this->_checkConError(hdbc_,r,"Failed to connect to datasource");
+
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
   driverInfo_=new DriverInfo(this);
 }
 
 void Connection::_connect(const ODBCXX_STRING& connectString)
 {
-  SQLCHAR dummy[256];
+  ODBCXX_SQLCHAR dummy[256];
   SQLSMALLINT dummySize;
   SQLRETURN r=SQLDriverConnect(hdbc_,
 			       0,
-			       (SQLCHAR*) ODBCXX_STRING_DATA(connectString),
+			       (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(connectString),
 			       ODBCXX_STRING_LEN(connectString),
 			       dummy,
 			       255,
 			       &dummySize,
 			       SQL_DRIVER_COMPLETE);
 
-  this->_checkConError(hdbc_,r,"Failed to connect to datasource");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
   driverInfo_=new DriverInfo(this);
-} 
+}
 
 
 
@@ -242,7 +242,7 @@ void Connection::commit()
     SQLTransact(SQL_NULL_HENV, hdbc_, SQL_COMMIT)
 #endif
     ;
-  this->_checkConError(hdbc_,r,"Commit failed");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Commit failed"));
 }
 
 
@@ -255,7 +255,7 @@ void Connection::rollback()
     SQLTransact(SQL_NULL_HENV, hdbc_, SQL_ROLLBACK)
 #endif
     ;
-  this->_checkConError(hdbc_,r,"Rollback failed");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Rollback failed"));
 }
 
 void Connection::setCatalog(const ODBCXX_STRING& catalog)
@@ -270,9 +270,9 @@ ODBCXX_STRING Connection::getCatalog()
 {
   return this->_getStringOption
     (ODBC3_C(SQL_ATTR_CURRENT_CATALOG,SQL_CURRENT_QUALIFIER));
-}        
+}
 
-Connection::TransactionIsolation 
+Connection::TransactionIsolation
 Connection::getTransactionIsolation()
 {
   if(metaData_->supportsTransactions()) {
@@ -284,7 +284,7 @@ Connection::getTransactionIsolation()
 
     case SQL_TXN_READ_COMMITTED:
       return TRANSACTION_READ_COMMITTED;
-      
+
     case SQL_TXN_REPEATABLE_READ:
       return TRANSACTION_REPEATABLE_READ;
 
@@ -295,7 +295,7 @@ Connection::getTransactionIsolation()
       return TRANSACTION_SERIALIZABLE;
     }
   }
-  
+
   return TRANSACTION_NONE;
 }
 
@@ -311,25 +311,25 @@ void Connection::setTransactionIsolation(TransactionIsolation i)
     case TRANSACTION_READ_COMMITTED:
       l=SQL_TXN_READ_COMMITTED;
       break;
-      
+
     case TRANSACTION_REPEATABLE_READ:
       l=SQL_TXN_REPEATABLE_READ;
       break;
-      
+
     case TRANSACTION_SERIALIZABLE:
       l=SQL_TXN_SERIALIZABLE;
       break;
-      
+
     default:
       throw SQLException
-	("[libodbc++]: Invalid transaction isolation");
+	(ODBCXX_STRING_CONST("[libodbc++]: Invalid transaction isolation"));
     }
     this->_setNumericOption
       (ODBC3_C(SQL_ATTR_TXN_ISOLATION,SQL_TXN_ISOLATION),l);
   } else {
-    throw SQLException("[libodbc++]: Data source does not support transactions");
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Data source does not support transactions"));
   }
-}        
+}
 
 void Connection::setReadOnly(bool readOnly)
 {
@@ -375,34 +375,34 @@ void Connection::setTraceFile(const ODBCXX_STRING& fn)
 
 ODBCXX_STRING Connection::nativeSQL(const ODBCXX_STRING& sql)
 {
-  char buf[256];
+  ODBCXX_CHAR_TYPE buf[256];
   SQLINTEGER dataSize;
   SQLRETURN r;
 
   r=SQLNativeSql(hdbc_,
-		 (SQLCHAR*) ODBCXX_STRING_DATA(sql),
+		 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
 		 ODBCXX_STRING_LEN(sql),
-		 (SQLCHAR*)buf,
+		 (ODBCXX_SQLCHAR*)buf,
 		 255,
 		 &dataSize);
-    
-  ODBCXX_STRING msg("Error converting "+sql+" to native SQL");
-  this->_checkConError(hdbc_,r, 
+
+  ODBCXX_STRING msg(ODBCXX_STRING_CONST("Error converting ")+sql+ODBCXX_STRING_CONST(" to native SQL"));
+  this->_checkConError(hdbc_,r,
 		       ODBCXX_STRING_CSTR(msg));
-  
+
   if(dataSize>255) {
-    char* tmp=new char[dataSize+1];
-    odbc::Deleter<char> _tmp(tmp,true);
+    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[dataSize+1];
+    odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
     r=SQLNativeSql(hdbc_,
-		   (SQLCHAR*) ODBCXX_STRING_DATA(sql),
+		   (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
 		   ODBCXX_STRING_LEN(sql),
-		   (SQLCHAR*)tmp,
+		   (ODBCXX_SQLCHAR*)tmp,
 		   dataSize+1,
 		   &dataSize);
     this->_checkConError(hdbc_, r, ODBCXX_STRING_CSTR(msg));
     return ODBCXX_STRING_C(tmp);
   }
-    
+
   return ODBCXX_STRING_C(buf);
 }
 
@@ -424,7 +424,7 @@ SQLHSTMT Connection::_allocStmt()
     SQLAllocHandle(SQL_HANDLE_STMT,hdbc_,&hstmt)
 #endif
     ;
-  this->_checkConError(hdbc_,r,"Statement allocation failed");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Statement allocation failed"));
   return hstmt;
 }
 
@@ -440,7 +440,7 @@ Statement* Connection::createStatement(int resultSetType,
 				       int resultSetConcurrency)
 {
   SQLHSTMT hstmt=this->_allocStmt();
-  
+
   Statement* stmt=new Statement(this,hstmt,resultSetType,resultSetConcurrency);
   this->_registerStatement(stmt);
   return stmt;
@@ -481,7 +481,7 @@ CallableStatement* Connection::prepareCall(const ODBCXX_STRING& sql,
 					   int resultSetConcurrency)
 {
   SQLHSTMT hstmt=this->_allocStmt();
-  
+
   CallableStatement* cstmt= new CallableStatement(this,hstmt,sql,
 						  resultSetType,
 						  resultSetConcurrency);

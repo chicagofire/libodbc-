@@ -206,9 +206,9 @@ namespace odbc {
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
       ,
       /** A wide SQL CHAR (fixed length less than 256) */
-      WVARCHAR          = SQL_WCHAR,
+      WCHAR         = SQL_WCHAR,
       /** A wide SQL VARCHAR (variable length less than 256) */
-      WCHAR          = SQL_WVARCHAR,
+      WVARCHAR      = SQL_WVARCHAR,
       /** A wide SQL LONGVARCHAR (variable length, huge) */
       WLONGVARCHAR   = SQL_WLONGVARCHAR
 #endif
@@ -226,13 +226,13 @@ namespace odbc {
   class ODBCXX_EXPORT Bytes {
   private:
     struct Rep {
-      signed char* buf_;
+      ODBCXX_SIGNED_CHAR_TYPE* buf_;
       size_t len_;
       int refCount_;
-      Rep(const signed char* b, size_t l)
+      Rep(const ODBCXX_SIGNED_CHAR_TYPE* b, size_t l)
 	:len_(l), refCount_(0) {
 	if(len_>0) {
-	  buf_=new signed char[len_];
+	  buf_=new ODBCXX_SIGNED_CHAR_TYPE[len_];
 	  memcpy((void*)buf_,(void*)b,len_);
 	} else {
 	  buf_=NULL;
@@ -252,7 +252,7 @@ namespace odbc {
     }
 
     /** Constructor */
-    Bytes(const signed char* data, size_t dataLen)
+    Bytes(const ODBCXX_SIGNED_CHAR_TYPE* data, size_t dataLen)
       :rep_(new Rep(data,dataLen)) {
       rep_->refCount_++;
     }
@@ -274,7 +274,7 @@ namespace odbc {
     }
 
     /** Comparison */
-    bool operator==(const Bytes& b) {
+    bool operator==(const Bytes& b) const {
 			if (getSize()!=b.getSize())
 				return false;
 			for(size_t i=0;i<getSize();i++) {
@@ -292,7 +292,7 @@ namespace odbc {
     }
 
     /** Returns a pointer to the data */
-    const signed char* getData() const {
+    const ODBCXX_SIGNED_CHAR_TYPE* getData() const {
       return rep_->buf_;
     }
 
@@ -310,7 +310,7 @@ namespace odbc {
     int month_;
     int day_;
 
-    virtual void _invalid(const char* what, int value);
+    virtual void _invalid(const ODBCXX_CHAR_TYPE* what, int value);
 
     int _validateYear(int y) {
       return y;
@@ -318,14 +318,14 @@ namespace odbc {
 
     int _validateMonth(int m) {
       if(m<1 || m>12) {
-	this->_invalid("month",m);
+	this->_invalid(ODBCXX_STRING_CONST("month"),m);
       }
       return m;
     }
 
     int _validateDay(int d) {
       if(d<1 || d>31) {
-	this->_invalid("day",d);
+	this->_invalid(ODBCXX_STRING_CONST("day"),d);
       }
       return d;
     }
@@ -428,25 +428,25 @@ namespace odbc {
     int minute_;
     int second_;
 
-    virtual void _invalid(const char* what, int value);
+    virtual void _invalid(const ODBCXX_CHAR_TYPE* what, int value);
 
     int _validateHour(int h) {
       if(h<0 || h>23) {
-	this->_invalid("hour",h);
+	this->_invalid(ODBCXX_STRING_CONST("hour"),h);
       }
       return h;
     }
 
     int _validateMinute(int m) {
       if(m<0 || m>59) {
-	this->_invalid("minute",m);
+	this->_invalid(ODBCXX_STRING_CONST("minute"),m);
       }
       return m;
     }
 
     int _validateSecond(int s) {
       if(s<0 || s>61) {
-	this->_invalid("second",s);
+	this->_invalid(ODBCXX_STRING_CONST("second"),s);
       }
       return s;
     }
@@ -547,11 +547,11 @@ namespace odbc {
   private:
     int nanos_;
 
-    virtual void _invalid(const char* what, int value);
+    virtual void _invalid(const ODBCXX_CHAR_TYPE* what, int value);
 
     int _validateNanos(int n) {
       if(n<0) {
-	this->_invalid("nanoseconds",n);
+	this->_invalid(ODBCXX_STRING_CONST("nanoseconds"),n);
       }
       return n;
     }
@@ -658,8 +658,8 @@ namespace odbc {
     friend class ErrorHandler;
 
   private:
-    char state_[SQL_SQLSTATE_SIZE+1];
-    char description_[SQL_MAX_MESSAGE_LENGTH];
+    ODBCXX_CHAR_TYPE state_[SQL_SQLSTATE_SIZE+1];
+    ODBCXX_CHAR_TYPE description_[SQL_MAX_MESSAGE_LENGTH];
     SQLINTEGER nativeCode_;
 
     DriverMessage() {}
@@ -676,11 +676,11 @@ namespace odbc {
   public:
     virtual ~DriverMessage() {}
 
-    const char* getSQLState() const {
+    const ODBCXX_CHAR_TYPE* getSQLState() const {
       return state_;
     }
 
-    const char* getDescription() const {
+    const ODBCXX_CHAR_TYPE* getDescription() const {
       return description_;
     }
 
@@ -697,22 +697,33 @@ namespace odbc {
     ODBCXX_STRING reason_;
     ODBCXX_STRING sqlState_;
     int errorCode_;
-#if defined(ODBCXX_QT)
+#if defined(ODBCXX_UNICODE)
+    std::string reason8_;
+#elif defined(ODBCXX_QT)
     QCString reason8_;
 #endif
-
   public:
     /** Constructor */
-    SQLException(const ODBCXX_STRING& reason ="",
-		 const ODBCXX_STRING& sqlState ="",
+    SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
+		 const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
 		 int vendorCode =0)
       :reason_(reason),
        sqlState_(sqlState),
        errorCode_(vendorCode)
-#if defined(ODBCXX_QT)
+#if defined(ODBCXX_UNICODE)
+{
+   const size_t length =sizeof(wchar_t)*reason_.size();
+   char* temp =new char[length+1];
+   wcstombs(temp,reason_.c_str(),length);
+   reason8_ =temp;
+   delete[] temp;
+}
+#else
+# if defined(ODBCXX_QT)
       ,reason8_(reason.local8Bit())
-#endif
+# endif
 {}
+#endif
 
     /** Copy from a DriverMessage */
     SQLException(const DriverMessage& dm)
@@ -749,7 +760,11 @@ namespace odbc {
 #if defined(ODBCXX_QT)
       return reason8_.data();
 #else
+# if defined(ODBCXX_UNICODE)
+      return reason8_.c_str();
+# else
       return reason_.c_str();
+# endif
 #endif
     }
   };
@@ -766,8 +781,8 @@ namespace odbc {
 
   public:
     /** Constructor */
-    SQLWarning(const ODBCXX_STRING& reason ="",
-	       const ODBCXX_STRING& sqlState ="",
+    SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
+	       const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
 	       int vendorCode =0)
       :SQLException(reason,sqlState,vendorCode) {}
 

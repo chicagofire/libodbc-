@@ -59,16 +59,28 @@ namespace odbc {
 
 #else
 
-    char buf[INT_STR_LEN];
+    ODBCXX_CHAR_TYPE buf[INT_STR_LEN];
 
 # if defined(WIN32) && defined(ODBCXX_HAVE__ITOA)
+#  if defined(ODBCXX_UNICODE)
+    _itow(i,buf,10);
+#  else
     _itoa(i,buf,10);
+#  endif
 # elif defined(WIN32) && defined(ODBCXX_HAVE_ITOA)
+#  if defined(ODBCXX_UNICODE)
+    itow(i,buf,10);
+#  else
     itoa(i,buf,10);
+#  endif
+# else
+#  if defined(ODBCXX_UNICODE)
+    swprintf(buf,INT_STR_LEN,L"%d",i);
 # else
     snprintf(buf,INT_STR_LEN,"%d",i);
 # endif
-    return std::string(buf);
+# endif
+    return ODBCXX_STRING(buf);
 #endif
   }
   
@@ -76,22 +88,36 @@ namespace odbc {
 #if defined(ODBCXX_QT)
     return s.toInt();
 #else
-    return (int)strtol(s.c_str(),NULL,10);
+    return (int)ODBCXX_STRTOL(s.c_str(),NULL,10);
 #endif
   }
-  
+
+#if defined(ODBCXX_UNICODE)
+  inline int stringToInt(const std::string& s) {
+    return (int)strtol(s.c_str(),NULL,10);
+  }
+#endif
+
   inline ODBCXX_STRING longToString(Long l) {
-    char buf[LONG_STR_LEN];
+    ODBCXX_CHAR_TYPE buf[LONG_STR_LEN];
 #if defined(WIN32) && defined(ODBCXX_HAVE__I64TOA)
-    _i64toa(l,buf,10);
-#else
-    snprintf(buf,LONG_STR_LEN,
-# if defined(PRId64)
-	     "%" PRId64
-# elif ODBCXX_SIZEOF_LONG==8
-	     "%ld"
+# if defined(ODBCXX_UNICODE)
+    _i64tow(l,buf,10);
 # else
-	     "%lld"
+    _i64toa(l,buf,10);
+# endif
+#else
+# if defined(ODBCXX_UNICODE)
+    swprintf(buf,LONG_STR_LEN,
+# else
+    snprintf(buf,LONG_STR_LEN,
+# endif
+# if defined(PRId64)
+	     ODBCXX_STRING_PERCENT PRId64
+# elif ODBCXX_SIZEOF_LONG==8
+	     ODBCXX_STRING_CONST("%ld")
+# else
+	     ODBCXX_STRING_CONST("%lld")
 # endif
 	     ,l);
 #endif // _i64toa
@@ -100,32 +126,69 @@ namespace odbc {
 
   inline odbc::Long stringToLong(const ODBCXX_STRING& _s) {
 #if !defined(ODBCXX_QT)
-    const char* s=ODBCXX_STRING_CSTR(_s);
+    const ODBCXX_CHAR_TYPE* s=ODBCXX_STRING_CSTR(_s);
 #else
     QCString cs(_s.local8Bit());
     const char* s=cs.data();
 #endif
 
 #if defined(WIN32) && defined(ODBCXX_HAVE__ATOI64)
+# if defined(ODBCXX_UNICODE)
+    return (Long)_wtoi64(s);
+# else
     return (Long)_atoi64(s);
+# endif
 #elif ODBCXX_SIZEOF_LONG==4 && defined(ODBCXX_HAVE_STRTOLL)
+# if defined(ODBCXX_UNICODE)
+    return (Long)wcstoll(s,NULL,10);
+# else
     return (Long)strtoll(s,NULL,10);
+# endif
 #elif ODBCXX_SIZEOF_LONG==4 && defined(ODBCXX_HAVE_STRTOQ)
+# if defined(ODBCXX_UNICODE)
+    return (Long)wcstoq(s,NULL,10);
+# else
     return (Long)strtoq(s,NULL,10);
+# endif
 #else
     // either 64bit platform, or I'm stupid.
-    return (Long)strtol(s,NULL,10);
+    return (Long)ODBCXX_STRTOL(s,NULL,10);
 #endif
   }
 
+#if defined(ODBCXX_UNICODE)
+  inline odbc::Long stringToLong(const std::string& _s) {
+    const char* s=_s.c_str();
+
+# if defined(WIN32) && defined(ODBCXX_HAVE__ATOI64)
+    return (Long)_atoi64(s);
+# elif ODBCXX_SIZEOF_LONG==4 && defined(ODBCXX_HAVE_STRTOLL)
+    return (Long)strtoll(s,NULL,10);
+# elif ODBCXX_SIZEOF_LONG==4 && defined(ODBCXX_HAVE_STRTOQ)
+    return (Long)strtoq(s,NULL,10);
+# else
+    // either 64bit platform, or I'm stupid.
+    return (Long)ODBCXX_STRTOL(s,NULL,10);
+# endif
+  }
+#endif
+
   inline ODBCXX_STRING doubleToString(double d) {
-    char buf[DOUBLE_STR_LEN];
-#if defined(ODBCXX_HAVE_SNPRINTF)
-    snprintf(buf,DOUBLE_STR_LEN,"%f",d);
-#elif defined(ODBCXX_HAVE__SNPRINTF)
+    ODBCXX_CHAR_TYPE buf[DOUBLE_STR_LEN];
+#if defined(ODBCXX_HAVE__SNPRINTF)
+# if defined(ODBCXX_UNICODE)
+    _snwprintf(buf,DOUBLE_STR_LEN,L"%f",d);
+# else
     _snprintf(buf,DOUBLE_STR_LEN,"%f",d);
+# endif
+#elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
+    snprintf(buf,DOUBLE_STR_LEN,"%f",d);
 #else
+# if defined(ODBCXX_UNICODE)
+    swprintf(buf,"%f",d);
+# else
     sprintf(buf,"%f",d);
+# endif
 #endif
     return ODBCXX_STRING_C(buf);
   }
@@ -134,15 +197,25 @@ namespace odbc {
 #if defined(ODBCXX_QT)
     return s.toDouble();
 #else
+# if defined(ODBCXX_UNICODE)
+    return wcstod(s.c_str(),NULL);
+# else
     return strtod(s.c_str(),NULL);
+# endif
 #endif
   }
+
+#if defined(ODBCXX_UNICODE)
+  inline double stringToDouble(const std::string& s) {
+    return strtod(s.c_str(),NULL);
+  }
+#endif
 
   // stream stuff
   // this should return <=0 on EOF, and number of bytes 
   // read otherwise
   inline int readStream(ODBCXX_STREAM* s,
-			char* buf,
+			ODBCXX_CHAR_TYPE* buf,
 			unsigned int maxlen) {
 #if defined(ODBCXX_QT)
     return s->readBlock(buf,maxlen);
@@ -174,7 +247,7 @@ namespace odbc {
 
   // this is rather ineffective...
   inline ODBCXX_STRING streamToString(ODBCXX_STREAM* s) {
-    char buf[GETDATA_CHUNK_SIZE];
+    ODBCXX_CHAR_TYPE buf[GETDATA_CHUNK_SIZE];
 #if defined(ODBCXX_QT)
     int r;
     QString ret;
@@ -182,7 +255,7 @@ namespace odbc {
       ret+=ODBCXX_STRING_CL(buf,r);
     }
 #else
-    std::string ret;
+    ODBCXX_STRING ret;
     while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) {
       ret+=ODBCXX_STRING_CL(buf,s->gcount());
     }
@@ -191,11 +264,11 @@ namespace odbc {
   }
 
   inline ODBCXX_BYTES streamToBytes(ODBCXX_STREAM* s) {
-    char buf[GETDATA_CHUNK_SIZE];
-    char* bigbuf=NULL;
+    ODBCXX_CHAR_TYPE buf[GETDATA_CHUNK_SIZE];
+    ODBCXX_CHAR_TYPE* bigbuf=NULL;
     unsigned int size=0;
-    int r;
 #if defined(ODBCXX_QT)
+    int r;
     while((r=s->readBlock(buf,GETDATA_CHUNK_SIZE))!=-1) {
       char* tmp=new char[size+(unsigned int)r];
       if(size>0) {
@@ -211,7 +284,7 @@ namespace odbc {
     return QByteArray().assign(bigbuf,size);
 #else
     while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) {
-      char* tmp=new char[size+s->gcount()];
+      ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[size+s->gcount()];
       if(size>0) {
 	memcpy((void*)tmp,(void*)bigbuf,size);
       }
@@ -222,7 +295,7 @@ namespace odbc {
     }
 
     // this copies the buffer's contents
-    Bytes b((signed char*)bigbuf,size);
+    Bytes b((ODBCXX_SIGNED_CHAR_TYPE*)bigbuf,size);
     delete[] bigbuf;
     return b;
 #endif
@@ -232,7 +305,7 @@ namespace odbc {
 #if !defined(ODBCXX_QT)
     ODBCXX_SSTREAM* s=new ODBCXX_SSTREAM();
     if(b.getSize()>0) {
-      s->write((char*)b.getData(),b.getSize());
+      s->write((ODBCXX_CHAR_TYPE*)b.getData(),b.getSize());
     }
     return s;
 #else // ODBCXX_QT
@@ -243,7 +316,7 @@ namespace odbc {
   }
 
   
-};
+} // namespace odbc
 
 
 #endif

@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -64,8 +64,10 @@ void CallableStatement::registerOutParameter(int idx, int sqlType, int scale)
 do {											\
   if(idx<1 || idx>(int)numParams_) {							\
     throw SQLException									\
-      ("[libodbc++]: PreparedStatement::set" #FUNCSUFFIX "(): parameter index "+	\
-       intToString(idx)+" out of range");						\
+      (ODBCXX_STRING_CONST("[libodbc++]: PreparedStatement::set") \
+       ODBCXX_STRING_CONST(#FUNCSUFFIX) \
+       ODBCXX_STRING_CONST("(): parameter index ")+	\
+       intToString(idx)+ODBCXX_STRING_CONST(" out of range"));						\
   }											\
 } while(false)
 

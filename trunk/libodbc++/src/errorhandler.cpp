@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -34,12 +34,12 @@ DriverMessage* DriverMessage::fetchMessage(SQLHENV henv,
 					   SQLHSTMT hstmt)
 {
   DriverMessage* m=new DriverMessage();
-  
+
   SQLSMALLINT tmp;
   SQLRETURN r=SQLError(henv, hdbc, hstmt,
-		       (SQLCHAR*)m->state_,
+		       (ODBCXX_SQLCHAR*)m->state_,
 		       &m->nativeCode_,
-		       (SQLCHAR*)m->description_,
+		       (ODBCXX_SQLCHAR*)m->description_,
 		       SQL_MAX_MESSAGE_LENGTH-1,
 		       &tmp);
 
@@ -71,7 +71,7 @@ DriverMessage* DriverMessage::fetchMessage(SQLHENV henv,
 
   return m;
 }
-				   
+				
 
 #else
 
@@ -83,13 +83,13 @@ DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
 					   int idx)
 {
   DriverMessage* m=new DriverMessage();
-  
+
   SQLSMALLINT tmp;
 
   SQLRETURN r=SQLGetDiagRec(handleType, h, idx,
-			    (SQLCHAR*)m->state_,
+			    (ODBCXX_SQLCHAR*)m->state_,
 			    &m->nativeCode_,
-			    (SQLCHAR*)m->description_,
+			    (ODBCXX_SQLCHAR*)m->description_,
 			    SQL_MAX_MESSAGE_LENGTH-1,
 			    &tmp);
 
@@ -102,14 +102,14 @@ DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
     // internal whoops
     delete m;
     throw SQLException
-      ("[libodbc++]: fetchMessage() called with invalid handle");
+      (ODBCXX_STRING_CONST("[libodbc++]: fetchMessage() called with invalid handle"));
     break;
 
   case SQL_ERROR:
     // this should be extremely rare, but still..
     delete m;
     throw SQLException
-      ("[libodbc++]: SQLGetDiagRec() returned SQL_ERROR");
+      (ODBCXX_STRING_CONST("[libodbc++]: SQLGetDiagRec() returned SQL_ERROR"));
     break;
 
   default:
@@ -167,10 +167,10 @@ WarningList* ErrorHandler::getWarnings()
 void ErrorHandler::_postWarning(SQLWarning* w)
 {
   ODBCXX_LOCKER(pd_->access_);
-  
+
   if(collectWarnings_) {
     warnings_->insert(warnings_->end(),w);
-    
+
     if(warnings_->size()>MAX_WARNINGS) {
       //nuke oldest warning
       WarningList::iterator i=warnings_->begin();
@@ -189,27 +189,27 @@ void ErrorHandler::_postWarning(SQLWarning* w)
 #if ODBCVER < 0x0300
 
 void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
-				    SQLRETURN ret, 
+				    SQLRETURN ret,
 				    const ODBCXX_STRING& what)
 {
 
   DriverMessage* m=DriverMessage::fetchMessage(henv, hdbc, hstmt);
-  
+
   if(ret==SQL_ERROR) {
-    
+
     Deleter<DriverMessage> _m(m);
 
     // fixme: we should fetch all available messages instead
     // of only the first one
-    ODBCXX_STRING errmsg("");
+    ODBCXX_STRING errmsg(ODBCXX_STRING_CONST(""));
     if(ODBCXX_STRING_LEN(what)>0) {
-      errmsg=what+": ";
+      errmsg=what+ODBCXX_STRING_CONST(": ");
     }
 
     if(m!=NULL) {
       errmsg+=m->getDescription();
-      throw SQLException(errmsg, 
-			 m->getSQLState(), 
+      throw SQLException(errmsg,
+			 m->getSQLState(),
 			 m->getNativeCode());
     } else {
       errmsg+="No description available";
@@ -225,9 +225,9 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
     }
 
   } else {
-    
+
     delete m;
-    
+
   }
 
 }
@@ -236,32 +236,32 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 #else
 
 void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
-				    SQLRETURN ret, 
+				    SQLRETURN ret,
 				    const ODBCXX_STRING& what)
 {
 
   int idx=1;
 
   DriverMessage* m=DriverMessage::fetchMessage(handleType, handle, idx);
-  
+
   if(ret==SQL_ERROR) {
 
     Deleter<DriverMessage> _m(m);
 
     // fixme: we should fetch all available messages instead
     // of only the first one
-    ODBCXX_STRING errmsg("");
+    ODBCXX_STRING errmsg(ODBCXX_STRING_CONST(""));
     if(ODBCXX_STRING_LEN(what)>0) {
-      errmsg=what+": ";
+      errmsg=what+ODBCXX_STRING_CONST(": ");
     }
 
     if(m!=NULL) {
       errmsg+=m->getDescription();
-      throw SQLException(errmsg, 
-			 m->getSQLState(), 
+      throw SQLException(errmsg,
+			 m->getSQLState(),
 			 m->getNativeCode());
     } else {
-      errmsg+="No description available";
+      errmsg+=ODBCXX_STRING_CONST("No description available");
       throw SQLException(errmsg);
     }
 
@@ -274,9 +274,9 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
     }
 
   } else {
-    
+
     delete m;
-    
+
   }
 
 }
