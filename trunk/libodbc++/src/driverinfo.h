@@ -128,7 +128,7 @@ namespace odbc {
     }
   };
 
-};
+} // namespace odbc
 
 
 #endif // __DRIVERINFO_H

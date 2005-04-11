@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -52,7 +52,7 @@ namespace odbc {
     bool isStreamed_;
     ODBCXX_STREAM* stream_;
     bool ownStream_;
-    
+
     int sqlType_;
     int cType_;
     int precision_;
@@ -66,7 +66,7 @@ namespace odbc {
     char* data() {
       return &buffer_[bufferSize_*currentRow_];
     }
-    
+
     void resetStream() {
       if(isStreamed_) {
 	if(ownStream_) {
@@ -87,7 +87,7 @@ namespace odbc {
     void setDataStatus(SQLINTEGER i) {
       dataStatus_[currentRow_]=i;
     }
-    
+
     SQLINTEGER getDataStatus() const {
       return dataStatus_[currentRow_];
     }
@@ -114,14 +114,14 @@ namespace odbc {
     Long getLong() const;
     float getFloat() const;
     double getDouble() const;
-    
+
     Date getDate() const;
     Time getTime() const;
     Timestamp getTimestamp() const;
     ODBCXX_STRING getString() const;
-    
+
     ODBCXX_STREAM* getStream() const;
-    
+
     void setNull() {
       this->resetStream();
       this->setDataStatus(SQL_NULL_DATA);
@@ -130,7 +130,7 @@ namespace odbc {
     bool isNull() const {
       return this->getDataStatus()==SQL_NULL_DATA;
     }
-    
+
     void setBoolean(bool b);
     void setByte(signed char b);
     void setBytes(const ODBCXX_BYTES& b);
@@ -155,7 +155,7 @@ namespace odbc {
     void rowChanged() {
       this->resetStream();
     }
-    
+
     //this is called after an insert/update has been done
     //using the rowset
     void afterUpdate() {
@@ -185,7 +185,7 @@ namespace odbc {
   class ODBCXX_EXPORT Rowset {
   private:
     typedef std::vector<DataHandler*> DataHandlerList;
-    
+
     DataHandlerList dataHandlers_;
 
     size_t rows_;
@@ -200,7 +200,7 @@ namespace odbc {
 
   public:
     Rowset(size_t rows, bool use3)
-      :rows_(rows), 
+      :rows_(rows),
        currentRow_(0),
        use3_(use3) {
       assert(rows_>0);
@@ -263,6 +263,6 @@ namespace odbc {
       }
     }
   };
-};
+} // namespace odbc
 
 #endif // __DATAHANDLER_H
