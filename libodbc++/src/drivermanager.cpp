@@ -122,7 +122,7 @@ void DriverManager::_checkInit()
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
     {
       throw SQLException
-	(ODBCXX_STRING_CONST("Failed to allocate environment handle"));
+        (ODBCXX_STRING_CONST("Failed to allocate environment handle"));
     }
 
 #if ODBCVER >= 0x0300
@@ -141,7 +141,8 @@ void DriverManager::_checkInit()
     catch (...)
     {
       eh_ = 0;
-      throw SQLException("Failed to allocate error handler");
+      throw SQLException
+        (ODBCXX_STRING_CONST("Failed to allocate error handler"));
     }
   }
 }
@@ -210,7 +211,8 @@ Connection* DriverManager::_createConnection()
   {
     delete con;
     con = 0;
-    throw SQLException("Failed to allocate connection handle");
+    throw SQLException
+      (ODBCXX_STRING_CONST("Failed to allocate connection handle"));
   }
 
   return con;
