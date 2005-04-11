@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -36,7 +36,7 @@ using namespace odbc;
 using namespace std;
 
 // values for location_
-#define BEFORE_FIRST 	(-3)
+#define BEFORE_FIRST	(-3)
 #define AFTER_LAST	(-2)
 #define INSERT_ROW	(-1)
 #define UNKNOWN		(0)
@@ -46,13 +46,13 @@ using namespace std;
 
 /*
   Our current location in a result set is stored in location_. If
-  location_>0, we know our position. If it's UNKNOWN we don't 
+  location_>0, we know our position. If it's UNKNOWN we don't
   but it's still somewhere in the resultset. If location_<0
   we're outside or on the insert row.
 
   We decide on which of the SQL*Fetch* functions to use in the
   following way:
-  
+
   if (DM_IS_ODBC3) {
     if(forwardOnly) {
       SQLFetch();
@@ -68,13 +68,13 @@ using namespace std;
   }
 
 
-  For scrollable ResultSets, we add an extra row to rowset_. A call to 
+  For scrollable ResultSets, we add an extra row to rowset_. A call to
   moveToInsertRow() would put the rowset position on the last row.
 
-  When using an ODBC2 driver, a call to insertRow simply does 
+  When using an ODBC2 driver, a call to insertRow simply does
   _applyPosition(SQL_ADD) (while on the insert row).
 
-  With an ODBC3 driver, we have to re-bind all columns to point at the 
+  With an ODBC3 driver, we have to re-bind all columns to point at the
   last row with rowset size set to 1 (stupid ODBC bind offsets only work with
   row-wise binding, and we use column-wise), and then call SQLBulkOperations.
   That binding is kept in effect until moveToCurrentRow() is called, for
@@ -84,7 +84,7 @@ using namespace std;
   1. bindPos_ = 0 -> app didn't call insertRow(), we can just set location_
   to locBeforeInsert_ and the rowset pos to rowBeforeInsert_.
 
-  2. bindPos_ >0 -> app inserted one or more rows using SQLBulkOperations(). 
+  2. bindPos_ >0 -> app inserted one or more rows using SQLBulkOperations().
   Per ODBC3 specs, the actual rowset position is undefined, and we do the
   following:
      1. Restore the rowset size (SQL_ROW_ARRAY_SIZE)
@@ -113,7 +113,7 @@ namespace odbc {
       orig_=val_;
     }
   };
-}; 
+};
 
 
 
@@ -121,7 +121,7 @@ namespace odbc {
 do {								\
   if(location_==INSERT_ROW) {					\
     throw SQLException						\
-      ("[libodbc++]: Illegal operation while on insert row");	\
+      (ODBCXX_STRING_CONST("[libodbc++]: Illegal operation while on insert row"));	\
   }								\
 } while(false)
 
@@ -130,13 +130,13 @@ do {								\
 do {									\
   if(this->getType()==TYPE_FORWARD_ONLY) {				\
     throw SQLException							\
-      ("[libodbc++]: Operation not possible on a forward-only cursor");	\
+      (ODBCXX_STRING_CONST("[libodbc++]: Operation not possible on a forward-only cursor"));	\
   } 									\
 } while(false)
 
 
 ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
-  :statement_(stmt), 
+  :statement_(stmt),
    hstmt_(hstmt),
    ownStatement_(ownStmt),
    currentFetchSize_(stmt->getFetchSize()),
@@ -153,9 +153,9 @@ ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
 
   //ODBC says GetData cannot be called on a forward-only cursor
   //with rowset size > 1
-  //so, if ResultSetMetaData saw a streamed column, 
+  //so, if ResultSetMetaData saw a streamed column,
   //we 'adjust' the rowset size to 1
-  if(metaData_->needsGetData_==true && 
+  if(metaData_->needsGetData_==true &&
      this->getType()==TYPE_FORWARD_ONLY) {
     currentFetchSize_=1;
   }
@@ -164,12 +164,12 @@ ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
 
 
 #if ODBCVER >= 0x0300
-  
-  // with ODBC3, we call SQLFetchScroll, 
+
+  // with ODBC3, we call SQLFetchScroll,
   // and need to set the following
   statement_->_setPointerOption
     (SQL_ATTR_ROWS_FETCHED_PTR,(SQLPOINTER)&rowsInRowset_);
-  
+
 #endif
 
   //this will do all the work - set the rowset size, bind and so on
@@ -181,8 +181,8 @@ ResultSet::~ResultSet()
   if(colsBound_) {
     this->_unbindCols();
   }
-  
-  // in case some exception caused us 
+
+  // in case some exception caused us
   // to destruct, these can be bound
   if(streamedColsBound_) {
     this->_unbindStreamedCols();
@@ -217,7 +217,7 @@ void ResultSet::_applyFetchSize()
     (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE),
      currentFetchSize_);
 
-  // it is possible that the driver changes the 
+  // it is possible that the driver changes the
   // rowset size, so we do an extra check
   int driverFetchSize=statement_->_getNumericOption
     (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE));
@@ -246,16 +246,16 @@ void ResultSet::_resetRowset()
 {
   delete rowset_;
   delete[] rowStatus_;
-  
+
   //Forward-only resultsets can't have insert rows
   int extraRows=(this->getType()==TYPE_FORWARD_ONLY?0:1);
   rowset_=new Rowset(currentFetchSize_+extraRows,//1 for the insert row
 		     ODBC3_DC(true,false)); // possibly use ODBC3 c-types
-  
+
   rowStatus_=new SQLUSMALLINT[currentFetchSize_+extraRows]; //same here
 
 #if ODBCVER >= 0x0300
-  // since SQLFetchScroll doesn't take this argument, we 
+  // since SQLFetchScroll doesn't take this argument, we
   // need to set it here.
   statement_->_setPointerOption
     (SQL_ATTR_ROW_STATUS_PTR,(SQLPOINTER)rowStatus_);
@@ -273,10 +273,14 @@ void ResultSet::_resetRowset()
 #else
 
     if(this->_getDriverInfo()->getMajorVersion()>=3) {
-    
+
       switch(metaData_->getColumnType(i)) {
       case Types::CHAR:
       case Types::VARCHAR:
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
+	  case Types::WCHAR:
+	  case Types::WVARCHAR:
+#endif
       case Types::BINARY:
       case Types::VARBINARY:
 	realprec=metaData_->colLengths_[i-1];
@@ -289,7 +293,7 @@ void ResultSet::_resetRowset()
     } else {
       realprec=metaData_->getPrecision(i);
     }
-    
+
 #endif
 
     rowset_->addColumn(metaData_->getColumnType(i),
@@ -314,8 +318,8 @@ SQLRETURN ResultSet::_applyPosition(int mode)
 			  (SQLUSMALLINT)rowset_->getCurrentRow()+1,
 			  (SQLUSMALLINT)mode,
 			  SQL_LOCK_NO_CHANGE);
-    
-    this->_checkStmtError(hstmt_,r,"SQLSetPos failed");
+
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLSetPos failed"));
     return r;
   }
   return SQL_SUCCESS;
@@ -330,19 +334,18 @@ void ResultSet::_bindCols()
 
   bindPos_=rowset_->getCurrentRow();
   colsBound_=true;
-  
+
   for(int i=1; i<=nc; i++) {
     DataHandler* dh=rowset_->getColumn(i);
     if(!dh->isStreamed_) {
-
       r=SQLBindCol(hstmt_,
 		   (SQLUSMALLINT)i,
 		   dh->cType_,
 		   (SQLPOINTER)dh->data(),
 		   dh->bufferSize_,
 		   &dh->dataStatus_[dh->currentRow_]);
-      
-      this->_checkStmtError(hstmt_,r,"Error binding column");
+
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error binding column"));
     }
   }
 }
@@ -365,7 +368,7 @@ void ResultSet::_bindStreamedCols()
 			     0,
 			     &dh->dataStatus_[dh->currentRow_]);
       //dh->dataStatus_ should be SQL_LEN_DATA_AT_EXEC(len) by this point
-      this->_checkStmtError(hstmt_,r,"Error binding column");
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error binding column"));
     }
   }
 }
@@ -384,7 +387,7 @@ void ResultSet::_unbindStreamedCols()
 			   0, //setting this to NULL means unbind this column
 			   0,
 			   dh->dataStatus_);
-      this->_checkStmtError(hstmt_,r,"Error unbinding column");
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error unbinding column"));
     }
   }
 }
@@ -395,7 +398,7 @@ void ResultSet::_unbindStreamedCols()
 void ResultSet::_unbindCols()
 {
   //we don't perform an error check here, since
-  //this is called from the destructor; 
+  //this is called from the destructor;
   //egcs dislikes exceptions thrown from destructors.
   SQLFreeStmt(hstmt_,SQL_UNBIND);
   colsBound_=false;
@@ -408,9 +411,9 @@ void ResultSet::_unbindCols()
 void ResultSet::_doFetch(int fetchType, int rowNum)
 {
   SQLRETURN r;
-  
+
   bool isfo=this->getType()==TYPE_FORWARD_ONLY;
-  
+
   // if isfo is true fetchType can only be SQL_FETCH_NEXT
   if(isfo
 #if ODBCVER < 0x0300
@@ -419,16 +422,16 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
      ) {
     // the only way to get here
     assert(fetchType==SQL_FETCH_NEXT);
-    
+
     // ODBC3 says SQLFetch can do rowset sizes > 1
     r=SQLFetch(hstmt_);
 #if ODBCVER < 0x0300
     // this won't get updated otherwise
     rowsInRowset_=1;
 #endif
-    
+
   } else {
-    
+
     // we have either a scrolling cursor or a
     // rowset size > 1 in ODBC2
 #if ODBCVER < 0x0300
@@ -437,20 +440,20 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
 		       (SQLINTEGER)rowNum,
 		       &rowsInRowset_,
 		       rowStatus_);
-    
+
 #else
-    
+
     r=SQLFetchScroll(hstmt_,
 		     (SQLUSMALLINT)fetchType,
 		     (SQLINTEGER)rowNum);
-    
+
 #endif
 
   }
-  
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching data from datasource");
-    
+
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching data from datasource"));
+
   rowset_->setCurrentRow(0);
 
   // fixup for weird behaviour experienced with myodbc 2.50.28:
@@ -464,7 +467,7 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
   if(r==ODBC3_C(SQL_NO_DATA,SQL_NO_DATA_FOUND)) {
     rowsInRowset_=0;
     switch(fetchType) {
-    case SQL_FETCH_RELATIVE: 
+    case SQL_FETCH_RELATIVE:
       if(rowNum<0) {
 	location_=BEFORE_FIRST;
       } else if(rowNum>0) {
@@ -484,7 +487,7 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
     case SQL_FETCH_LAST:
       location_=AFTER_LAST;
       break;
-      
+
     case SQL_FETCH_FIRST:
     case SQL_FETCH_PRIOR:
       location_=BEFORE_FIRST;
@@ -508,7 +511,7 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
     } else {
       SQLUINTEGER l=statement_->_getNumericOption
 	(ODBC3_C(SQL_ATTR_ROW_NUMBER,SQL_ROW_NUMBER));
-      
+
       if(l==0) {
 	location_=UNKNOWN;
       } else {
@@ -521,32 +524,32 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
 void ResultSet::_handleStreams(SQLRETURN r)
 {
   if(r==SQL_NEED_DATA) {
-    char buf[PUTDATA_CHUNK_SIZE];
+    ODBCXX_CHAR_TYPE buf[PUTDATA_CHUNK_SIZE];
 
     while(r==SQL_NEED_DATA) {
       SQLPOINTER currentCol;
       r=SQLParamData(hstmt_,&currentCol);
-      this->_checkStmtError(hstmt_,r,"SQLParamData failure");
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLParamData failure"));
       if(r==SQL_NEED_DATA) {
 	DataHandler* dh=rowset_->getColumn((int)currentCol);
 
 	assert(dh->isStreamed_);
 
-	int bytesPut=0;
+	int charsPut=0;
 
 	ODBCXX_STREAM* s=dh->getStream();
 	
 	int b;
 	while((b=readStream(s,buf,PUTDATA_CHUNK_SIZE))>0) {
-	  bytesPut+=b;
-	  SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,b);
-	  this->_checkStmtError(hstmt_,rPD,"SQLPutData failure");
+	  charsPut+=b;
+	  SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,b*sizeof(ODBCXX_CHAR_TYPE));
+	  this->_checkStmtError(hstmt_,rPD,ODBCXX_STRING_CONST("SQLPutData failure"));
 	}
 	
-	if(bytesPut==0) {
+	if(charsPut==0) {
 	  // SQLPutData has not been called
 	  SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,0);
-	  this->_checkStmtError(hstmt_,rPD,"SQLPutData(0) failure");
+	  this->_checkStmtError(hstmt_,rPD,ODBCXX_STRING_CONST("SQLPutData(0) failure"));
 	}
       }
     }
@@ -583,10 +586,10 @@ void ResultSet::setFetchSize(int fs)
 	currentFetchSize_=fs;
 	this->_applyFetchSize();
       }
-    } 
+    }
   } else {
     throw SQLException
-      ("[libodbc++]: Invalid fetch size "+intToString(fs));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid fetch size ")+intToString(fs));
   }
 }
 
@@ -624,17 +627,17 @@ bool ResultSet::previous()
 
   CHECK_SCROLLABLE_CURSOR;
 
-  
+
   if(LOCATION_IS_VALID &&
      rowset_->getCurrentRow()>0) {
-    
+
     //alright, just move inside the rowset
     rowset_->setCurrentRow(rowset_->getCurrentRow()-1);
     this->_applyPosition();
     return true;
 
   } else if(location_==BEFORE_FIRST) {
-    
+
     //no rows there..
     return false;
 
@@ -692,7 +695,7 @@ bool ResultSet::last()
 
   this->_prepareForFetch();
   this->_doFetch(SQL_FETCH_LAST,0);
-  
+
   if(LOCATION_IS_VALID) {
     rowset_->setCurrentRow(rowsInRowset_-1);
     this->_applyPosition();
@@ -709,7 +712,7 @@ bool ResultSet::relative(int rows)
 
   if(!LOCATION_IS_VALID) {
     throw SQLException
-      ("[libodbc++]: ResultSet::relative(): no current row");
+      (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::relative(): no current row"));
   }
 
   if(rows==0) {
@@ -721,7 +724,7 @@ bool ResultSet::relative(int rows)
   } else if(rows<0 && rowset_->getCurrentRow() >= -rows) {
     rowset_->setCurrentRow(rowset_->getCurrentRow()+rows);
   } else {
-    
+
     //since SQL_FETCH_RELATIVE is relative to the start of the rowset
     //we'll need to adjust
     rows-=rowset_->getCurrentRow();
@@ -747,7 +750,7 @@ bool ResultSet::absolute(int row)
   this->_prepareForFetch();
 
   this->_doFetch(SQL_FETCH_ABSOLUTE,row);
-  
+
   if(LOCATION_IS_VALID) {
     this->_applyPosition();
     return true;
@@ -773,7 +776,7 @@ void ResultSet::afterLast()
 
   if(location_!=AFTER_LAST) {
     this->_prepareForFetch();
-    
+
     this->_doFetch(SQL_FETCH_LAST,0); //now on last rowset
     this->_doFetch(SQL_FETCH_NEXT,0); //now after last rowset
   }
@@ -791,7 +794,7 @@ void ResultSet::moveToInsertRow()
 
     rowset_->setCurrentRow(currentFetchSize_);
 
-    
+
     location_=INSERT_ROW;
   }
 }
@@ -801,7 +804,7 @@ void ResultSet::moveToCurrentRow()
   CHECK_SCROLLABLE_CURSOR;
 
   if(location_==INSERT_ROW) {
-    
+
     if(bindPos_>0) {
       assert(this->_getDriverInfo()->getMajorVersion()>2);
       // this occurs after we have inserted rows
@@ -837,7 +840,7 @@ void ResultSet::moveToCurrentRow()
       }
 
     } else {
-      
+
       // we are in the right rowset already
       location_=locBeforeInsert_;
 
@@ -849,7 +852,7 @@ void ResultSet::moveToCurrentRow()
     } else {
       rowset_->setCurrentRow(0);
     }
-  } 
+  }
 }
 
 void ResultSet::insertRow()
@@ -877,18 +880,18 @@ void ResultSet::insertRow()
       this->_bindStreamedCols();
 
       SQLRETURN r=SQLBulkOperations(hstmt_,SQL_ADD);
-      
+
       try {
-	this->_checkStmtError(hstmt_,r,"SQLBulkOperations failed");
+	this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLBulkOperations failed"));
       } catch(...) {
 	this->_unbindStreamedCols();
 	throw;
       }
 
       this->_handleStreams(r);
-    
+
       this->_unbindStreamedCols();
-    
+
       rowset_->afterUpdate();
       return;
     }
@@ -911,7 +914,7 @@ void ResultSet::insertRow()
 
   } else {
     throw SQLException
-      ("[libodbc++]: Not on insert row");
+      (ODBCXX_STRING_CONST("[libodbc++]: Not on insert row"));
   }
 }
 
@@ -923,7 +926,7 @@ void ResultSet::updateRow()
 
   if(!LOCATION_IS_VALID) {
     throw SQLException
-      ("[libodbc++]: No current row");
+      (ODBCXX_STRING_CONST("[libodbc++]: No current row"));
   }
 
   this->_bindStreamedCols();
@@ -934,15 +937,15 @@ void ResultSet::updateRow()
 #if ODBCVER >= 0x0300
     ValueSaver<SQLUINTEGER> _rows(rowsInRowset_);
 #endif
-    
+
     r=this->_applyPosition(SQL_UPDATE);
   }
 
   this->_handleStreams(r);
 
-  
+
   this->_unbindStreamedCols();
-  
+
   rowset_->afterUpdate();
 }
 
@@ -954,7 +957,7 @@ void ResultSet::refreshRow()
 
   if(!LOCATION_IS_VALID) {
     throw SQLException
-      ("[libodbc++]: No current row");
+      (ODBCXX_STRING_CONST("[libodbc++]: No current row"));
   }
   this->_applyPosition(SQL_REFRESH);
 }
@@ -967,14 +970,14 @@ void ResultSet::deleteRow()
   CHECK_INSERT_ROW;
   if(!LOCATION_IS_VALID) {
     throw SQLException
-      ("[libodbc++]: No current row");
+      (ODBCXX_STRING_CONST("[libodbc++]: No current row"));
   }
 
   {
 #if ODBCVER >= 0x0300
     ValueSaver<SQLUINTEGER> _rows(rowsInRowset_);
 #endif
-    
+
     this->_applyPosition(SQL_DELETE);
   }
 }
@@ -992,7 +995,7 @@ void ResultSet::cancelRowUpdates()
     rowset_->afterUpdate();
   } else {
     throw SQLException
-      ("[libodbc++]: No current row");
+      (ODBCXX_STRING_CONST("[libodbc++]: No current row"));
   }
 }
 
@@ -1002,11 +1005,23 @@ int ResultSet::findColumn(const ODBCXX_STRING& colName)
   for(int i=1; i<=metaData_->getColumnCount(); i++) {
     if(
 #if !defined(WIN32)
+# if defined(ODBCXX_UNICODE)
+       wcscasecmp
+# else
        strcasecmp
+# endif
 #elif defined(ODBCXX_HAVE__STRICMP)
+# if defined(ODBCXX_UNICODE)
+       _wcsicmp
+# else
        _stricmp
+# endif
 #elif defined(ODBCXX_HAVE_STRICMP)
+# if defined(ODBCXX_UNICODE)
+       wcsicmp
+# else
        stricmp
+# endif
 #else
 # error Cannot determine case-insensitive string compare function
 #endif
@@ -1015,9 +1030,9 @@ int ResultSet::findColumn(const ODBCXX_STRING& colName)
       return i;
     }
   }
-  
+
   throw SQLException
-    ("[libodbc++]: Column "+colName+" not found in result set");
+    (ODBCXX_STRING_CONST("[libodbc++]: Column ")+colName+ODBCXX_STRING_CONST(" not found in result set"));
 
   //shut up MSVC
   return 0;
@@ -1037,14 +1052,14 @@ int ResultSet::getRow()
 
 ODBCXX_STRING ResultSet::getCursorName()
 {
-  char buf[256];
+  ODBCXX_CHAR_TYPE buf[256];
   SQLSMALLINT t;
   SQLRETURN r=SQLGetCursorName(hstmt_,
-			       (SQLCHAR*)buf,
+			       (ODBCXX_SQLCHAR*)buf,
 			       255,
 			       &t);
 
-  this->_checkStmtError(hstmt_,r,"Error fetching cursor name");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching cursor name"));
 
   buf[255]=0;
   return ODBCXX_STRING_C(buf);
@@ -1125,7 +1140,7 @@ bool ResultSet::isLast()
 
   //nothing we can do if we aren't scrolling
   CHECK_SCROLLABLE_CURSOR;
-  
+
   //here, we fall down to a rowset size of 1 in order to
   //be able to come back to exactly the same position
 
@@ -1146,7 +1161,7 @@ bool ResultSet::isLast()
   this->_doFetch(SQL_FETCH_PREV,0);
   rowset_->setCurrentRow(oldpos);
   this->_applyPosition();
-  
+
   return !haveMore;
 }
 
@@ -1156,7 +1171,7 @@ bool ResultSet::isLast()
 do {							\
   if(x<1 || x>metaData_->getColumnCount()) {		\
     throw SQLException					\
-      ("Column index out of range");			\
+      (ODBCXX_STRING_CONST("Column index out of range"));\
   }							\
 } while(false)
 
@@ -1166,7 +1181,7 @@ do {							\
 do {								\
   if(!LOCATION_IS_VALID && location_!=INSERT_ROW) {		\
     throw SQLException						\
-      ("[libodbc++]: No current row");				\
+      (ODBCXX_STRING_CONST("[libodbc++]: No current row"));	\
   }								\
 } while(false)
 
@@ -1181,7 +1196,7 @@ RETTYPE ResultSet::get##FUNCSUFFIX(int idx)			\
   return dh->get##FUNCSUFFIX();					\
 }								\
 								\
-RETTYPE ResultSet::get##FUNCSUFFIX(const ODBCXX_STRING& colName)	\
+RETTYPE ResultSet::get##FUNCSUFFIX(const ODBCXX_STRING& colName)\
 {								\
   return this->get##FUNCSUFFIX(this->findColumn(colName));	\
 }
@@ -1196,7 +1211,7 @@ void ResultSet::update##FUNCSUFFIX(int idx, TYPE val)			\
   dh->set##FUNCSUFFIX(val);						\
 }									\
 									\
-void ResultSet::update##FUNCSUFFIX(const ODBCXX_STRING& colName, TYPE val)	\
+void ResultSet::update##FUNCSUFFIX(const ODBCXX_STRING& colName, TYPE val)\
 {									\
   this->update##FUNCSUFFIX(this->findColumn(colName),val);		\
 }
@@ -1231,14 +1246,14 @@ void ResultSet::updateString(int idx, const ODBCXX_STRING& str)
   CHECK_COL(idx);
   CHECK_LOCATION;
   DataHandler* dh=rowset_->getColumn(idx);
-  if(dh->getSQLType()!=Types::LONGVARCHAR) {
+  if((dh->getSQLType()!=Types::LONGVARCHAR)&&(dh->getSQLType()!=Types::WLONGVARCHAR)) {
     dh->setString(str);
   } else {
     dh->setStream(stringToStream(str));
   }
 }
 
-void ResultSet::updateString(const ODBCXX_STRING& colName, 
+void ResultSet::updateString(const ODBCXX_STRING& colName,
 			     const ODBCXX_STRING& str)
 {
   this->updateString(this->findColumn(colName),str);
@@ -1250,7 +1265,7 @@ ODBCXX_STRING ResultSet::getString(int idx)
   CHECK_LOCATION;
 
   DataHandler* dh=rowset_->getColumn(idx);
-  if(dh->getSQLType()!=Types::LONGVARCHAR) {
+  if((dh->getSQLType()!=Types::LONGVARCHAR)&&(dh->getSQLType()!=Types::WLONGVARCHAR)) {
     lastWasNull_=dh->isNull();
     return dh->getString();
   } else {
@@ -1277,7 +1292,7 @@ void ResultSet::updateBytes(int idx, const ODBCXX_BYTES& b)
   }
 }
 
-void ResultSet::updateBytes(const ODBCXX_STRING& colName, 
+void ResultSet::updateBytes(const ODBCXX_STRING& colName,
 			    const ODBCXX_BYTES& b)
 {
   this->updateBytes(this->findColumn(colName),b);
@@ -1287,7 +1302,7 @@ ODBCXX_BYTES ResultSet::getBytes(int idx)
 {
   CHECK_COL(idx);
   CHECK_LOCATION;
-  
+
   DataHandler* dh=rowset_->getColumn(idx);
   if(dh->getSQLType()!=Types::LONGVARBINARY) {
     lastWasNull_=dh->isNull();
@@ -1325,7 +1340,7 @@ ODBCXX_STREAM* ResultSet::getAsciiStream(int idx)
 {
   CHECK_COL(idx);
   CHECK_LOCATION;
-  
+
   // we can't get the stream of the insert row
   CHECK_INSERT_ROW;
 
@@ -1333,7 +1348,7 @@ ODBCXX_STREAM* ResultSet::getAsciiStream(int idx)
   DataHandler* dh=rowset_->getColumn(idx);
   ODBCXX_STREAM* s=dh->getStream();
   if(s==NULL) {
-    s=new DataStream(this,hstmt_,idx,SQL_C_CHAR,
+    s=new DataStream(this,hstmt_,idx,SQL_C_TCHAR,
 		     dh->dataStatus_[dh->currentRow_]);
     dh->setStream(s);
   }
@@ -1379,7 +1394,7 @@ void ResultSet::updateAsciiStream(int idx, ODBCXX_STREAM* s, int len)
   dh->setStream(s,len);
 }
 
-void ResultSet::updateAsciiStream(const ODBCXX_STRING& colName, 
+void ResultSet::updateAsciiStream(const ODBCXX_STRING& colName,
 				  ODBCXX_STREAM* s, int len)
 {
   this->updateAsciiStream(findColumn(colName),s,len);
@@ -1394,7 +1409,7 @@ void ResultSet::updateBinaryStream(int idx, ODBCXX_STREAM* s, int len)
   dh->setStream(s,len);
 }
 
-void ResultSet::updateBinaryStream(const ODBCXX_STRING& colName, 
+void ResultSet::updateBinaryStream(const ODBCXX_STRING& colName,
 				   ODBCXX_STREAM* s, int len)
 {
   this->updateBinaryStream(findColumn(colName),s,len);

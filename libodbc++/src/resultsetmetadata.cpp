@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -49,18 +49,18 @@ int ResultSetMetaData::_getNumericAttribute(unsigned int col,
 					      0,
 					      &res);
   resultSet_->_checkStmtError(resultSet_->hstmt_,
-			      r,"Error fetching numeric attribute");
+			      r,ODBCXX_STRING_CONST("Error fetching numeric attribute"));
   return (int)res;
 }
 
 
 //private
-ODBCXX_STRING 
+ODBCXX_STRING
 ResultSetMetaData::_getStringAttribute(unsigned int col,
 				       SQLUSMALLINT attr, unsigned int maxlen)
 {
-  char* buf=new char[maxlen+1];
-  odbc::Deleter<char> _buf(buf,true);
+  ODBCXX_CHAR_TYPE* buf=new ODBCXX_CHAR_TYPE[maxlen+1];
+  odbc::Deleter<ODBCXX_CHAR_TYPE> _buf(buf,true);
   buf[maxlen]=0;
 
   SQLINTEGER res=0;
@@ -70,12 +70,12 @@ ResultSetMetaData::_getStringAttribute(unsigned int col,
     ODBC3_C(SQLColAttribute,SQLColAttributes)(resultSet_->hstmt_,
 					      (SQLUSMALLINT)col,
 					      attr,
-					      (SQLCHAR*)buf,
+					      (ODBCXX_SQLCHAR*)buf,
 					      (SQLSMALLINT)maxlen,
 					      &len,
 					      &res);
   resultSet_->_checkStmtError(resultSet_->hstmt_,
-			      r,"Error fetching string attribute");
+			      r,ODBCXX_STRING_CONST("Error fetching string attribute"));
   return ODBCXX_STRING_C(buf);
 }
 
@@ -89,7 +89,7 @@ void ResultSetMetaData::_fetchColumnInfo()
   for(int i=1; i<=numCols_; i++) {
     colNames_.push_back(this->_getStringAttribute
 			(i,ODBC3_DC(SQL_DESC_NAME,SQL_COLUMN_NAME)));
-    
+
     int colType=this->_getNumericAttribute
       (i,ODBC3_DC(SQL_DESC_CONCISE_TYPE,SQL_COLUMN_TYPE));
     colTypes_.push_back(colType);
@@ -98,11 +98,11 @@ void ResultSetMetaData::_fetchColumnInfo()
     if(colType==Types::LONGVARCHAR || colType==Types::LONGVARBINARY) {
       needsGetData_=true;
     }
-    
+
     colPrecisions_.push_back
       (this->_getNumericAttribute
        (i,ODBC3_DC(SQL_DESC_PRECISION,SQL_COLUMN_PRECISION)));
-    
+
     colScales_.push_back(this->_getNumericAttribute
 			 (i,ODBC3_DC(SQL_DESC_SCALE,SQL_COLUMN_SCALE)));
 
@@ -120,7 +120,7 @@ void ResultSetMetaData::_fetchColumnInfo()
 do {							\
   if(x<1 || x>numCols_) {				\
     throw SQLException					\
-      ("Column index out of bounds");			\
+      (ODBCXX_STRING_CONST("Column index out of bounds"));			\
   } 							\
 } while(false)
 

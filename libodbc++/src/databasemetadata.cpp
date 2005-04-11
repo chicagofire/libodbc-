@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -37,15 +37,15 @@ namespace odbc {
 
   // returns the actual ODBC cursor type this datasource would
   // use for a given ResultSet type
-inline int getODBCCursorTypeFor(int rsType, const DriverInfo* di) 
+inline int getODBCCursorTypeFor(int rsType, const DriverInfo* di)
 {
   int r;
   switch(rsType) {
   case ResultSet::TYPE_FORWARD_ONLY:
-    r=SQL_CURSOR_FORWARD_ONLY; 
+    r=SQL_CURSOR_FORWARD_ONLY;
     break;
   case ResultSet::TYPE_SCROLL_INSENSITIVE:
-    r=SQL_CURSOR_STATIC; 
+    r=SQL_CURSOR_STATIC;
     break;
   case ResultSet::TYPE_SCROLL_SENSITIVE:
     if(di->getCursorMask()&SQL_SO_DYNAMIC) {
@@ -55,9 +55,9 @@ inline int getODBCCursorTypeFor(int rsType, const DriverInfo* di)
     }
     break;
   default:
-    throw SQLException("[libodbc++]: Invalid ResultSet type "+intToString(rsType));
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(rsType));
   }
-  
+
   return r;
 }
 
@@ -134,7 +134,7 @@ SQLUSMALLINT DatabaseMetaData::_getNumeric16(int what)
 			 sizeof(res), //ignored, but what the heck..
 			 &t);
   connection_->_checkConError(connection_->hdbc_,
-			      r,"Error fetching information");
+			      r,ODBCXX_STRING_CONST("Error fetching information"));
 
   return res;
 }
@@ -148,7 +148,7 @@ SQLUINTEGER DatabaseMetaData::_getNumeric32(int what)
 			 &res,
 			 sizeof(res), //ignored, but what the heck..
 			 &t);
-  connection_->_checkConError(connection_->hdbc_,r,"Error fetching information");
+  connection_->_checkConError(connection_->hdbc_,r,ODBCXX_STRING_CONST("Error fetching information"));
 
   return res;
 }
@@ -160,16 +160,17 @@ ODBCXX_STRING DatabaseMetaData::_getStringInfo(int what)
   ODBCXX_STRING res;
   SQLSMALLINT len1;
   SQLSMALLINT len2=FETCH_STEP;
-  char* buf=NULL;
+  ODBCXX_CHAR_TYPE* buf=NULL;
 
-  // cerr << "Entering _getStringInfo()" << endl;
-  
+  // ODBCXX_CERR << ODBCXX_STRING_CONST("Entering _getStringInfo()") << endl;
+
   do {
     len1=len2;
 
-    buf=new char[len1+1];
+    buf=new ODBCXX_CHAR_TYPE[len1+1];
 
-    //    cerr << "Calling SQLGetInfo: len1=" << len1 << ", len2=" << len2 << endl;
+    //    ODBCXX_CERR << ODBCXX_STRING_CONST("Calling SQLGetInfo: len1=")
+    //                << len1 << ODBCXX_STRING_CONST(", len2=") << len2 << endl;
 
     SQLRETURN r=SQLGetInfo(connection_->hdbc_,
 			   (SQLUSMALLINT)what,
@@ -177,15 +178,15 @@ ODBCXX_STRING DatabaseMetaData::_getStringInfo(int what)
 			   len1+1,
 			   &len2);
     try {
-      connection_->_checkConError(connection_->hdbc_,r,"Error fetching information");
+      connection_->_checkConError(connection_->hdbc_,r,ODBCXX_STRING_CONST("Error fetching information"));
     } catch(...) {
       delete[] buf;
       throw;
     }
   } while(len2>len1);
 
-  // cerr << "Exiting _getStringInfo()" << endl;
-  
+  // ODBCXX_CERR << ODBCXX_STRING_CONST("Exiting _getStringInfo()") << endl;
+
   res=ODBCXX_STRING_C(buf);
   delete[] buf;
   return res;
@@ -224,7 +225,7 @@ bool DatabaseMetaData::supportsBatchUpdates()
 
 bool DatabaseMetaData::supportsIntegrityEnhancementFacility()
 {
-  return this->_getStringInfo(SQL_ODBC_SQL_OPT_IEF)=="Y";
+  return this->_getStringInfo(SQL_ODBC_SQL_OPT_IEF)==ODBCXX_STRING_CONST("Y");
 }
 
 
@@ -353,7 +354,7 @@ int DatabaseMetaData::getDriverMajorVersion()
 		       );
   }
   throw SQLException
-    ("[libodbc++]: Invalid ODBC version string received from driver: "+s);
+    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s);
 
   ODBCXX_DUMMY_RETURN(0);
 }
@@ -371,7 +372,7 @@ int DatabaseMetaData::getDriverMinorVersion()
 		       );
   }
   throw SQLException
-    ("[libodbc++]: Invalid ODBC version string received from driver: "+s);
+    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s);
   ODBCXX_DUMMY_RETURN(0);
 }
 
@@ -435,7 +436,7 @@ int DatabaseMetaData::getDefaultTransactionIsolation()
 
   case SQL_TXN_READ_COMMITTED:
     return Connection::TRANSACTION_READ_COMMITTED;
-    
+
   case SQL_TXN_REPEATABLE_READ:
     return Connection::TRANSACTION_REPEATABLE_READ;
 
@@ -519,7 +520,7 @@ bool DatabaseMetaData::supportsResultSetType(int type)
 
   default:
     throw SQLException
-      ("[libodbc++]: Invalid ResultSet type "+
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+
        intToString(type));
   }
 
@@ -555,23 +556,23 @@ bool DatabaseMetaData::supportsResultSetConcurrency(int type,
 
   default:
     throw SQLException
-      ("[libodbc++]: Invalid ResultSet type "+intToString(type));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(type));
   }
-  
+
   switch(concurrency) {
   case ResultSet::CONCUR_READ_ONLY:
     return di->supportsReadOnly(ct);
     break;
-    
+
   case ResultSet::CONCUR_UPDATABLE:
     return di->supportsUpdatable(ct);
     break;
-    
+
   default:
     throw SQLException
-      ("[libodbc++]: Invalid ResultSet concurrency "+intToString(type));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet concurrency ")+intToString(type));
   }
-  
+
   ODBCXX_DUMMY_RETURN(false);
 }
 
@@ -584,7 +585,7 @@ bool DatabaseMetaData::nullPlusNonNullIsNull()
 
 bool DatabaseMetaData::supportsColumnAliasing()
 {
-  return this->_getStringInfo(SQL_COLUMN_ALIAS)=="Y";
+  return this->_getStringInfo(SQL_COLUMN_ALIAS)==ODBCXX_STRING_CONST("Y");
 }
 
 
@@ -614,43 +615,43 @@ ODBCXX_STRING DatabaseMetaData::getNumericFunctions()
 {
   static struct {
     int funcId;
-    const char* funcName;
+    const ODBCXX_CHAR_TYPE* funcName;
   } fmap[] = {
-    { SQL_FN_NUM_ABS, 		"ABS" },
-    { SQL_FN_NUM_ACOS, 		"ACOS" },
-    { SQL_FN_NUM_ASIN, 		"ASIN" },
-    { SQL_FN_NUM_ATAN, 		"ATAN" },
-    { SQL_FN_NUM_ATAN2, 	"ATAN2" },
-    { SQL_FN_NUM_CEILING,	"CEILING" },
-    { SQL_FN_NUM_COS,		"COS" },
-    { SQL_FN_NUM_COT, 		"COT" },
-    { SQL_FN_NUM_DEGREES, 	"DEGREES" },
-    { SQL_FN_NUM_EXP, 		"EXP" },
-    { SQL_FN_NUM_FLOOR, 	"FLOOR" },
-    { SQL_FN_NUM_LOG, 		"LOG" },
-    { SQL_FN_NUM_LOG10, 	"LOG10" },
-    { SQL_FN_NUM_MOD, 		"MOD" },
-    { SQL_FN_NUM_PI, 		"PI" },
-    { SQL_FN_NUM_POWER, 	"POWER" },
-    { SQL_FN_NUM_RADIANS, 	"RADIANS" },
-    { SQL_FN_NUM_RAND, 		"RAND" },
-    { SQL_FN_NUM_ROUND, 	"ROUND" },
-    { SQL_FN_NUM_SIGN, 		"SIGN" },
-    { SQL_FN_NUM_SIN, 		"SIN" },
-    { SQL_FN_NUM_SQRT, 		"SQRT" },
-    { SQL_FN_NUM_TAN, 		"TAN" },
-    { SQL_FN_NUM_TRUNCATE, 	"TRUNCATE" },
+    { SQL_FN_NUM_ABS,      ODBCXX_STRING_CONST("ABS") },
+    { SQL_FN_NUM_ACOS,     ODBCXX_STRING_CONST("ACOS") },
+    { SQL_FN_NUM_ASIN,     ODBCXX_STRING_CONST("ASIN") },
+    { SQL_FN_NUM_ATAN,     ODBCXX_STRING_CONST("ATAN") },
+    { SQL_FN_NUM_ATAN2,    ODBCXX_STRING_CONST("ATAN2") },
+    { SQL_FN_NUM_CEILING,  ODBCXX_STRING_CONST("CEILING") },
+    { SQL_FN_NUM_COS,      ODBCXX_STRING_CONST("COS") },
+    { SQL_FN_NUM_COT,      ODBCXX_STRING_CONST("COT") },
+    { SQL_FN_NUM_DEGREES,  ODBCXX_STRING_CONST("DEGREES") },
+    { SQL_FN_NUM_EXP,      ODBCXX_STRING_CONST("EXP") },
+    { SQL_FN_NUM_FLOOR,    ODBCXX_STRING_CONST("FLOOR") },
+    { SQL_FN_NUM_LOG,      ODBCXX_STRING_CONST("LOG") },
+    { SQL_FN_NUM_LOG10,    ODBCXX_STRING_CONST("LOG10") },
+    { SQL_FN_NUM_MOD,      ODBCXX_STRING_CONST("MOD") },
+    { SQL_FN_NUM_PI,       ODBCXX_STRING_CONST("PI") },
+    { SQL_FN_NUM_POWER,    ODBCXX_STRING_CONST("POWER") },
+    { SQL_FN_NUM_RADIANS,  ODBCXX_STRING_CONST("RADIANS") },
+    { SQL_FN_NUM_RAND,     ODBCXX_STRING_CONST("RAND") },
+    { SQL_FN_NUM_ROUND,    ODBCXX_STRING_CONST("ROUND") },
+    { SQL_FN_NUM_SIGN,     ODBCXX_STRING_CONST("SIGN") },
+    { SQL_FN_NUM_SIN,      ODBCXX_STRING_CONST("SIN") },
+    { SQL_FN_NUM_SQRT,     ODBCXX_STRING_CONST("SQRT") },
+    { SQL_FN_NUM_TAN,      ODBCXX_STRING_CONST("TAN") },
+    { SQL_FN_NUM_TRUNCATE, ODBCXX_STRING_CONST("TRUNCATE") },
     { 0, NULL }
   };
 
   SQLUINTEGER r=this->_getNumeric32
     (SQL_NUMERIC_FUNCTIONS);
-  
-  ODBCXX_STRING ret="";
+
+  ODBCXX_STRING ret=ODBCXX_STRING_CONST("");
   for(int i=0; fmap[i].funcId>0; i++) {
     if(r&(fmap[i].funcId)) {
       if(ret.length()>0) {
-	ret+=",";
+	ret+=ODBCXX_STRING_CONST(",");
       }
       ret+=fmap[i].funcName;
     }
@@ -662,45 +663,45 @@ ODBCXX_STRING DatabaseMetaData::getStringFunctions()
 {
   static struct {
     int funcId;
-    const char* funcName;
+    const ODBCXX_CHAR_TYPE* funcName;
   } fmap[] = {
 #if ODBCVER>=0x0300
-    { SQL_FN_STR_BIT_LENGTH, 		"BIT_LENGTH" },
-    { SQL_FN_STR_CHAR_LENGTH, 		"CHAR_LENGTH" },
-    { SQL_FN_STR_CHARACTER_LENGTH, 	"CHARACTER_LENGTH" },
-    { SQL_FN_STR_OCTET_LENGTH, 		"OCTET_LENGTH" },
-    { SQL_FN_STR_POSITION, 		"POSITION" },
+    { SQL_FN_STR_BIT_LENGTH,       ODBCXX_STRING_CONST("BIT_LENGTH") },
+    { SQL_FN_STR_CHAR_LENGTH,      ODBCXX_STRING_CONST("CHAR_LENGTH") },
+    { SQL_FN_STR_CHARACTER_LENGTH, ODBCXX_STRING_CONST("CHARACTER_LENGTH") },
+    { SQL_FN_STR_OCTET_LENGTH,     ODBCXX_STRING_CONST("OCTET_LENGTH") },
+    { SQL_FN_STR_POSITION,         ODBCXX_STRING_CONST("POSITION") },
 #endif
-    { SQL_FN_STR_ASCII, 		"ASCII" },
-    { SQL_FN_STR_CHAR, 			"CHAR" },
-    { SQL_FN_STR_CONCAT, 		"CONCAT" },
-    { SQL_FN_STR_DIFFERENCE, 		"DIFFERENCE" },
-    { SQL_FN_STR_INSERT, 		"INSERT" },
-    { SQL_FN_STR_LCASE, 		"LCASE" },
-    { SQL_FN_STR_LEFT, 			"LEFT" },
-    { SQL_FN_STR_LENGTH, 		"LENGTH" },
-    { SQL_FN_STR_LOCATE, 		"LOCATE" },
-    { SQL_FN_STR_LOCATE_2, 		"LOCATE_2" },
-    { SQL_FN_STR_LTRIM, 		"LTRIM" },
-    { SQL_FN_STR_REPEAT, 		"REPEAT" },
-    { SQL_FN_STR_REPLACE, 		"REPLACE" },
-    { SQL_FN_STR_RIGHT, 		"RIGHT" },
-    { SQL_FN_STR_RTRIM, 		"RTRIM" },
-    { SQL_FN_STR_SOUNDEX, 		"SOUNDEX" },
-    { SQL_FN_STR_SPACE, 		"SPACE" },
-    { SQL_FN_STR_SUBSTRING, 		"SUBSTRING" },
-    { SQL_FN_STR_UCASE, 		"UCASE" },
+    { SQL_FN_STR_ASCII,            ODBCXX_STRING_CONST("ASCII") },
+    { SQL_FN_STR_CHAR,             ODBCXX_STRING_CONST("CHAR") },
+    { SQL_FN_STR_CONCAT,           ODBCXX_STRING_CONST("CONCAT") },
+    { SQL_FN_STR_DIFFERENCE,       ODBCXX_STRING_CONST("DIFFERENCE") },
+    { SQL_FN_STR_INSERT,           ODBCXX_STRING_CONST("INSERT") },
+    { SQL_FN_STR_LCASE,            ODBCXX_STRING_CONST("LCASE") },
+    { SQL_FN_STR_LEFT,             ODBCXX_STRING_CONST("LEFT") },
+    { SQL_FN_STR_LENGTH,           ODBCXX_STRING_CONST("LENGTH") },
+    { SQL_FN_STR_LOCATE,           ODBCXX_STRING_CONST("LOCATE") },
+    { SQL_FN_STR_LOCATE_2,         ODBCXX_STRING_CONST("LOCATE_2") },
+    { SQL_FN_STR_LTRIM,            ODBCXX_STRING_CONST("LTRIM") },
+    { SQL_FN_STR_REPEAT,           ODBCXX_STRING_CONST("REPEAT") },
+    { SQL_FN_STR_REPLACE,          ODBCXX_STRING_CONST("REPLACE") },
+    { SQL_FN_STR_RIGHT,            ODBCXX_STRING_CONST("RIGHT") },
+    { SQL_FN_STR_RTRIM,            ODBCXX_STRING_CONST("RTRIM") },
+    { SQL_FN_STR_SOUNDEX,          ODBCXX_STRING_CONST("SOUNDEX") },
+    { SQL_FN_STR_SPACE,            ODBCXX_STRING_CONST("SPACE") },
+    { SQL_FN_STR_SUBSTRING,        ODBCXX_STRING_CONST("SUBSTRING") },
+    { SQL_FN_STR_UCASE,            ODBCXX_STRING_CONST("UCASE") },
     { 0, NULL }
   };
 
   SQLUINTEGER r=this->_getNumeric32
     (SQL_STRING_FUNCTIONS);
-  
-  ODBCXX_STRING ret="";
+
+  ODBCXX_STRING ret=ODBCXX_STRING_CONST("");
   for(int i=0; fmap[i].funcId>0; i++) {
     if(r&(fmap[i].funcId)) {
       if(ret.length()>0) {
-	ret+=",";
+	ret+=ODBCXX_STRING_CONST(",");
       }
       ret+=fmap[i].funcName;
     }
@@ -712,22 +713,22 @@ ODBCXX_STRING DatabaseMetaData::getSystemFunctions()
 {
   static struct {
     int funcId;
-    const char* funcName;
+    const ODBCXX_CHAR_TYPE* funcName;
   } fmap[] = {
-    { SQL_FN_SYS_DBNAME, 	"DBNAME" },
-    { SQL_FN_SYS_IFNULL, 	"IFNULL" },
-    { SQL_FN_SYS_USERNAME, 	"USERNAME" },
+    { SQL_FN_SYS_DBNAME,   ODBCXX_STRING_CONST("DBNAME") },
+    { SQL_FN_SYS_IFNULL,   ODBCXX_STRING_CONST("IFNULL") },
+    { SQL_FN_SYS_USERNAME, ODBCXX_STRING_CONST("USERNAME") },
     { 0, NULL }
   };
 
   SQLUINTEGER r=this->_getNumeric32
     (SQL_SYSTEM_FUNCTIONS);
-  
-  ODBCXX_STRING ret="";
+
+  ODBCXX_STRING ret=ODBCXX_STRING_CONST("");
   for(int i=0; fmap[i].funcId>0; i++) {
     if(r&(fmap[i].funcId)) {
       if(ret.length()>0) {
-	ret+=",";
+	ret+=ODBCXX_STRING_CONST(",");
       }
       ret+=fmap[i].funcName;
     }
@@ -740,42 +741,42 @@ ODBCXX_STRING DatabaseMetaData::getTimeDateFunctions()
 {
   static struct {
     int funcId;
-    const char* funcName;
+    const ODBCXX_CHAR_TYPE* funcName;
   } fmap[] = {
 #if ODBCVER>=0x0300
-    { SQL_FN_TD_CURRENT_DATE, 		"CURRENT_DATE" },
-    { SQL_FN_TD_CURRENT_TIME, 		"CURRENT_TIME" },
-    { SQL_FN_TD_CURRENT_TIMESTAMP, 	"CURRENT_TIMESTAMP" },
-    { SQL_FN_TD_EXTRACT, 		"EXTRACT" },
+    { SQL_FN_TD_CURRENT_DATE,      ODBCXX_STRING_CONST("CURRENT_DATE") },
+    { SQL_FN_TD_CURRENT_TIME,      ODBCXX_STRING_CONST("CURRENT_TIME") },
+    { SQL_FN_TD_CURRENT_TIMESTAMP, ODBCXX_STRING_CONST("CURRENT_TIMESTAMP") },
+    { SQL_FN_TD_EXTRACT,           ODBCXX_STRING_CONST("EXTRACT") },
 #endif
-    { SQL_FN_TD_CURDATE, 		"CURDATE" },
-    { SQL_FN_TD_CURTIME, 		"CURTIME" },
-    { SQL_FN_TD_DAYNAME, 		"DAYNAME" },
-    { SQL_FN_TD_DAYOFMONTH, 		"DAYOFMONTH" }, 
-    { SQL_FN_TD_DAYOFWEEK, 		"DAYOFWEEK" },
-    { SQL_FN_TD_DAYOFYEAR, 		"DAYOFYEAR" },
-    { SQL_FN_TD_HOUR, 			"HOUR" },
-    { SQL_FN_TD_MINUTE, 		"MINUTE" },
-    { SQL_FN_TD_MONTH, 			"MONTH" },
-    { SQL_FN_TD_MONTHNAME, 		"MONTHNAME" },
-    { SQL_FN_TD_NOW, 			"NOW" },
-    { SQL_FN_TD_QUARTER, 		"QUARTER" },
-    { SQL_FN_TD_SECOND, 		"SECOND" },
-    { SQL_FN_TD_TIMESTAMPADD, 		"TIMESTAMPADD" },
-    { SQL_FN_TD_TIMESTAMPDIFF, 		"TIMESTAMPDIFF" },
-    { SQL_FN_TD_WEEK, 			"WEEK" },
-    { SQL_FN_TD_YEAR, 			"YEAR" },
+    { SQL_FN_TD_CURDATE,           ODBCXX_STRING_CONST("CURDATE") },
+    { SQL_FN_TD_CURTIME,           ODBCXX_STRING_CONST("CURTIME") },
+    { SQL_FN_TD_DAYNAME,           ODBCXX_STRING_CONST("DAYNAME") },
+    { SQL_FN_TD_DAYOFMONTH,        ODBCXX_STRING_CONST("DAYOFMONTH") },
+    { SQL_FN_TD_DAYOFWEEK,         ODBCXX_STRING_CONST("DAYOFWEEK") },
+    { SQL_FN_TD_DAYOFYEAR,         ODBCXX_STRING_CONST("DAYOFYEAR") },
+    { SQL_FN_TD_HOUR,              ODBCXX_STRING_CONST("HOUR") },
+    { SQL_FN_TD_MINUTE,            ODBCXX_STRING_CONST("MINUTE") },
+    { SQL_FN_TD_MONTH,             ODBCXX_STRING_CONST("MONTH") },
+    { SQL_FN_TD_MONTHNAME,         ODBCXX_STRING_CONST("MONTHNAME") },
+    { SQL_FN_TD_NOW,               ODBCXX_STRING_CONST("NOW") },
+    { SQL_FN_TD_QUARTER,           ODBCXX_STRING_CONST("QUARTER") },
+    { SQL_FN_TD_SECOND,            ODBCXX_STRING_CONST("SECOND") },
+    { SQL_FN_TD_TIMESTAMPADD,      ODBCXX_STRING_CONST("TIMESTAMPADD") },
+    { SQL_FN_TD_TIMESTAMPDIFF,     ODBCXX_STRING_CONST("TIMESTAMPDIFF") },
+    { SQL_FN_TD_WEEK,              ODBCXX_STRING_CONST("WEEK") },
+    { SQL_FN_TD_YEAR,              ODBCXX_STRING_CONST("YEAR") },
     { 0, NULL }
   };
 
   SQLUINTEGER r=this->_getNumeric32
     (SQL_TIMEDATE_FUNCTIONS);
-  
-  ODBCXX_STRING ret="";
+
+  ODBCXX_STRING ret=ODBCXX_STRING_CONST("");
   for(int i=0; fmap[i].funcId>0; i++) {
     if(r&(fmap[i].funcId)) {
       if(ret.length()>0) {
-	ret+=",";
+	ret+=ODBCXX_STRING_CONST(",");
       }
       ret+=fmap[i].funcName;
     }
@@ -973,17 +974,17 @@ bool DatabaseMetaData::nullsAreSortedAtEnd()
 
 bool DatabaseMetaData::allProceduresAreCallable()
 {
-  return this->_getStringInfo(SQL_ACCESSIBLE_PROCEDURES)=="Y";
+  return this->_getStringInfo(SQL_ACCESSIBLE_PROCEDURES)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::allTablesAreSelectable()
 {
-  return this->_getStringInfo(SQL_ACCESSIBLE_TABLES)=="Y";
+  return this->_getStringInfo(SQL_ACCESSIBLE_TABLES)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::isReadOnly()
 {
-  return this->_getStringInfo(SQL_DATA_SOURCE_READ_ONLY)=="Y";
+  return this->_getStringInfo(SQL_DATA_SOURCE_READ_ONLY)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::supportsTableCorrelationNames()
@@ -1025,17 +1026,17 @@ bool DatabaseMetaData::supportsSubqueriesInQuantifieds()
 
 bool DatabaseMetaData::supportsExpressionsInOrderBy()
 {
-  return this->_getStringInfo(SQL_EXPRESSIONS_IN_ORDERBY)=="Y";
+  return this->_getStringInfo(SQL_EXPRESSIONS_IN_ORDERBY)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::supportsLikeEscapeClause()
 {
-  return this->_getStringInfo(SQL_LIKE_ESCAPE_CLAUSE)=="Y";
+  return this->_getStringInfo(SQL_LIKE_ESCAPE_CLAUSE)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::supportsMultipleResultSets()
 {
-  return this->_getStringInfo(SQL_MULT_RESULT_SETS)=="Y";
+  return this->_getStringInfo(SQL_MULT_RESULT_SETS)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::supportsNonNullableColumns()
@@ -1187,7 +1188,7 @@ DatabaseMetaData::getMaxRowSize()
 bool DatabaseMetaData::doesMaxRowSizeIncludeBlobs()
 {
   return this->_getStringInfo
-    (SQL_MAX_ROW_SIZE_INCLUDES_LONG)=="Y";
+    (SQL_MAX_ROW_SIZE_INCLUDES_LONG)==ODBCXX_STRING_CONST("Y");
 }
 
 int
@@ -1238,13 +1239,13 @@ DatabaseMetaData::getMaxStatements()
 
 bool DatabaseMetaData::supportsMultipleTransactions()
 {
-  return this->_getStringInfo(SQL_MULTIPLE_ACTIVE_TXN)=="Y";
+  return this->_getStringInfo(SQL_MULTIPLE_ACTIVE_TXN)==ODBCXX_STRING_CONST("Y");
 }
 
 
 bool DatabaseMetaData::supportsOrderByUnrelated()
 {
-  return this->_getStringInfo(SQL_ORDER_BY_COLUMNS_IN_SELECT)!="Y";
+  return this->_getStringInfo(SQL_ORDER_BY_COLUMNS_IN_SELECT)!=ODBCXX_STRING_CONST("Y");
 }
 
 
@@ -1325,12 +1326,12 @@ bool DatabaseMetaData::supportsConvert(int fromType,
 	}
       }
       throw SQLException
-	("[libodbc++]: supportsConvert(): Unknown toType "+
+	(ODBCXX_STRING_CONST("[libodbc++]: supportsConvert(): Unknown toType ")+
 	 intToString(toType));
     }
   }
   throw SQLException
-    ("[libodbc++]: supportsConvert(): Unknown fromType "+
+    (ODBCXX_STRING_CONST("[libodbc++]: supportsConvert(): Unknown fromType ")+
      intToString(fromType));
 
   ODBCXX_DUMMY_RETURN(false);
@@ -1394,7 +1395,7 @@ bool DatabaseMetaData::supportsMixedCaseQuotedIdentifiers()
 
 bool DatabaseMetaData::supportsStoredProcedures()
 {
-  return this->_getStringInfo(SQL_PROCEDURES)=="Y";
+  return this->_getStringInfo(SQL_PROCEDURES)==ODBCXX_STRING_CONST("Y");
 }
 
 bool DatabaseMetaData::_ownXXXAreVisible(int type, int what)
@@ -1418,17 +1419,17 @@ bool DatabaseMetaData::_ownXXXAreVisible(int type, int what)
     assert(false);
   }
 #endif
-  
+
   // for odbc 2, assume false for forward only, true for dynamic
   // and check for static and keyset driven
 
   switch(odbcType) {
   case SQL_CURSOR_FORWARD_ONLY:
     return false;
-    
+
   case SQL_CURSOR_DYNAMIC:
     return true;
-    
+
   case SQL_CURSOR_KEYSET_DRIVEN:
   case SQL_CURSOR_STATIC:
     {
@@ -1524,7 +1525,7 @@ ResultSet* DatabaseMetaData::getTables(const ODBCXX_STRING& catalog,
   ODBCXX_STRING typesStr;
   for(unsigned int i=0; i<types.size(); i++) {
     if(i>0) {
-      typesStr+=",";
+      typesStr+=ODBCXX_STRING_CONST(",");
     }
     typesStr+=types[i];
   }
@@ -1596,7 +1597,7 @@ ResultSet* DatabaseMetaData::getPrimaryKeys(const ODBCXX_STRING& catalog,
 					    const ODBCXX_STRING& table)
 {
   Statement* stmt=connection_->createStatement();
-  
+
   try {
     return stmt->_getPrimaryKeys(catalog,
 				 schema,
@@ -1636,7 +1637,10 @@ ResultSet* DatabaseMetaData::getTableTypes()
 {
   Statement* stmt=connection_->createStatement();
   try {
-    return stmt->_getTables("","","","%");
+    return stmt->_getTables(ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST("%"));
   } catch(...) {
     delete stmt;
     throw;
@@ -1648,7 +1652,10 @@ ResultSet* DatabaseMetaData::getSchemas()
 {
   Statement* stmt=connection_->createStatement();
   try {
-    return stmt->_getTables("","%","","");
+    return stmt->_getTables(ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST("%"),
+                            ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST(""));
   } catch(...) {
     delete stmt;
     throw;
@@ -1659,9 +1666,12 @@ ResultSet* DatabaseMetaData::getSchemas()
 ResultSet* DatabaseMetaData::getCatalogs()
 {
   Statement* stmt=connection_->createStatement();
-  
+
   try {
-    return stmt->_getTables("%","","","");
+    return stmt->_getTables(ODBCXX_STRING_CONST("%"),
+                            ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST(""),
+                            ODBCXX_STRING_CONST(""));
   } catch(...) {
     delete stmt;
     throw;
@@ -1675,7 +1685,7 @@ ResultSet* DatabaseMetaData::getIndexInfo(const ODBCXX_STRING& catalog,
 					  bool unique, bool accurate)
 {
   Statement* stmt=connection_->createStatement();
-  
+
   try {
     return stmt->_getIndexInfo(catalog,schemaPattern,tableNamePattern,
 			       unique,accurate);
@@ -1706,7 +1716,7 @@ ResultSet* DatabaseMetaData::getProcedureColumns(const ODBCXX_STRING& catalog,
 						 const ODBCXX_STRING& columnNamePattern)
 {
   Statement* stmt=connection_->createStatement();
-  
+
   try {
     return stmt->_getProcedureColumns(catalog,
 				      schemaPattern,
@@ -1737,7 +1747,7 @@ ResultSet* DatabaseMetaData::getBestRowIdentifier(const ODBCXX_STRING& catalog,
     throw;
   }
 }
-						  
+						
 
 ResultSet* DatabaseMetaData::getVersionColumns(const ODBCXX_STRING& catalog,
 					       const ODBCXX_STRING& schema,

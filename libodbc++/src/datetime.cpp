@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -38,24 +38,27 @@
 using namespace odbc;
 using namespace std;
 
-void Time::_invalid(const char* what, int value)
+void Time::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
 {
-  ODBCXX_STRING msg="Invalid TIME: ";
-  msg+=what+ODBCXX_STRING(" out of range (")+intToString(value)+")";
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid TIME: ");
+  msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
+     +intToString(value)+ODBCXX_STRING_CONST(")");
   throw SQLException(msg);
 }
 
-void Date::_invalid(const char* what, int value)
+void Date::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
 {
-  ODBCXX_STRING msg="Invalid DATE: ";
-  msg+=what+ODBCXX_STRING(" out of range (")+intToString(value)+")";
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid DATE: ");
+  msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
+     +intToString(value)+ODBCXX_STRING_CONST(")");
   throw SQLException(msg);
 }
 
-void Timestamp::_invalid(const char* what, int value)
+void Timestamp::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
 {
-  ODBCXX_STRING msg="Invalid TIMESTAMP: ";
-  msg+=what+ODBCXX_STRING(" out of range (")+intToString(value)+")";
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid TIMESTAMP: ");
+  msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
+     +intToString(value)+ODBCXX_STRING_CONST(")");
   throw SQLException(msg);
 }
 
@@ -65,9 +68,9 @@ namespace odbc {
   inline void localtime(time_t t, tm* stm) {
 
 #if defined(ODBCXX_ENABLE_THREADS)
-    
+
 # if defined(ODBCXX_HAVE_LOCALTIME_R)
-    
+
     ::localtime_r(&t,stm);
 
 # else
@@ -78,7 +81,7 @@ namespace odbc {
       ODBCXX_LOCKER(lock);
       memcpy(stm,::localtime(&t),sizeof(tm));
     }
-    
+
 
 # endif // HAVE_LOCALTIME_R
 
@@ -119,13 +122,23 @@ time_t Date::getTime() const
 
 ODBCXX_STRING Date::toString() const
 {
-  char buf[11]; // YYYY-MM-DD, null
-#if defined(ODBCXX_HAVE_SNPRINTF)
+  ODBCXX_CHAR_TYPE buf[11]; // YYYY-MM-DD, null
+#if defined(ODBCXX_HAVE__SNPRINTF)
+# if defined(ODBCXX_UNICODE)
+    _snwprintf(buf,11
+# else
+    _snprintf(buf,11
+# endif
+#elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
   snprintf(buf,11
 #else
+# if defined(ODBCXX_UNICODE)
+    swprintf(buf
+# else
   sprintf(buf
+# endif
 #endif
-	  ,"%.4d-%.2d-%.2d",
+	  ,ODBCXX_STRING_CONST("%.4d-%.2d-%.2d"),
 	  year_,month_,day_);
   return ODBCXX_STRING(buf);
 }
@@ -133,17 +146,22 @@ ODBCXX_STRING Date::toString() const
 void Date::parse(const ODBCXX_STRING& in)
 {
   if(ODBCXX_STRING_LEN(in)!=10) {
-    throw SQLException("[libodbc++]: Unrecognized date format: "+in);
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Unrecognized date format: ")+in);
   }
 
-  char buf[11];
-  strcpy(buf,ODBCXX_STRING_CSTR(in));
+  ODBCXX_CHAR_TYPE buf[11];
+#if defined(ODBCXX_UNICODE)
+  wcscpy
+#else
+  strcpy
+#endif
+    (buf,ODBCXX_STRING_CSTR(in));
   buf[4]=0;
   buf[7]=0;
-  
-  this->setYear(strtol(buf,NULL,10));
-  this->setMonth(strtol(&buf[5],NULL,10));
-  this->setDay(strtol(&buf[8],NULL,10));
+
+  this->setYear(ODBCXX_STRTOL(buf,NULL,10));
+  this->setMonth(ODBCXX_STRTOL(&buf[5],NULL,10));
+  this->setDay(ODBCXX_STRTOL(&buf[8],NULL,10));
 }
 
 
@@ -168,13 +186,23 @@ time_t Time::getTime() const
 
 ODBCXX_STRING Time::toString() const
 {
-  char buf[9]; // HH:MM:SS, null
-#if defined(ODBCXX_HAVE_SNPRINTF)
+  ODBCXX_CHAR_TYPE buf[9]; // HH:MM:SS, null
+#if defined(ODBCXX_HAVE__SNPRINTF)
+# if defined(ODBCXX_UNICODE)
+    _snwprintf(buf,9
+# else
+    _snprintf(buf,9
+# endif
+#elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
   snprintf(buf,9
 #else
+# if defined(ODBCXX_UNICODE)
+    swprintf(buf
+# else
   sprintf(buf
+# endif
 #endif
-	  ,"%.2d:%.2d:%.2d",
+	  ,ODBCXX_STRING_CONST("%.2d:%.2d:%.2d"),
 	  hour_,minute_,second_);
   return ODBCXX_STRING_C(buf);
 }
@@ -182,17 +210,22 @@ ODBCXX_STRING Time::toString() const
 void Time::parse(const ODBCXX_STRING& in)
 {
   if(ODBCXX_STRING_LEN(in)!=8) {
-    throw SQLException("Unrecognized time format: "+in);
+    throw SQLException(ODBCXX_STRING_CONST("Unrecognized time format: ")+in);
   }
 
-  char buf[9];
-  strcpy(buf,ODBCXX_STRING_CSTR(in));
+  ODBCXX_CHAR_TYPE buf[9];
+#if defined(ODBCXX_UNICODE)
+  wcscpy
+#else
+  strcpy
+#endif
+    (buf,ODBCXX_STRING_CSTR(in));
   buf[2]=0;
   buf[5]=0;
-  
-  this->setHour(strtol(buf,NULL,10));
-  this->setMinute(strtol(&buf[3],NULL,10));
-  this->setSecond(strtol(&buf[6],NULL,10));
+
+  this->setHour(ODBCXX_STRTOL(buf,NULL,10));
+  this->setMinute(ODBCXX_STRTOL(&buf[3],NULL,10));
+  this->setSecond(ODBCXX_STRTOL(&buf[6],NULL,10));
 }
 
 
@@ -219,9 +252,9 @@ void Timestamp::setTime(time_t t)
 
 ODBCXX_STRING Timestamp::toString() const
 {
-  ODBCXX_STRING ret=Date::toString()+" "+Time::toString();
+  ODBCXX_STRING ret=Date::toString()+ODBCXX_STRING_CONST(" ")+Time::toString();
   if(nanos_>0) {
-    ret+="."+intToString(nanos_);
+    ret+=ODBCXX_STRING_CONST(".")+intToString(nanos_);
   }
   return ret;
 }
@@ -229,13 +262,18 @@ ODBCXX_STRING Timestamp::toString() const
 void Timestamp::parse(const ODBCXX_STRING& in)
 {
   // YYYY-MM-DD HH:MM:SS.xxxxxxxxxx (max 30 chars)
-  if(ODBCXX_STRING_LEN(in)<19 || 
+  if(ODBCXX_STRING_LEN(in)<19 ||
      ODBCXX_STRING_LEN(in)>30) {
-    throw SQLException("Unrecognized timestamp format: "+in);
+    throw SQLException(ODBCXX_STRING_CONST("Unrecognized timestamp format: ")+in);
   }
 
-  char buf[31];
-  strcpy(buf,ODBCXX_STRING_CSTR(in));
+  ODBCXX_CHAR_TYPE buf[31];
+#if defined(ODBCXX_UNICODE)
+  wcscpy
+#else
+  strcpy
+#endif
+    (buf,ODBCXX_STRING_CSTR(in));
 
   buf[4]=0;
   buf[7]=0;
@@ -244,15 +282,15 @@ void Timestamp::parse(const ODBCXX_STRING& in)
   buf[16]=0;
   buf[19]=0;
 
-  this->setYear(strtol(buf,NULL,10));
-  this->setMonth(strtol(&buf[5],NULL,10));
-  this->setDay(strtol(&buf[8],NULL,10));
-  this->setHour(strtol(&buf[11],NULL,10));
-  this->setMinute(strtol(&buf[14],NULL,10));
-  this->setSecond(strtol(&buf[17],NULL,10));
-  
+  this->setYear(  ODBCXX_STRTOL(buf,     NULL,10));
+  this->setMonth( ODBCXX_STRTOL(&buf[5], NULL,10));
+  this->setDay(   ODBCXX_STRTOL(&buf[8], NULL,10));
+  this->setHour(  ODBCXX_STRTOL(&buf[11],NULL,10));
+  this->setMinute(ODBCXX_STRTOL(&buf[14],NULL,10));
+  this->setSecond(ODBCXX_STRTOL(&buf[17],NULL,10));
+
   if(in.length()>20) {
-    this->setNanos(strtol(&buf[20],NULL,10));
+    this->setNanos(ODBCXX_STRTOL(&buf[20],NULL,10));
   } else {
     nanos_=0;
   }

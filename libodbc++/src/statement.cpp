@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -31,7 +31,7 @@ using namespace std;
 
 Statement::Statement(Connection* con, SQLHSTMT hstmt,
 		     int resultSetType, int resultSetConcurrency)
-  :connection_(con), 
+  :connection_(con),
   hstmt_(hstmt),
   lastExecute_(SQL_SUCCESS),
   currentResultSet_(NULL),
@@ -41,9 +41,9 @@ Statement::Statement(Connection* con, SQLHSTMT hstmt,
   state_(STATE_CLOSED)
 {
   try {
-    
+
     this->_applyResultSetType();
-    
+
   } catch(...) {
     // avoid a statement handle leak (the destructor will not be called)
 #if ODBCVER < 0x0300
@@ -62,13 +62,13 @@ Statement::~Statement()
     delete currentResultSet_;
     currentResultSet_=NULL;
   }
-  
+
 #if ODBCVER < 0x0300
     SQLFreeStmt(hstmt_,SQL_DROP);
 #else
     SQLFreeHandle(SQL_HANDLE_STMT,hstmt_);
 #endif
-  
+
   connection_->_unregisterStatement(this);
 }
 
@@ -103,9 +103,9 @@ SQLUINTEGER Statement::_getNumericOption(SQLINTEGER optnum)
   r=SQLGetStmtAttr(hstmt_,optnum,(SQLPOINTER)&res,SQL_IS_UINTEGER,&dummy);
 
 #endif
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching numeric statement option");
-  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching numeric statement option"));
+
   return res;
 }
 
@@ -119,13 +119,13 @@ void Statement::_setNumericOption(SQLINTEGER optnum, SQLUINTEGER value)
   r=SQLSetStmtOption(hstmt_,optnum,value);
 
 #else
-  
+
 
   r=SQLSetStmtAttr(hstmt_,optnum,(SQLPOINTER)value,SQL_IS_UINTEGER);
 
 #endif
 
-  this->_checkStmtError(hstmt_,r,"Error setting numeric statement option");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error setting numeric statement option"));
 }
 
 //protected
@@ -134,56 +134,56 @@ ODBCXX_STRING Statement::_getStringOption(SQLINTEGER optnum)
   SQLRETURN r;
 #if ODBCVER < 0x0300
 
-  char buf[SQL_MAX_OPTION_STRING_LENGTH+1];
+  ODBCXX_CHAR_TYPE buf[SQL_MAX_OPTION_STRING_LENGTH+1];
 
   r=SQLGetStmtOption(hstmt_,optnum,(SQLPOINTER)buf);
 
   this->_checkStmtError(hstmt_,r,"Error fetching string statement option");
 
 #else
-  
-  char buf[256];
+
+  ODBCXX_CHAR_TYPE buf[256];
   SQLINTEGER dataSize;
   r=SQLGetStmtAttr(hstmt_,optnum,(SQLPOINTER)buf,255,&dataSize);
-  this->_checkStmtError(hstmt_,r,"Error fetching string statement option");
-  
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching string statement option"));
+
   if(dataSize>255) {
     // we have a longer attribute here
-    char* tmp=new char[dataSize+1];
-    odbc::Deleter<char> _tmp(tmp,true);
-    
+    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[dataSize+1];
+    odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
+
     r=SQLGetStmtAttr(hstmt_,optnum,(SQLPOINTER)tmp,dataSize,&dataSize);
-    
-    this->_checkStmtError(hstmt_,r,"Error fetching string statement option");
+
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching string statement option"));
     return ODBCXX_STRING_C(tmp);
   }
 #endif
-  
-  
+
+
   return ODBCXX_STRING_C(buf);
 }
 
 //protected
-void Statement::_setStringOption(SQLINTEGER optnum, 
+void Statement::_setStringOption(SQLINTEGER optnum,
 				 const ODBCXX_STRING& value)
 {
   SQLRETURN r;
-  
+
 #if ODBCVER < 0x0300
 
   r=SQLSetStmtOption(hstmt_,optnum,
 		     (SQLUINTEGER) ODBCXX_STRING_CSTR(value));
-  
+
 #else
-  
+
   r=SQLSetStmtAttr(hstmt_,optnum,
 		   (SQLPOINTER) ODBCXX_STRING_CSTR(value),
 		   ODBCXX_STRING_LEN(value));
-  
+
 #endif
-  
-  this->_checkStmtError(hstmt_,r,"Error setting string statement option");
-}  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error setting string statement option"));
+}
 
 
 #if ODBCVER >= 0x0300
@@ -194,8 +194,8 @@ SQLPOINTER Statement::_getPointerOption(SQLINTEGER optnum)
   SQLINTEGER len;
   SQLRETURN r=SQLGetStmtAttr(hstmt_,optnum,(SQLPOINTER)&ret,
 			     SQL_IS_POINTER,&len);
-  this->_checkStmtError(hstmt_,r,"Error fetching pointer statement option");
-			     
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching pointer statement option"));
+			
   return ret;
 }
 
@@ -204,7 +204,7 @@ void Statement::_setPointerOption(SQLINTEGER optnum, SQLPOINTER value)
 {
   SQLRETURN r=SQLSetStmtAttr(hstmt_,optnum,value,SQL_IS_POINTER);
 
-  this->_checkStmtError(hstmt_,r,"Error setting pointer statement option");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error setting pointer statement option"));
 }
 
 
@@ -228,7 +228,7 @@ void Statement::_applyResultSetType()
       ct=SQL_CURSOR_STATIC;
     } else {
       throw SQLException
-	("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_INSENSITIVE");
+	(ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_INSENSITIVE"));
     }
     break;
 
@@ -237,13 +237,13 @@ void Statement::_applyResultSetType()
       ct=di->getScrollSensitive();
     } else {
       throw SQLException
-	("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_SENSITIVE");
+	(ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_SENSITIVE"));
     }
     break;
 
   default:
     throw SQLException
-      ("[libodbc++]: Invalid ResultSet type");
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type"));
   }
 
   if(ct!=SQL_CURSOR_FORWARD_ONLY) {
@@ -262,7 +262,7 @@ void Statement::_applyResultSetType()
 	  (ODBC3_C(SQL_ATTR_CONCURRENCY,SQL_CONCURRENCY),SQL_CONCUR_READ_ONLY);
       } else {
 	throw SQLException
-	  ("[libodbc++]: ResultSet::CONCUR_READ_ONLY not supported for given type");
+	  (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_READ_ONLY not supported for given type"));
       }
     }
     break;
@@ -276,13 +276,13 @@ void Statement::_applyResultSetType()
 
     } else {
       throw SQLException
-	("[libodbc++]: ResultSet::CONCUR_UPDATABLE not supported for given type");
+	(ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_UPDATABLE not supported for given type"));
     }
     break;
 
   default:
     throw SQLException
-      ("[libodbc++]: Invalid concurrency level");
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid concurrency level"));
   }
 }
 
@@ -311,13 +311,13 @@ void Statement::_beforeExecute()
 
   if(currentResultSet_!=NULL) {
     throw SQLException
-      ("[libodbc++]: Cannot re-execute; statement has an open resultset");
+      (ODBCXX_STRING_CONST("[libodbc++]: Cannot re-execute; statement has an open resultset"));
   }
 
   if(state_==STATE_OPEN) {
     SQLRETURN r=SQLFreeStmt(hstmt_,SQL_CLOSE);
-    this->_checkStmtError(hstmt_,r,"Error closing statement");
-    
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing statement"));
+
     state_=STATE_CLOSED;
   }
 }
@@ -333,9 +333,9 @@ void Statement::_afterExecute()
 //but since it can be obtained with ResultSet->getStatement()
 //we still track the state (before/afterExecute).
 
-inline SQLCHAR* valueOrNull(const ODBCXX_STRING& str)
+inline ODBCXX_SQLCHAR* valueOrNull(const ODBCXX_STRING& str)
 {
-  return (SQLCHAR*)(ODBCXX_STRING_LEN(str)>0?
+  return (ODBCXX_SQLCHAR*)(ODBCXX_STRING_LEN(str)>0?
 		    ODBCXX_STRING_DATA(str):NULL);
 }
 
@@ -344,7 +344,7 @@ ResultSet* Statement::_getTypeInfo()
   this->_beforeExecute();
 
   SQLRETURN r=SQLGetTypeInfo(hstmt_,SQL_ALL_TYPES);
-  this->_checkStmtError(hstmt_,r,"Error fetching type information");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching type information"));
 
   this->_afterExecute();
 
@@ -370,8 +370,8 @@ ResultSet* Statement::_getColumns(const ODBCXX_STRING& catalog,
 			 valueOrNull(columnName),
 			 ODBCXX_STRING_LEN(columnName));
 
-  this->_checkStmtError(hstmt_,r,"Error fetching column information");
-  
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching column information"));
+
   ResultSet* rs=this->_getResultSet(true);
 
   return rs;
@@ -391,11 +391,11 @@ ResultSet* Statement::_getTables(const ODBCXX_STRING& catalog,
 			ODBCXX_STRING_LEN(schema),
 			valueOrNull(tableName),
 			ODBCXX_STRING_LEN(tableName),
-			(SQLCHAR*) ODBCXX_STRING_DATA(types),
+			(ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(types),
 			ODBCXX_STRING_LEN(types));
 
-  this->_checkStmtError(hstmt_,r,"Error fetching table information");
-  
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching table information"));
+
   this->_afterExecute();
 
   ResultSet* rs=this->_getResultSet(true);
@@ -415,13 +415,13 @@ ResultSet* Statement::_getTablePrivileges(const ODBCXX_STRING& catalog,
 				 ODBCXX_STRING_LEN(catalog),
 				 valueOrNull(schema),
 				 ODBCXX_STRING_LEN(schema),
-				 (SQLCHAR*) ODBCXX_STRING_DATA(tableName),
+				 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(tableName),
 				 ODBCXX_STRING_LEN(tableName));
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching table privileges information");
-  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching table privileges information"));
+
   this->_afterExecute();
-  
+
   ResultSet* rs=this->_getResultSet(true);
 
 
@@ -439,15 +439,15 @@ ResultSet* Statement::_getColumnPrivileges(const ODBCXX_STRING& catalog,
 				  ODBCXX_STRING_LEN(catalog),
 				  valueOrNull(schema),
 				  ODBCXX_STRING_LEN(schema),
-				  (SQLCHAR*) ODBCXX_STRING_DATA(tableName),
+				  (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(tableName),
 				  ODBCXX_STRING_LEN(tableName),
-				  (SQLCHAR*) ODBCXX_STRING_DATA(columnName),
+				  (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(columnName),
 				  ODBCXX_STRING_LEN(columnName));
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching column privileges information");
-  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching column privileges information"));
+
   this->_afterExecute();
-  
+
   ResultSet* rs=this->_getResultSet(true);
 
 
@@ -466,13 +466,13 @@ ResultSet* Statement::_getPrimaryKeys(const ODBCXX_STRING& catalog,
 			     ODBCXX_STRING_LEN(catalog),
 			     valueOrNull(schema),
 			     ODBCXX_STRING_LEN(schema),
-			     (SQLCHAR*) ODBCXX_STRING_DATA(tableName),
+			     (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(tableName),
 			     ODBCXX_STRING_LEN(tableName));
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching primary keys information");
-  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching primary keys information"));
+
   this->_afterExecute();
-  
+
   ResultSet* rs=this->_getResultSet(true);
 
 
@@ -494,21 +494,21 @@ ResultSet* Statement::_getCrossReference(const ODBCXX_STRING& pc,
 			     ODBCXX_STRING_LEN(pc),
 			     valueOrNull(ps),
 			     ODBCXX_STRING_LEN(ps),
-			     (SQLCHAR*) ODBCXX_STRING_DATA(pt),
+			     (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(pt),
 			     ODBCXX_STRING_LEN(pt),
 			     valueOrNull(fc),
 			     ODBCXX_STRING_LEN(fc),
 			     valueOrNull(fs),
 			     ODBCXX_STRING_LEN(fs),
-			     (SQLCHAR*) ODBCXX_STRING_DATA(ft),
+			     (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(ft),
 			     ODBCXX_STRING_LEN(ft));
 
-  this->_checkStmtError(hstmt_,r,"Error fetching foreign keys information");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching foreign keys information"));
 
   this->_afterExecute();
 
   ResultSet* rs=this->_getResultSet(true);
-  
+
   return rs;
 }
 
@@ -525,17 +525,17 @@ ResultSet* Statement::_getIndexInfo(const ODBCXX_STRING& catalog,
 			    ODBCXX_STRING_LEN(catalog),
 			    valueOrNull(schema),
 			    ODBCXX_STRING_LEN(schema),
-			    (SQLCHAR*) ODBCXX_STRING_DATA(tableName),
+			    (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(tableName),
 			    ODBCXX_STRING_LEN(tableName),
 			    unique?SQL_INDEX_UNIQUE:SQL_INDEX_ALL,
 			    approximate?SQL_QUICK:SQL_ENSURE);
-  
-  this->_checkStmtError(hstmt_,r,"Error fetching index information");
-  
+
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching index information"));
+
   this->_afterExecute();
-  
+
   ResultSet* rs=this->_getResultSet(true);
-  
+
   return rs;
 }
 
@@ -550,13 +550,13 @@ ResultSet* Statement::_getProcedures(const ODBCXX_STRING& catalog,
 			    ODBCXX_STRING_LEN(catalog),
 			    valueOrNull(schema),
 			    ODBCXX_STRING_LEN(schema),
-			    (SQLCHAR*) ODBCXX_STRING_DATA(procName),
+			    (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(procName),
 			    ODBCXX_STRING_LEN(procName));
 
-  this->_checkStmtError(hstmt_,r,"Error fetching procedures information");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching procedures information"));
 
   ResultSet* rs=this->_getResultSet(true);
-  
+
   return rs;
 }
 
@@ -572,15 +572,15 @@ ResultSet* Statement::_getProcedureColumns(const ODBCXX_STRING& catalog,
 				  ODBCXX_STRING_LEN(catalog),
 				  valueOrNull(schema),
 				  ODBCXX_STRING_LEN(schema),
-				  (SQLCHAR*) ODBCXX_STRING_DATA(procName),
+				  (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(procName),
 				  ODBCXX_STRING_LEN(procName),
-				  (SQLCHAR*) ODBCXX_STRING_DATA(colName),
+				  (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(colName),
 				  ODBCXX_STRING_LEN(colName));
 
-  this->_checkStmtError(hstmt_,r,"Error fetching procedures information");
-  
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching procedures information"));
+
   ResultSet* rs=this->_getResultSet(true);
-  
+
   return rs;
 }
 
@@ -596,10 +596,10 @@ ResultSet* Statement::_getSpecialColumns(const ODBCXX_STRING& catalog,
 				ODBCXX_STRING_LEN(catalog),
 				valueOrNull(schema),
 				ODBCXX_STRING_LEN(schema),
-				(SQLCHAR*) ODBCXX_STRING_DATA(table),
+				(ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(table),
 				ODBCXX_STRING_LEN(table),
 				scope,nullable);
-  this->_checkStmtError(hstmt_,r,"Error fetching special columns");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching special columns"));
 
   ResultSet* rs=this->_getResultSet(true);
 
@@ -657,24 +657,24 @@ void Statement::setMaxFieldSize(int maxFieldSize)
 void Statement::cancel()
 {
   SQLRETURN r=SQLCancel(hstmt_);
-  this->_checkStmtError(hstmt_,r,"Error canceling statement");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error canceling statement"));
 }
 
 
 int Statement::getUpdateCount()
 {
-  // For ODBC3, if the last call to SQLExecute or SQLExecDirect 
-  // returned SQL_NO_DATA, a call to SQLRowCount can cause a 
-  // function sequence error. Therefore, if the last result is 
+  // For ODBC3, if the last call to SQLExecute or SQLExecDirect
+  // returned SQL_NO_DATA, a call to SQLRowCount can cause a
+  // function sequence error. Therefore, if the last result is
   // SQL_NO_DATA, we simply return 0
 
-  // Since an ODBC2 driver manager might be using 
+  // Since an ODBC2 driver manager might be using
 
   if(lastExecute_!=ODBC3_C(SQL_NO_DATA,SQL_NO_DATA_FOUND)) {
 
     SQLINTEGER res;
     SQLRETURN r=SQLRowCount(hstmt_,&res);
-    this->_checkStmtError(hstmt_,r,"Error fetching update count");
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching update count"));
     return res;
 
   } else {
@@ -686,27 +686,27 @@ int Statement::getUpdateCount()
 void Statement::setCursorName(const ODBCXX_STRING& name)
 {
   SQLRETURN r=SQLSetCursorName(hstmt_,
-			       (SQLCHAR*) ODBCXX_STRING_DATA(name),
+			       (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(name),
 			       ODBCXX_STRING_LEN(name));
-  this->_checkStmtError(hstmt_,r,"Error setting cursor name");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error setting cursor name"));
 }
 
 
 bool Statement::execute(const ODBCXX_STRING& sql)
 {
-  
+
   this->_beforeExecute();
 
   SQLRETURN r=SQLExecDirect(hstmt_,
-			    (SQLCHAR*) ODBCXX_STRING_DATA(sql),
+			    (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
 			    ODBCXX_STRING_LEN(sql));
 
   lastExecute_=r;
 
-  ODBCXX_STRING msg("Error executing \""+sql+"\"");
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Error executing \"")+sql+ODBCXX_STRING_CONST("\"");
 
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CSTR(msg));
-  
+
   this->_afterExecute();
 
   return this->_checkForResults();
@@ -738,7 +738,7 @@ bool Statement::getMoreResults()
 {
   if(this->_getDriverInfo()->supportsFunction(SQL_API_SQLMORERESULTS)) {
     SQLRETURN r=SQLMoreResults(hstmt_);
-    this->_checkStmtError(hstmt_,r,"Error checking for more results");
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error checking for more results"));
     // needed for getUpdateCount() to correctly
     // support the traversal of multiple results
     lastExecute_=r;
@@ -757,7 +757,7 @@ void Statement::setFetchSize(int fs)
   } else if (fs==0) {
     fetchSize_=SQL_ROWSET_SIZE_DEFAULT;
   } else {
-    throw SQLException("Invalid fetch size");
+    throw SQLException(ODBCXX_STRING_CONST("Invalid fetch size"));
   }
 }
 
@@ -778,8 +778,8 @@ void Statement::close()
 {
   if(state_==STATE_OPEN) {
     SQLRETURN r=SQLFreeStmt(hstmt_,SQL_CLOSE);
-    this->_checkStmtError(hstmt_,r,"Error closing all results for statement");
-    
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing all results for statement"));
+
     state_=STATE_CLOSED;
   }
 }

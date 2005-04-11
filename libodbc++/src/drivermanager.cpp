@@ -58,7 +58,7 @@ odbc::Mutex & DMAccessMutex(bool shutdown=0)
 
 void DriverManager::shutdown()
 {
-  char*		pszErr = 0;
+  ODBCXX_CHAR_TYPE* pszErr = 0;
 
   {
     ODBCXX_LOCKER(DMAccess);
@@ -82,7 +82,7 @@ void DriverManager::shutdown()
 
         case SQL_ERROR:
           // set error message but continue and throw later
-          pszErr = "Failed to shutdown DriverManager";
+          pszErr = ODBCXX_STRING_CONST("Failed to shutdown DriverManager");
           break;
       }
 
@@ -121,7 +121,8 @@ void DriverManager::_checkInit()
 
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
     {
-      throw SQLException("Failed to allocate environment handle");
+      throw SQLException
+	(ODBCXX_STRING_CONST("Failed to allocate environment handle"));
     }
 
 #if ODBCVER >= 0x0300
@@ -182,7 +183,7 @@ Connection* DriverManager::_createConnection()
 
   try
   {
-    eh_->_checkEnvError(henv_,r,"Failed to allocate connection handle");
+    eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to allocate connection handle"));
 
     con = new Connection(hdbc);
     {
@@ -274,35 +275,35 @@ DataSourceList* DriverManager::getDataSources()
 
   DataSourceList* l = new DataSourceList();
 
-  char dsn[SQL_MAX_DSN_LENGTH+1];
-  char desc[256];
+  ODBCXX_CHAR_TYPE dsn[SQL_MAX_DSN_LENGTH+1];
+  ODBCXX_CHAR_TYPE desc[256];
 
   {
     ODBCXX_LOCKER(DMAccess);
     r=SQLDataSources(henv_,
 		     SQL_FETCH_FIRST,
-		     (SQLCHAR*)dsn,
+		     (ODBCXX_SQLCHAR*)dsn,
 		     SQL_MAX_DSN_LENGTH+1,
 		     &dsnlen,
-		     (SQLCHAR*)desc,
+		     (ODBCXX_SQLCHAR*)desc,
 		     256,
 		     &desclen);
 
-    eh_->_checkEnvError(henv_,r,"Failed to obtain a list of datasources");
+    eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of datasources"));
 
     while(r==SQL_SUCCESS || r==SQL_SUCCESS_WITH_INFO) {
       l->insert(l->end(),new DataSource(dsn,desc));
 
       r=SQLDataSources(henv_,
 		       SQL_FETCH_NEXT,
-		       (SQLCHAR*)dsn,
+		       (ODBCXX_SQLCHAR*)dsn,
 		       SQL_MAX_DSN_LENGTH+1,
 		       &dsnlen,
-		       (SQLCHAR*)desc,
+		       (ODBCXX_SQLCHAR*)desc,
 		       256,
 		       &desclen);
 
-      eh_->_checkEnvError(henv_,r,"Failed to obtain a list of datasources");
+      eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of datasources"));
     }
   } // lock scope end
   return l;
@@ -319,8 +320,8 @@ DriverList* DriverManager::getDrivers()
   DriverList* l=new DriverList();
 
 
-  char desc[MAX_DESC_LEN];
-  char attrs[MAX_ATTR_LEN];
+  ODBCXX_CHAR_TYPE desc[MAX_DESC_LEN];
+  ODBCXX_CHAR_TYPE attrs[MAX_ATTR_LEN];
 
   SQLSMALLINT dlen,alen;
 
@@ -328,14 +329,14 @@ DriverList* DriverManager::getDrivers()
     ODBCXX_LOCKER(DMAccess);
     r=SQLDrivers(henv_,
 		 SQL_FETCH_FIRST,
-		 (SQLCHAR*)desc,
+		 (ODBCXX_SQLCHAR*)desc,
 		 MAX_DESC_LEN,
 		 &dlen,
-		 (SQLCHAR*)attrs,
+		 (ODBCXX_SQLCHAR*)attrs,
 		 MAX_ATTR_LEN,
 		 &alen);
 
-    eh_->_checkEnvError(henv_,r,"Failed to obtain a list of drivers");
+    eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of drivers"));
 
     while(r==SQL_SUCCESS || r==SQL_SUCCESS_WITH_INFO) {
       vector<ODBCXX_STRING> attr;
@@ -355,14 +356,14 @@ DriverList* DriverManager::getDrivers()
 
       r=SQLDrivers(henv_,
 		   SQL_FETCH_NEXT,
-		   (SQLCHAR*)desc,
+		   (ODBCXX_SQLCHAR*)desc,
 		   MAX_DESC_LEN,
 		   &dlen,
-		   (SQLCHAR*)attrs,
+		   (ODBCXX_SQLCHAR*)attrs,
 		   MAX_ATTR_LEN,
 		   &alen);
 
-      eh_->_checkEnvError(henv_,r,"Failed to obtain a list of drivers");
+      eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of drivers"));
     }
   } // lock scope end
 

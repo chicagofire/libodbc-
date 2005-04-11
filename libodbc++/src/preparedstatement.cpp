@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -82,10 +82,10 @@ PreparedStatement::~PreparedStatement()
 void PreparedStatement::_prepare()
 {
   SQLRETURN r=SQLPrepare(hstmt_,
-			 (SQLCHAR*)ODBCXX_STRING_DATA(sql_),
+			 (ODBCXX_SQLCHAR*)ODBCXX_STRING_DATA(sql_),
 			 ODBCXX_STRING_LEN(sql_));
 
-  ODBCXX_STRING msg="Error preparing "+sql_;
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Error preparing ")+sql_;
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CSTR(msg));
 }
 
@@ -99,10 +99,10 @@ void PreparedStatement::_checkParam(int idx,
 
   if(idx<=0 || idx>numParams_+1) {
     throw SQLException
-      ("[libodbc++]: PreparedStatement: parameter index "+
-       intToString(idx)+" out of bounds");
+      (ODBCXX_STRING_CONST("[libodbc++]: PreparedStatement: parameter index ")+
+       intToString(idx)+ODBCXX_STRING_CONST(" out of bounds"));
   }
-  
+
   assert(allowed!=NULL && numAllowed>0);
 
   if(numParams_<(unsigned int)idx) {
@@ -140,7 +140,7 @@ void PreparedStatement::_checkParam(int idx,
 
   if(replace) {
     if(paramsBound_) {
-      // we are changing a buffer address, unbind 
+      // we are changing a buffer address, unbind
       // the parameters
       this->_unbindParams();
     }
@@ -157,16 +157,16 @@ void PreparedStatement::_setupParams()
 
   SQLSMALLINT np;
   SQLRETURN r=SQLNumParams(hstmt_,&np);
-  this->_checkStmtError(hstmt_,r,"Error fetching number of parameters");
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching number of parameters"));
   numParams_=np;
-  
+
   SQLSMALLINT sqlType;
   SQLUINTEGER prec;
   SQLSMALLINT scale;
   SQLSMALLINT nullable;
 
   if(this->_getDriverInfo()->supportsFunction(SQL_API_SQLDESCRIBEPARAM)) {
-   
+
     for(size_t i=0; i<numParams_; i++) {
       r=SQLDescribeParam(hstmt_,
 			 i+1,
@@ -174,14 +174,14 @@ void PreparedStatement::_setupParams()
 			 &prec,
 			 &scale,
 			 &nullable);
-      
-      this->_checkStmtError(hstmt_,r,"Error obtaining parameter information");
-      
+
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error obtaining parameter information"));
+
       // fix for drivers that actually return 0 for precision
       if(prec==0 && scale==0) {
 	prec=DataHandler::defaultPrecisionFor(sqlType);
       }
-      
+
       rowset_->addColumn(sqlType,prec,scale);
       directions_.push_back(defaultDirection_);
     }
@@ -200,6 +200,7 @@ void PreparedStatement::_bindParams()
   SQLRETURN r;
   for(size_t i=1; i<=numParams_; i++) {
     DataHandler* dh=rowset_->getColumn(i);
+    const size_t charwidth=SQL_C_TCHAR==dh->cType_?sizeof(ODBCXX_CHAR_TYPE):1;
 
     //simple bind
     if(!dh->isStreamed_) {
@@ -208,9 +209,9 @@ void PreparedStatement::_bindParams()
 			 (SQLSMALLINT)directions_[i-1],
 			 (SQLSMALLINT)dh->cType_,
 			 (SQLSMALLINT)dh->sqlType_,
-			 (SQLUINTEGER)dh->precision_,
+			 (SQLUINTEGER)dh->precision_*charwidth,
 			 (SQLSMALLINT)dh->scale_,
-			 (SQLCHAR*)dh->data(),
+			 (ODBCXX_SQLCHAR*)dh->data(),
 			 dh->bufferSize_,
 			 dh->dataStatus_);
 
@@ -240,7 +241,7 @@ void PreparedStatement::_bindParams()
 			 0, //doesn't apply
 			 dh->dataStatus_);
     }
-    this->_checkStmtError(hstmt_,r,"Error binding parameter");
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error binding parameter"));
   }
 
   paramsBound_=true;
@@ -249,13 +250,13 @@ void PreparedStatement::_bindParams()
 void PreparedStatement::_unbindParams()
 {
   SQLRETURN r=SQLFreeStmt(hstmt_,SQL_RESET_PARAMS);
-  this->_checkStmtError(hstmt_,r,"Error unbinding parameters");
-  
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error unbinding parameters"));
+
   //notify our parameters (should this go into execute()?)
   for(size_t i=1; i<=numParams_; i++) {
     rowset_->getColumn(i)->afterUpdate();
   }
-  
+
   paramsBound_=false;
 }
 
@@ -265,43 +266,45 @@ bool PreparedStatement::execute()
 {
 #if 0
   unsigned int nc=rowset_->getColumns();
-  cout << "Entering PreparedStatement::execute()" << endl
-       << "Parameters: " << numParams_ << ", rowset columns: " << nc << endl;
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Entering PreparedStatement::execute()") << endl
+       << ODBCXX_STRING_CONST("Parameters: ") << numParams_
+       << ODBCXX_STRING_CONST(", rowset columns: ") << nc << endl;
 
   for(int i=1; i<=nc; i++) {
     DataHandler* dh=rowset_->getColumn(i);
-    cout << "Parameter " << i << ":" << endl;
-    cout << "SQLType   : " << dh->getSQLType() << endl
-	 << "Value     : " << (dh->isNull()?"<NULL>":dh->getString()) << endl
-	 << "Direction : " << directions_[i-1] << endl
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Parameter ") << i << ODBCXX_STRING_CONST(":") << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("SQLType   : ") << dh->getSQLType() << endl
+	 << ODBCXX_STRING_CONST("Value     : ")
+    << (dh->isNull()?ODBCXX_STRING_CONST("<NULL>"):dh->getString()) << endl
+	 << ODBCXX_STRING_CONST("Direction : ") << directions_[i-1] << endl
 	 << endl;
   }
 #endif
 
   this->_beforeExecute();
-  
+
   if(!paramsBound_) {
     this->_bindParams();
   }
-  
+
   SQLRETURN r=SQLExecute(hstmt_);
 
   // remember this for getUpdateCount()
   lastExecute_=r;
 
-  ODBCXX_STRING msg="Error executing \""+sql_+"\"";
+  ODBCXX_STRING msg=ODBCXX_STRING_CONST("Error executing \"")+sql_+ODBCXX_STRING_CONST("\"");
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CSTR(msg));
 
   //the following should maybe join with ResultSet::updateRow/insertRow in
   //some way
 
   if(r==SQL_NEED_DATA) {
-    char buf[PUTDATA_CHUNK_SIZE];
-    
+    ODBCXX_CHAR_TYPE buf[PUTDATA_CHUNK_SIZE];
+
     while(r==SQL_NEED_DATA) {
       SQLPOINTER currentCol;
       r=SQLParamData(hstmt_,&currentCol);
-      this->_checkStmtError(hstmt_,r,"SQLParamData failure");
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLParamData failure"));
       if(r==SQL_NEED_DATA) {
 	DataHandler* dh=rowset_->getColumn((int)currentCol);
 
@@ -317,22 +320,22 @@ bool PreparedStatement::execute()
 
 	// we trust the SQL_LEN_DATA_AT_EXEC macro to work both ways
 	int streamSize=SQL_LEN_DATA_AT_EXEC(dh->getDataStatus());
-	int bytesLeft=streamSize;
+	int charsLeft=streamSize;
 
 	if(streamSize>0) {
-	  while(bytesLeft>0 &&
-		(b=readStream(s,buf,min(bytesLeft,PUTDATA_CHUNK_SIZE)))>0) {
-	    bytesLeft-=b;
-	    assert(bytesLeft>=0);
-	    SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,b);
-	    this->_checkStmtError(hstmt_,rPD,"SQLPutData failure");
+	  while(charsLeft>0 &&
+		(b=readStream(s,buf,min(charsLeft,PUTDATA_CHUNK_SIZE)))>0) {
+	    charsLeft-=b;
+	    assert(charsLeft>=0);
+	    SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,b*sizeof(ODBCXX_CHAR_TYPE));
+	    this->_checkStmtError(hstmt_,rPD,ODBCXX_STRING_CONST("SQLPutData failure"));
 	  }
 	}
 	
-	if(bytesLeft==streamSize) {
+	if(charsLeft==streamSize) {
 	  // SQLPutData has not been called, call it with zero size
 	  SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,0);
-	  this->_checkStmtError(hstmt_,rPD,"SQLPutData(0) failure");
+	  this->_checkStmtError(hstmt_,rPD,ODBCXX_STRING_CONST("SQLPutData(0) failure"));
 	}
       }
     }
@@ -424,9 +427,15 @@ IMPLEMENT_SET(short,Short,
 	      A_2(Types::SMALLINT,Types::INTEGER),
 	      0);
 
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
+IMPLEMENT_SET(const ODBCXX_STRING&,String,
+	      A_4(Types::VARCHAR,Types::CHAR,Types::WVARCHAR,Types::WCHAR),
+	      255);
+#else
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_2(Types::VARCHAR,Types::CHAR),
 	      255);
+#endif
 
 IMPLEMENT_SET(const Date&,Date,
 	      A_1(Types::DATE),
@@ -440,7 +449,7 @@ IMPLEMENT_SET(const Timestamp&, Timestamp,
 	      A_1(Types::TIMESTAMP),
 	      SQL_TIMESTAMP_LEN);
 
-IMPLEMENT_SET(const ODBCXX_BYTES&, Bytes, 
+IMPLEMENT_SET(const ODBCXX_BYTES&, Bytes,
 	      A_2(Types::VARBINARY,Types::BINARY),
 	      0);
 

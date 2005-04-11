@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -41,7 +41,7 @@ namespace odbc {
 #if !defined(ODBCXX_QT)
 
 
-   class DataStreamBuf : public std::streambuf {
+   class DataStreamBuf : public ODBCXX_STREAMBUF {
     friend class DataStreamBase;
     friend class DataStream;
   private:
@@ -52,9 +52,9 @@ namespace odbc {
     SQLINTEGER& dataStatus_;
     size_t bufferSize_;
 
-    virtual int underflow();
+    virtual int_type underflow();
 
-    virtual int overflow(int) {
+    virtual int_type overflow(int) {
       return EOF;
     }
 
@@ -62,8 +62,14 @@ namespace odbc {
       //what can we do?
       return 0;
     }
-    
-    virtual std::streamsize showmanyc() {
+
+    virtual
+#if !defined(ODBCXX_HAVE_ISO_CXXLIB)
+    int
+#else
+    std::streamsize
+#endif
+    showmanyc() {
       if(this->gptr() < this->egptr()) {
 	return this->egptr() - this->gptr();
       }
@@ -75,26 +81,26 @@ namespace odbc {
     virtual ~DataStreamBuf();
   };
 
-#if !defined(ODBCXX_HAVE_ISO_CXXLIB) 
+#if !defined(ODBCXX_HAVE_ISO_CXXLIB)
 
   class DataStreamBase : public virtual ios {
   private:
     DataStreamBuf buf_;
-    
+
   protected:
-    DataStreamBase(ErrorHandler* eh, SQLHSTMT hstmt, int column, 
+    DataStreamBase(ErrorHandler* eh, SQLHSTMT hstmt, int column,
 		   int cType,SQLINTEGER& ds)
       :buf_(eh,hstmt,column,cType,ds) {}
-    
+
     virtual ~DataStreamBase() {}
     virtual DataStreamBuf* rdbuf() {
       return &buf_;
     }
   };
 
-  class DataStream : public DataStreamBase, public istream
+  class DataStream : public DataStreamBase, public ODBCXX_STREAM
 #else
-  class DataStream : public std::istream
+  class DataStream : public ODBCXX_STREAM
 #endif
   {
     friend class ResultSet;
@@ -105,14 +111,14 @@ namespace odbc {
 	       SQLINTEGER& ds)
       :
 #if !defined(ODBCXX_HAVE_ISO_CXXLIB)
-      DataStreamBase(eh,hstmt,column,cType,ds),std::istream(this->rdbuf())
+      DataStreamBase(eh,hstmt,column,cType,ds),ODBCXX_STREAM(this->rdbuf())
 #else
 # if !defined(_MSC_VER)
-      std::istream(new odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
+      ODBCXX_STREAM(new odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
 # else
       // Some bug in MSC makes it fail to realise that std::istream
       // is inherited by this class
-      std::basic_istream<char, std::char_traits<char> >
+      std::basic_istream<ODBCXX_CHAR_TYPE, std::char_traits<ODBCXX_CHAR_TYPE> >
     (new odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
 # endif // _MSC_VER
 #endif
@@ -151,17 +157,17 @@ namespace odbc {
     virtual void close() {}
     virtual void flush() {}
 
-    virtual SizeType size() const { 
-      return 0; 
+    virtual SizeType size() const {
+      return 0;
     }
-    
+
     virtual BlockRetType readBlock(char* data, BlockLenType len);
 
     // not writable
     virtual BlockRetType writeBlock(const char* data, BlockLenType len) {
       return -1;
     }
-    
+
     virtual int putch(int) {
       return -1;
     }
@@ -187,6 +193,6 @@ namespace odbc {
     void _readStep();
   };
 #endif
-};
+} // namespace odbc
 
 #endif //__DATASTREAM_H
