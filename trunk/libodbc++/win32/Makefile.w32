@@ -26,10 +26,10 @@
 !MESSAGE   debug-lib    - Debug LIB
 !MESSAGE   prod-dll     - Production DLL
 !MESSAGE   prod-lib     - Production LIB
-!MESSAGE   unicode-debug-dll - Debug DLL
-!MESSAGE   unicode-debug-lib - Debug LIB
-!MESSAGE   unicode-prod-dll  - Production DLL
-!MESSAGE   unicode-prod-lib  - Production LIB
+!MESSAGE   unicode-debug-dll - Debug DLL with Unicode
+!MESSAGE   unicode-debug-lib - Debug LIB with Unicode
+!MESSAGE   unicode-prod-dll  - Production DLL with Unicode
+!MESSAGE   unicode-prod-lib  - Production LIB with Unicode
 !MESSAGE   qt-debug-dll - Debug DLL with QT
 !MESSAGE   qt-debug-lib - Debug LIB with QT
 !MESSAGE   qt-prod-dll  - Production DLL with QT
@@ -68,7 +68,7 @@ DLL_CXXFLAGS=
 DLL_LDFLAGS=
 PROD_CXXFLAGS=
 PROD_LDFLAGS=
-UNICODE_CXXFLAGS=/DODBCXX_UNICODE
+UNICODE_CXXFLAGS=
 UNICODE_LDFLAGS=
 
 # naming variables
@@ -105,8 +105,8 @@ QT=yes
 
 !ENDIF
 
-!IF "$(CFG)" == "unicode-debug-lib" || "$(CFG)" == "unicode-qt-prod-lib" || \
-    "$(CFG)" == "unicode-qt-debug-dll" || "$(CFG)" == "unicode-qt-prod-dll"
+!IF "$(CFG)" == "unicode-debug-lib" || "$(CFG)" == "unicode-prod-lib" || \
+    "$(CFG)" == "unicode-debug-dll" || "$(CFG)" == "unicode-prod-dll"
 
 UNICODE=yes
 
@@ -122,6 +122,7 @@ TARGET_EXT=dll
 DLL_LDFLAGS=/DEBUG
 DLL_CXXFLAGS=/DODBCXX_DLL /MDd
 !ELSE
+DLL_LDFLAGS=/DEBUG /OPT:REF
 DLL_CXXFLAGS=/DODBCXX_DLL /MD
 !ENDIF
 
@@ -167,6 +168,9 @@ TARGET_NAME=$(TARGET_BASE)$(TARGET_QT)$(TARGET_S)$(TARGET_D).$(TARGET_EXT)
 ILIB_NAME=$(TARGET_BASE)$(TARGET_QT)$(TARGET_S)$(TARGET_D).lib
 !ENDIF
 
+!IF "$(UNICODE)" == "yes"
+UNICODE_CXXFLAGS=/DODBCXX_UNICODE
+!ENDIF
 
 
 # /GR enable RTTI
