@@ -573,8 +573,8 @@ ODBCXX_BYTES DataHandler::getBytes() const
     switch(cType_) {
     case SQL_C_CHAR:
     case SQL_C_BINARY:
-#if defined(ODBCXX_HAVE_SQLUCODE_H)
-    case SQL_C_TCHAR:
+#if defined(ODBCXX_HAVE_SQLUCODE_H) && defined(ODBCXX_UNICODE)
+    case SQL_C_WCHAR :
 #endif
       if(!isStreamed_) {
 	return ODBCXX_BYTES_C(this->data(),this->getDataStatus());
@@ -596,8 +596,8 @@ ODBCXX_STREAM* DataHandler::getStream() const
   switch(cType_) {
   case SQL_C_BINARY:
   case SQL_C_CHAR:
-#if defined(ODBCXX_HAVE_SQLUCODE_H)
-  case SQL_C_TCHAR:
+#if defined(ODBCXX_HAVE_SQLUCODE_H) && defined(ODBCXX_UNICODE)
+  case SQL_C_WCHAR:
 #endif
     if(isStreamed_) {
       return stream_;
