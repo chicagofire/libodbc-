@@ -1,18 +1,18 @@
-/*
+/* 
    This file is part of libodbc++.
-
+   
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-
+   
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-
+   
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-
+   
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -102,7 +102,7 @@ void PreparedStatement::_checkParam(int idx,
       (ODBCXX_STRING_CONST("[libodbc++]: PreparedStatement: parameter index ")+
        intToString(idx)+ODBCXX_STRING_CONST(" out of bounds"));
   }
-
+  
   assert(allowed!=NULL && numAllowed>0);
 
   if(numParams_<(unsigned int)idx) {
@@ -140,7 +140,7 @@ void PreparedStatement::_checkParam(int idx,
 
   if(replace) {
     if(paramsBound_) {
-      // we are changing a buffer address, unbind
+      // we are changing a buffer address, unbind 
       // the parameters
       this->_unbindParams();
     }
@@ -159,14 +159,14 @@ void PreparedStatement::_setupParams()
   SQLRETURN r=SQLNumParams(hstmt_,&np);
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching number of parameters"));
   numParams_=np;
-
+  
   SQLSMALLINT sqlType;
   SQLUINTEGER prec;
   SQLSMALLINT scale;
   SQLSMALLINT nullable;
 
   if(this->_getDriverInfo()->supportsFunction(SQL_API_SQLDESCRIBEPARAM)) {
-
+   
     for(size_t i=0; i<numParams_; i++) {
       r=SQLDescribeParam(hstmt_,
 			 i+1,
@@ -181,7 +181,7 @@ void PreparedStatement::_setupParams()
       if(prec==0 && scale==0) {
 	prec=DataHandler::defaultPrecisionFor(sqlType);
       }
-
+      
       rowset_->addColumn(sqlType,prec,scale);
       directions_.push_back(defaultDirection_);
     }
@@ -200,7 +200,6 @@ void PreparedStatement::_bindParams()
   SQLRETURN r;
   for(size_t i=1; i<=numParams_; i++) {
     DataHandler* dh=rowset_->getColumn(i);
-    const size_t charwidth=SQL_C_TCHAR==dh->cType_?sizeof(ODBCXX_CHAR_TYPE):1;
 
     //simple bind
     if(!dh->isStreamed_) {
@@ -209,7 +208,7 @@ void PreparedStatement::_bindParams()
 			 (SQLSMALLINT)directions_[i-1],
 			 (SQLSMALLINT)dh->cType_,
 			 (SQLSMALLINT)dh->sqlType_,
-			 (SQLUINTEGER)dh->precision_*charwidth,
+			 (SQLUINTEGER)dh->precision_,
 			 (SQLSMALLINT)dh->scale_,
 			 (ODBCXX_SQLCHAR*)dh->data(),
 			 dh->bufferSize_,
@@ -251,12 +250,12 @@ void PreparedStatement::_unbindParams()
 {
   SQLRETURN r=SQLFreeStmt(hstmt_,SQL_RESET_PARAMS);
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error unbinding parameters"));
-
+  
   //notify our parameters (should this go into execute()?)
   for(size_t i=1; i<=numParams_; i++) {
     rowset_->getColumn(i)->afterUpdate();
   }
-
+  
   paramsBound_=false;
 }
 
@@ -300,7 +299,7 @@ bool PreparedStatement::execute()
 
   if(r==SQL_NEED_DATA) {
     ODBCXX_CHAR_TYPE buf[PUTDATA_CHUNK_SIZE];
-
+    
     while(r==SQL_NEED_DATA) {
       SQLPOINTER currentCol;
       r=SQLParamData(hstmt_,&currentCol);
@@ -449,7 +448,7 @@ IMPLEMENT_SET(const Timestamp&, Timestamp,
 	      A_1(Types::TIMESTAMP),
 	      SQL_TIMESTAMP_LEN);
 
-IMPLEMENT_SET(const ODBCXX_BYTES&, Bytes,
+IMPLEMENT_SET(const ODBCXX_BYTES&, Bytes, 
 	      A_2(Types::VARBINARY,Types::BINARY),
 	      0);
 
