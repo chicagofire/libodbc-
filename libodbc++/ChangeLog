@@ -1,3 +1,9 @@
+2005-08-24  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* NEWS: update for 0.2.4pre1 release
+
+	* Added Unicode functionality through compiler switch
+
 2003-12-16  Alex Hornby <alex@anvil.com>
 
 	* src/datastream.h: correct return type of showmanyc

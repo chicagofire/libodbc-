@@ -1,3 +1,7 @@
+* News in version 0.2.4pre1
+
+	* Added Unicode functionality through compile switch
+
 * News in version 0.2.3
 
 	* Fixed compilation with Borland C++ Builder
