@@ -41,7 +41,7 @@ ldflags=-version-info @lib_version@
 
 # confusing conditionals follow
 
-DEFS=@DEFS@ @QT_DEFS@
+DEFS=@DEFS@ @QT_DEFS@ @UNICODE_DEFS@
 INCLUDES=@INCLUDES@ @QT_INCLUDES@
 
 if THREADS
