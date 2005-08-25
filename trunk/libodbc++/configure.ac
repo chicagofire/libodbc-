@@ -18,7 +18,7 @@
 #  Boston, MA 02111-1307, USA.
 
 AC_PREREQ(2.53)
-AC_INIT(libodbcxx,0.2.3,freeodbc++@orcane.net,libodbc++)
+AC_INIT(libodbcxx,0.2.4pre1,libodbcxx-devel@lists.sourceforge.net,libodbc++)
 AC_CONFIG_SRCDIR(src/connection.cpp)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
@@ -190,13 +190,22 @@ AC_SUBST(db2html)
 AC_SUBST(zip)
 AC_SUBST(bzip2)
 
+# Unicode flag
+AC_ARG_WITH(unicode,
+[  --with-unicode          Use wide strings globally],
+[
+if test "x$withval" != "xno"
+then
+        enable_unicode=yes
+fi
+],enable_unicode=no)
 
 # qt specific stuff
 enable_qt=no
 qt_prefix=/usr/local/qt
 
 AC_ARG_WITH(qt,
-[  --with-qt[=PREFIX]      Use QT installed in DIR],
+[  --with-qt[=PREFIX]        Use QT installed in DIR],
 [
 enable_qt=yes
 if test "x$withval" = "xyes"
@@ -254,6 +263,17 @@ fi
 ],with_qtsqlxx=no)
 
 
+AC_MSG_CHECKING([whether Unicode support should be enabled])
+if test "x$enable_unicode" = "xyes"
+then
+	AC_MSG_RESULT(yes)
+	enable_qt=no
+        with_qtsqlxx=no
+        UNICODE_DEFS="-DODBCXX_UNICODE"
+else
+	AC_MSG_RESULT(no)
+fi
+
 AC_MSG_CHECKING([whether QT support should be enabled])
 if test "x$enable_qt" = "xyes"
 then
@@ -281,6 +301,8 @@ else
 	with_qtsqlxx=no
 	AC_MSG_RESULT(no)
 fi
+
+AC_SUBST(UNICODE_DEFS)
 
 AM_CONDITIONAL(BUILD_QTSQLXX, test x$with_qtsqlxx = xyes)
 
