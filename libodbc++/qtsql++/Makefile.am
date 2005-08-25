@@ -30,7 +30,7 @@ thelib=../src/libodbc++_qt.la
 endif
 
 INCLUDES += $(QT_INCLUDES)
-DEFS=@DEFS@ @QT_DEFS@
+DEFS=@DEFS@ @QT_DEFS@ @UNICODE_DEFS@
 
 MOCS = \
 mainwindow.moc.cpp \
