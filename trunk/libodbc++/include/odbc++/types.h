@@ -166,43 +166,43 @@ namespace odbc {
      */
     enum SQLType {
       /** An SQL BIGINT */
-      BIGINT		= SQL_BIGINT,
+      BIGINT                = SQL_BIGINT,
       /** An SQL BINARY (fixed length) */
-      BINARY		= SQL_BINARY,
+      BINARY                = SQL_BINARY,
       /** An SQL BIT */
-      BIT		= SQL_BIT,
+      BIT                = SQL_BIT,
       /** An SQL CHAR (fixed length) */
-      CHAR		= SQL_CHAR,
+      CHAR                = SQL_CHAR,
       /** An SQL DATE */
-      DATE		= ODBC3_C(SQL_TYPE_DATE,SQL_DATE),
+      DATE                = ODBC3_C(SQL_TYPE_DATE,SQL_DATE),
       /** An SQL DECIMAL (precision,scale) */
-      DECIMAL		= SQL_DECIMAL,
+      DECIMAL                = SQL_DECIMAL,
       /** An SQL DOUBLE */
-      DOUBLE		= SQL_DOUBLE,
+      DOUBLE                = SQL_DOUBLE,
       /** An SQL FLOAT */
-      FLOAT		= SQL_FLOAT,
+      FLOAT                = SQL_FLOAT,
       /** An SQL INTEGER */
-      INTEGER		= SQL_INTEGER,
+      INTEGER                = SQL_INTEGER,
       /** An SQL LONGVARBINARY (variable length, huge) */
-      LONGVARBINARY	= SQL_LONGVARBINARY,
+      LONGVARBINARY        = SQL_LONGVARBINARY,
       /** An SQL LONGVARCHAR (variable length, huge) */
-      LONGVARCHAR	= SQL_LONGVARCHAR,
+      LONGVARCHAR        = SQL_LONGVARCHAR,
       /** An SQL NUMERIC (precision,scale) */
-      NUMERIC		= SQL_NUMERIC,
+      NUMERIC                = SQL_NUMERIC,
       /** An SQL REAL */
-      REAL		= SQL_REAL,
+      REAL                = SQL_REAL,
       /** An SQL SMALLINT */
-      SMALLINT		= SQL_SMALLINT,
+      SMALLINT                = SQL_SMALLINT,
       /** An SQL TIME */
-      TIME		= ODBC3_C(SQL_TYPE_TIME,SQL_TIME),
+      TIME                = ODBC3_C(SQL_TYPE_TIME,SQL_TIME),
       /** An SQL TIMESTAMP */
-      TIMESTAMP		= ODBC3_C(SQL_TYPE_TIMESTAMP,SQL_TIMESTAMP),
+      TIMESTAMP                = ODBC3_C(SQL_TYPE_TIMESTAMP,SQL_TIMESTAMP),
       /** An SQL TINYINT */
-      TINYINT		= SQL_TINYINT,
+      TINYINT                = SQL_TINYINT,
       /** An SQL VARBINARY (variable length less than 256) */
-      VARBINARY		= SQL_VARBINARY,
+      VARBINARY                = SQL_VARBINARY,
       /** An SQL VARCHAR (variable length less than 256) */
-      VARCHAR		= SQL_VARCHAR
+      VARCHAR                = SQL_VARCHAR
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
       ,
       /** A wide SQL CHAR (fixed length less than 256) */
@@ -230,16 +230,16 @@ namespace odbc {
       size_t len_;
       int refCount_;
       Rep(const ODBCXX_SIGNED_CHAR_TYPE* b, size_t l)
-	:len_(l), refCount_(0) {
-	if(len_>0) {
-	  buf_=new ODBCXX_SIGNED_CHAR_TYPE[len_];
-	  memcpy((void*)buf_,(void*)b,len_);
-	} else {
-	  buf_=NULL;
-	}
+        :len_(l), refCount_(0) {
+        if(len_>0) {
+          buf_=new ODBCXX_SIGNED_CHAR_TYPE[len_];
+          memcpy((void*)buf_,(void*)b,len_);
+        } else {
+          buf_=NULL;
+        }
       }
       ~Rep() {
-	delete [] buf_;
+        delete [] buf_;
       }
     };
 
@@ -266,7 +266,7 @@ namespace odbc {
     /** Assignment */
     Bytes& operator=(const Bytes& b) {
       if(--rep_->refCount_==0) {
-	delete rep_;
+        delete rep_;
       }
       rep_=b.rep_;
       rep_->refCount_++;
@@ -275,19 +275,19 @@ namespace odbc {
 
     /** Comparison */
     bool operator==(const Bytes& b) const {
-			if (getSize()!=b.getSize())
-				return false;
-			for(size_t i=0;i<getSize();i++) {
-				if(*(getData()+i)!=*(b.getData()+i))
-					return false;
-			}
+                        if (getSize()!=b.getSize())
+                                return false;
+                        for(size_t i=0;i<getSize();i++) {
+                                if(*(getData()+i)!=*(b.getData()+i))
+                                        return false;
+                        }
       return true;
     }
 
     /** Destructor */
     ~Bytes() {
       if(--rep_->refCount_==0) {
-	delete rep_;
+        delete rep_;
       }
     }
 
@@ -318,14 +318,14 @@ namespace odbc {
 
     int _validateMonth(int m) {
       if(m<1 || m>12) {
-	this->_invalid(ODBCXX_STRING_CONST("month"),m);
+        this->_invalid(ODBCXX_STRING_CONST("month"),m);
       }
       return m;
     }
 
     int _validateDay(int d) {
       if(d<1 || d>31) {
-	this->_invalid(ODBCXX_STRING_CONST("day"),d);
+        this->_invalid(ODBCXX_STRING_CONST("day"),d);
       }
       return d;
     }
@@ -432,21 +432,21 @@ namespace odbc {
 
     int _validateHour(int h) {
       if(h<0 || h>23) {
-	this->_invalid(ODBCXX_STRING_CONST("hour"),h);
+        this->_invalid(ODBCXX_STRING_CONST("hour"),h);
       }
       return h;
     }
 
     int _validateMinute(int m) {
       if(m<0 || m>59) {
-	this->_invalid(ODBCXX_STRING_CONST("minute"),m);
+        this->_invalid(ODBCXX_STRING_CONST("minute"),m);
       }
       return m;
     }
 
     int _validateSecond(int s) {
       if(s<0 || s>61) {
-	this->_invalid(ODBCXX_STRING_CONST("second"),s);
+        this->_invalid(ODBCXX_STRING_CONST("second"),s);
       }
       return s;
     }
@@ -551,7 +551,7 @@ namespace odbc {
 
     int _validateNanos(int n) {
       if(n<0) {
-	this->_invalid(ODBCXX_STRING_CONST("nanoseconds"),n);
+        this->_invalid(ODBCXX_STRING_CONST("nanoseconds"),n);
       }
       return n;
     }
@@ -559,8 +559,8 @@ namespace odbc {
   public:
     /** Constructor */
     Timestamp(int year, int month, int day,
-	      int hour, int minute, int second,
-	      int nanos =0)
+              int hour, int minute, int second,
+              int nanos =0)
       :Date(year,month,day), Time(hour,minute,second) {
       this->setNanos(nanos);
     }
@@ -607,7 +607,7 @@ namespace odbc {
     virtual void setTime(std::time_t t);
 
     /** Gets the time_t value of this timestamp */
-    virtual std::time_t getTime() {
+    virtual std::time_t getTime() const {
       return Date::getTime()+Time::getTime();
     }
 
@@ -644,8 +644,8 @@ namespace odbc {
       typename std::vector<T>::iterator i=this->begin();
       typename std::vector<T>::iterator end=this->end();
       while(i!=end) {
-	delete *i;
-	++i;
+        delete *i;
+        ++i;
       }
       this->clear();
     }
@@ -665,12 +665,12 @@ namespace odbc {
     DriverMessage() {}
 #if ODBCVER < 0x0300
     static DriverMessage* fetchMessage(SQLHENV henv,
-				       SQLHDBC hdbc,
-				       SQLHSTMT hstmt);
+                                       SQLHDBC hdbc,
+                                       SQLHSTMT hstmt);
 #else
     static DriverMessage* fetchMessage(SQLINTEGER handleType,
-				       SQLHANDLE h,
-				       int idx);
+                                       SQLHANDLE h,
+                                       int idx);
 #endif
 
   public:
@@ -705,8 +705,8 @@ namespace odbc {
   public:
     /** Constructor */
     SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
-		 const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
-		 int vendorCode =0)
+                 const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
+                 int vendorCode =0)
       :reason_(reason),
        sqlState_(sqlState),
        errorCode_(vendorCode)
@@ -782,8 +782,8 @@ namespace odbc {
   public:
     /** Constructor */
     SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
-	       const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
-	       int vendorCode =0)
+               const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
+               int vendorCode =0)
       :SQLException(reason,sqlState,vendorCode) {}
 
     /** Copy from a DriverMessage */
@@ -810,9 +810,9 @@ namespace odbc {
       :ptr_(ptr), isArray_(isArray) {}
     ~Deleter() {
       if(!isArray_) {
-	delete ptr_;
+        delete ptr_;
       } else {
-	delete[] ptr_;
+        delete[] ptr_;
       }
     }
   };
