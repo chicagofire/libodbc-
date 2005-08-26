@@ -1,4 +1,6 @@
-<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<?xml version="1.0"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+  "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd" >
 
 <book lang="en">
   <bookinfo>
@@ -11,7 +13,7 @@
       <author>
         <firstname>Kerry</firstname>
         <surname>Lothrop</surname>
-        <othername role="mi">W</othername>
+        <othername role="mi">W.</othername>
       </author>
     </authorgroup>
     <date>2005-08-24</date>
