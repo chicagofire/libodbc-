@@ -93,9 +93,6 @@
 # if !defined(_UNICODE)
 #  define _UNICODE
 # endif
-# if !defined(UNICODE)
-#  define UNICODE
-# endif
 # if defined(_MBCS)
 #  undef _MBCS
 # endif
