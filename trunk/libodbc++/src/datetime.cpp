@@ -130,12 +130,12 @@ ODBCXX_STRING Date::toString() const
     _snprintf(buf,11
 # endif
 #elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
-  snprintf(buf,11
+    snprintf(buf,11
 #else
 # if defined(ODBCXX_UNICODE)
     swprintf(buf,11
 # else
-  sprintf(buf
+    sprintf(buf
 # endif
 #endif
 	  ,ODBCXX_STRING_CONST("%.4d-%.2d-%.2d"),
@@ -194,12 +194,12 @@ ODBCXX_STRING Time::toString() const
     _snprintf(buf,9
 # endif
 #elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
-  snprintf(buf,9
+    snprintf(buf,9
 #else
 # if defined(ODBCXX_UNICODE)
     swprintf(buf,9
 # else
-  sprintf(buf
+    sprintf(buf
 # endif
 #endif
 	  ,ODBCXX_STRING_CONST("%.2d:%.2d:%.2d"),
@@ -254,7 +254,25 @@ ODBCXX_STRING Timestamp::toString() const
 {
   ODBCXX_STRING ret=Date::toString()+ODBCXX_STRING_CONST(" ")+Time::toString();
   if(nanos_>0) {
-    ret+=ODBCXX_STRING_CONST(".")+intToString(nanos_);
+    ret+=ODBCXX_STRING_CONST(".");
+    ODBCXX_CHAR_TYPE buf[10];
+#if defined(ODBCXX_HAVE__SNPRINTF)
+# if defined(ODBCXX_UNICODE)
+    _snwprintf(buf,9
+# else
+    _snprintf(buf,9
+# endif
+#elif defined(ODBCXX_HAVE_SNPRINTF) && !defined(ODBCXX_UNICODE)
+    snprintf(buf,9
+#else
+# if defined(ODBCXX_UNICODE)
+    swprintf(buf,9
+# else
+    sprintf(buf
+# endif
+#endif
+      ,ODBCXX_STRING_CONST("%09d"),nanos_);
+    ret+=ODBCXX_STRING(buf);
   }
   return ret;
 }
