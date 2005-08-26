@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -38,7 +38,7 @@ namespace odbc {
   class Rowset;
 
   /** A prepared statement.
-   * 
+   *
    * A prepared statement is precompiled by the driver and/or datasource,
    * and can be executed multiple times with different parameters.
    *
@@ -46,7 +46,7 @@ namespace odbc {
    * to use the set method compatible with the parameter's SQL type - for
    * example, for a <code>Types::DATE</code>, <code>setDate()</code> should
    * be used.
-   * Question marks (<code>"?"</code>) are used in the SQL statement 
+   * Question marks (<code>"?"</code>) are used in the SQL statement
    * to represent a parameter, for example:
    * <pre>
    * PreparedStatement* pstmt=con->prepareStatement
@@ -73,7 +73,7 @@ namespace odbc {
     std::vector<int> directions_;
     int defaultDirection_;
     bool paramsBound_;
-    
+
     PreparedStatement(Connection* con,
 		      SQLHSTMT hstmt,
 		      const ODBCXX_STRING& sql,
@@ -91,28 +91,33 @@ namespace odbc {
   public:
     /** Destructor */
     virtual ~PreparedStatement();
-    
+
     /** Clears the parameters.
-     * 
+     *
      * The set of parameters stays around until they are set again.
      * To explicitly clear them (and thus release buffers held by the
      * driver), this method should be called.
      */
     void clearParameters();
-    
+
     /** Executes this statement.
-     * @return True if the result is a ResultSet, false if it's an 
+     * @return True if the result is a ResultSet, false if it's an
      * update count or unknown.
      */
     bool execute();
 
     /** Executes this statement, assuming it returns a ResultSet.
+     *
+     * Example:
+     * <tt>std::auto_ptr&lt;ResultSet&gt; rs =
+     *     std::auto_ptr&lt;ResultSet&gt;(pstmt-&gt;executeQuery(s));</tt>
+     *
      */
     ResultSet* executeQuery();
 
     /** Executes this statement, assuming it returns an update count */
     int executeUpdate();
-    
+
     /** Sets a parameter value to a double
      * @param idx The parameter index, starting at 1
      * @param val The value to set
@@ -201,7 +206,7 @@ namespace odbc {
      */
     void setBinaryStream(int idx, ODBCXX_STREAM* s, int len);
 
-    
+
     /** Sets a parameter value to NULL
      * @param idx The parameter index, starting at 1
      * @param sqlType The SQL type of the parameter
