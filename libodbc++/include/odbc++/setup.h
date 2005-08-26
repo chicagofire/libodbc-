@@ -42,6 +42,17 @@
 # endif
 #endif
 
+// set the UNICODE define activate wide versions of ODBC functions
+#if defined(ODBCXX_UNICODE)
+# if !defined(UNICODE)
+#  define UNICODE
+# endif
+#else
+# if defined(UNICODE)
+#  undef UNICODE
+# endif
+#endif
+
 // check whether we use strstream or stringstream
 #if defined(IN_ODBCXX)
 # if defined(ODBCXX_UNICODE)
