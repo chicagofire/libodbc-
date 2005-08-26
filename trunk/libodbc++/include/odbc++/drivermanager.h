@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -30,7 +30,8 @@
 namespace odbc {
 
   class Connection;
-  
+  class DriverManager;
+
   /** An ODBC Driver with it's information.
    */
   class ODBCXX_EXPORT Driver {
@@ -44,12 +45,12 @@ namespace odbc {
   public:
     /** Constructor */
     Driver(const ODBCXX_STRING& description,
-	   const std::vector<ODBCXX_STRING>& attributes)
+           const std::vector<ODBCXX_STRING>& attributes)
       :description_(description), attributes_(attributes) {}
 
     /** Destructor */
     virtual ~Driver() {}
-    
+
     /** Return a description of the driver */
     const ODBCXX_STRING& getDescription() const {
       return description_;
@@ -60,10 +61,10 @@ namespace odbc {
       return attributes_;
     }
   };
-  
+
   /** A list of Drivers. Actually an STL vector */
   typedef CleanVector<Driver*> DriverList;
-  
+
 
   /** A Data Source */
   class ODBCXX_EXPORT DataSource {
@@ -75,7 +76,7 @@ namespace odbc {
     /** Constructor */
     DataSource(const ODBCXX_STRING& name, const ODBCXX_STRING& description)
       :name_(name), description_(description) {}
-    
+
     /** Destructor */
     virtual ~DataSource() {}
 
@@ -83,13 +84,13 @@ namespace odbc {
     const ODBCXX_STRING& getName() const {
       return name_;
     }
-    
+
     /** Return the description (if any) of the datasource */
     const ODBCXX_STRING& getDescription() const {
       return description_;
     }
   };
-  
+
   /** A list of datasources. Behaves like an std::vector */
   typedef CleanVector<DataSource*> DataSourceList;
 
@@ -101,7 +102,7 @@ namespace odbc {
     static SQLHENV henv_;
     static ErrorHandler* eh_;
     static int loginTimeout_;
-    
+
     static void _checkInit();
     static Connection* _createConnection();
 
@@ -109,17 +110,17 @@ namespace odbc {
     DriverManager();
 
   public:
-    
+
     /** Opens a connection by it's DSN, a username and a password */
     static Connection* getConnection(const ODBCXX_STRING& dsn,
-				     const ODBCXX_STRING& user,
-				     const ODBCXX_STRING& password);
-    
-    /** Opens a connection using an ODBC connect string. 
+                                     const ODBCXX_STRING& user,
+                                     const ODBCXX_STRING& password);
+
+    /** Opens a connection using an ODBC connect string.
      * @param connectString Usually something like <tt>"DSN=db;uid=user;pwd=password"</tt>
      */
     static Connection* getConnection(const ODBCXX_STRING& connectString);
-    
+
     /** Gets the current login timeout in seconds.
      * @return The current login timeout in seconds, or 0 if disabled.
      */
@@ -135,7 +136,7 @@ namespace odbc {
      */
     static DataSourceList* getDataSources();
 
-    /** Fetch a list of the available drivers 
+    /** Fetch a list of the available drivers
      */
     static DriverList* getDrivers();
 
