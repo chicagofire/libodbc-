@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -45,11 +45,11 @@ using namespace std;
 // This is a pure mess, but seems to function (tm).
 
 namespace odbc {
-  
+
   const int INT_STR_LEN=12; //10 digits, sign, null
   const int LONG_STR_LEN=22; //20 digits, sign, null
   const int DOUBLE_STR_LEN=80; //???
-    
+
 
   inline ODBCXX_STRING intToString(int i) {
 
@@ -83,7 +83,7 @@ namespace odbc {
     return ODBCXX_STRING(buf);
 #endif
   }
-  
+
   inline int stringToInt(const ODBCXX_STRING& s) {
 #if defined(ODBCXX_QT)
     return s.toInt();
@@ -185,14 +185,14 @@ namespace odbc {
     snprintf(buf,DOUBLE_STR_LEN,"%f",d);
 #else
 # if defined(ODBCXX_UNICODE)
-    swprintf(buf,"%f",d);
+    swprintf(buf,DOUBLE_STR_LEN,L"%f",d);
 # else
     sprintf(buf,"%f",d);
 # endif
 #endif
     return ODBCXX_STRING_C(buf);
   }
-  
+
   inline double stringToDouble(const ODBCXX_STRING& s) {
 #if defined(ODBCXX_QT)
     return s.toDouble();
@@ -212,7 +212,7 @@ namespace odbc {
 #endif
 
   // stream stuff
-  // this should return <=0 on EOF, and number of bytes 
+  // this should return <=0 on EOF, and number of bytes
   // read otherwise
   inline int readStream(ODBCXX_STREAM* s,
 			ODBCXX_CHAR_TYPE* buf,
@@ -315,7 +315,7 @@ namespace odbc {
 #endif
   }
 
-  
+
 } // namespace odbc
 
 

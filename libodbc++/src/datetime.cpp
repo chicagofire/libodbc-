@@ -133,7 +133,7 @@ ODBCXX_STRING Date::toString() const
   snprintf(buf,11
 #else
 # if defined(ODBCXX_UNICODE)
-    swprintf(buf
+    swprintf(buf,11
 # else
   sprintf(buf
 # endif
@@ -197,7 +197,7 @@ ODBCXX_STRING Time::toString() const
   snprintf(buf,9
 #else
 # if defined(ODBCXX_UNICODE)
-    swprintf(buf
+    swprintf(buf,9
 # else
   sprintf(buf
 # endif
