@@ -30,7 +30,7 @@
 namespace odbc {
 
   class Connection;
-  class DriverManager;
+  class ErrorHandler;
 
   /** An ODBC Driver with it's information.
    */
