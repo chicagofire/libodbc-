@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -53,7 +53,7 @@ namespace odbc {
     int fetchSize_;
     int resultSetType_;
     int resultSetConcurrency_;
-    
+
     //used internally
     enum StatementState {
       STATE_CLOSED,
@@ -97,7 +97,7 @@ namespace odbc {
 			     const ODBCXX_STRING& schema,
 			     const ODBCXX_STRING& tableName,
 			     bool unique, bool approximate);
-    
+
     ResultSet* _getCrossReference(const ODBCXX_STRING& pc,
 				  const ODBCXX_STRING& ps,
 				  const ODBCXX_STRING& pt,
@@ -105,11 +105,11 @@ namespace odbc {
 				  const ODBCXX_STRING& fs,
 				  const ODBCXX_STRING& ft);
 
-    
+
     ResultSet* _getProcedures(const ODBCXX_STRING& catalog,
 			      const ODBCXX_STRING& schema,
 			      const ODBCXX_STRING& procName);
-    
+
     ResultSet* _getProcedureColumns(const ODBCXX_STRING& catalog,
 				    const ODBCXX_STRING& schema,
 				    const ODBCXX_STRING& procName,
@@ -119,15 +119,15 @@ namespace odbc {
 				  const ODBCXX_STRING& schema,
 				  const ODBCXX_STRING& table,
 				  int what,int scope,int nullable);
-      
+
   protected:
-    Statement(Connection* con, SQLHSTMT hstmt, 
+    Statement(Connection* con, SQLHSTMT hstmt,
 	      int resultSetType, int resultSetConcurrency);
-    
+
     //utilities
     SQLUINTEGER _getNumericOption(SQLINTEGER optnum);
     ODBCXX_STRING _getStringOption(SQLINTEGER optnum);
-    
+
     void _setNumericOption(SQLINTEGER optnum, SQLUINTEGER value);
     void _setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value);
 
@@ -149,17 +149,17 @@ namespace odbc {
 
     //this is called after a successeful execution
     void _afterExecute();
-    
+
 
   public:
-    /** Destructor. Destroys/closes this statement as well as 
+    /** Destructor. Destroys/closes this statement as well as
      * all created resultsets.
      */
     virtual ~Statement();
 
     /** Returns the connection that created this statement */
     Connection* getConnection();
-    
+
 
     /** Cancel an ongoing operation that was executed in another thread */
     void cancel();
@@ -172,8 +172,13 @@ namespace odbc {
      * @return true if a resultset is available
      */
     virtual bool execute(const ODBCXX_STRING& sql);
-    
+
     /** Execute an SQL statement, expected to return a resultset.
+     *
+     * Example:
+     * <tt>std::auto_ptr&lt;ResultSet&gt; rs =
+     *     std::auto_ptr&lt;ResultSet&gt;(stmt-&gt;executeQuery(s));</tt>
+     *
      * @param sql The string to execute
      * @return A ResultSet object.
      */
@@ -183,27 +188,27 @@ namespace odbc {
      * @return The number of affected rows
      */
     virtual int executeUpdate(const ODBCXX_STRING& sql);
-    
+
     /** Fetch the current result as an update count.
-     * 
+     *
      * @return the current result's update count (affected rows), or <code>-1</code>
      * if the result is a ResultSet or if there are no more results.
      */
     int getUpdateCount();
-    
+
     /** Fetch the current result as a ResultSet */
     ResultSet* getResultSet();
 
     /** Check if there are more results available on this
      * statment.
      * @return True if this statement has more results to offer.
-     */ 
+     */
     bool getMoreResults();
 
     /** Set the cursor name for this statement */
     void setCursorName(const ODBCXX_STRING& name);
-    
-    /** Fetch the current fetch size (also called rowset size) for 
+
+    /** Fetch the current fetch size (also called rowset size) for
      * resultsets created by this statement.
      */
     int getFetchSize() {
@@ -222,7 +227,7 @@ namespace odbc {
     int getResultSetType() {
       return resultSetType_;
     }
-    
+
     /** Get the query timeout for this statement */
     int getQueryTimeout();
     /** Set the query timeout for this statement */
@@ -240,7 +245,7 @@ namespace odbc {
 
     /** Sets escape processing on or off
      *
-     * For <code>PreparedStatement</code>s, the command has been parsed on 
+     * For <code>PreparedStatement</code>s, the command has been parsed on
      * creation, so this setting won't really have any effect.
      */
     void setEscapeProcessing(bool on);
@@ -257,7 +262,7 @@ namespace odbc {
     void close();
 
   };
-  
+
 
 
 } // namespace odbc
