@@ -1,3 +1,15 @@
+2005-08-26  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* include/odbc++/drivermanager.h: Fixed bug 895033
+
+	* include/odbc++/types.h: Fixed bug 1273540
+
+	* src/datetime.cpp: Fixed bug 1108240
+
+	* src/datetime.cpp: Fixed call to swprintf
+
+	* src/dtconv.h: Fixed call to swprintf
+
 2005-08-24  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* NEWS: update for 0.2.4pre1 release
