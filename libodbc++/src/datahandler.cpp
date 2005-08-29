@@ -70,7 +70,7 @@ namespace odbc {
 
     for(unsigned int i=0; sqlTypes[i].name!=NULL; i++) {
       if(sqlTypes[i].id==sqlType) {
-	return sqlTypes[i].name;
+        return sqlTypes[i].name;
       }
     }
 
@@ -99,12 +99,12 @@ namespace odbc {
       { SQL_C_TYPE_DATE,      ODBCXX_STRING_CONST("SQL_C_TYPE_DATE") },
       { SQL_C_TYPE_TIMESTAMP, ODBCXX_STRING_CONST("SQL_C_TYPE_TIMESTAMP") },
 #endif
-      { 0,			NULL }
+      { 0,                        NULL }
     };
 
     for(unsigned int i=0; cTypes[i].name!=NULL; i++) {
       if(cTypes[i].id==cType) {
-	return cTypes[i].name;
+        return cTypes[i].name;
       }
     }
     return ODBCXX_STRING_CONST("UNKNOWN");
@@ -112,16 +112,16 @@ namespace odbc {
 
 };
 
-#define UNSUPPORTED_GET(as_type)				\
-throw SQLException						\
+#define UNSUPPORTED_GET(as_type)                                \
+throw SQLException                                                \
 (ODBCXX_STRING_CONST("[libodbc++]: Could not get SQL type ")+ \
  intToString(sqlType_)+ODBCXX_STRING_CONST(" (")+ \
  nameOfSQLType(sqlType_)+ODBCXX_STRING_CONST("), C type ")+ \
  intToString(cType_)+ODBCXX_STRING_CONST(" (")+ \
  nameOfCType(cType_)+ODBCXX_STRING_CONST(") as ") as_type)
 
-#define UNSUPPORTED_SET(to_type)				\
-throw SQLException						\
+#define UNSUPPORTED_SET(to_type)                                \
+throw SQLException                                                \
 (ODBCXX_STRING_CONST("[libodbc++]: Could not set SQL type ")+ \
  intToString(sqlType_)+ ODBCXX_STRING_CONST(" (")+ \
  nameOfSQLType(sqlType_)+ODBCXX_STRING_CONST("), C type ")+ \
@@ -148,8 +148,8 @@ void DataHandler::setupBuffer(size_t s)
 
 
 DataHandler::DataHandler(unsigned int& cr, size_t rows,
-			 int sqlType, int precision, int scale,
-			 bool use3)
+                         int sqlType, int precision, int scale,
+                         bool use3)
   :currentRow_(cr),rows_(rows),
    buffer_(NULL),bufferSize_(0), dataStatus_(NULL),
    isStreamed_(false),stream_(NULL),ownStream_(false),
@@ -320,7 +320,7 @@ int DataHandler::getInt() const
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return stringToInt(this->data());
+        return stringToInt(this->data());
       }
 
     default:
@@ -350,7 +350,7 @@ Long DataHandler::getLong() const
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return stringToLong(this->data());
+        return stringToLong(this->data());
       }
 
     default:
@@ -380,7 +380,7 @@ float DataHandler::getFloat() const
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return (float)stringToDouble(this->data());
+        return (float)stringToDouble(this->data());
       }
 
     default:
@@ -410,7 +410,7 @@ double DataHandler::getDouble() const
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return (double)stringToDouble(this->data());
+        return (double)stringToDouble(this->data());
       }
 
     default:
@@ -429,19 +429,19 @@ Date DataHandler::getDate() const
     switch(cType_) {
     case C_DATE:
       {
-	DateStruct* ds=(DateStruct*)this->data();
-	return Date(ds->year,ds->month,ds->day);
+        DateStruct* ds=(DateStruct*)this->data();
+        return Date(ds->year,ds->month,ds->day);
       }
 
     case C_TIMESTAMP:
       {
-	TimestampStruct* ts=(TimestampStruct*)this->data();
-	return Date(ts->year,ts->month,ts->day);
+        TimestampStruct* ts=(TimestampStruct*)this->data();
+        return Date(ts->year,ts->month,ts->day);
       }
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return Date((ODBCXX_CHAR_TYPE*)this->data()); // XXX lothrop
+        return Date((ODBCXX_CHAR_TYPE*)this->data());
       }
 
     default:
@@ -458,19 +458,19 @@ Time DataHandler::getTime() const
     switch(cType_) {
     case C_TIME:
       {
-	TimeStruct* ts=(TimeStruct*)this->data();
-	return Time(ts->hour,ts->minute,ts->second);
+        TimeStruct* ts=(TimeStruct*)this->data();
+        return Time(ts->hour,ts->minute,ts->second);
       }
 
     case C_TIMESTAMP:
       {
-	TimestampStruct* ts=(TimestampStruct*)this->data();
-	return Time(ts->hour,ts->minute,ts->second);
+        TimestampStruct* ts=(TimestampStruct*)this->data();
+        return Time(ts->hour,ts->minute,ts->second);
       }
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return Time((ODBCXX_CHAR_TYPE*)this->data()); // XXX lothrop
+        return Time((ODBCXX_CHAR_TYPE*)this->data());
       }
 
     default:
@@ -487,27 +487,27 @@ Timestamp DataHandler::getTimestamp() const
     switch(cType_) {
     case C_TIMESTAMP:
       {
-	TimestampStruct* ts=(TimestampStruct*)this->data();
-	return Timestamp(ts->year,ts->month,ts->day,
-			 ts->hour,ts->minute,ts->second,ts->fraction);
+        TimestampStruct* ts=(TimestampStruct*)this->data();
+        return Timestamp(ts->year,ts->month,ts->day,
+                         ts->hour,ts->minute,ts->second,ts->fraction);
       }
 
     case C_DATE:
       {
-	DateStruct* ds=(DateStruct*)this->data();
-	return Timestamp(ds->year,ds->month,ds->day,
-			 0,0,0);
+        DateStruct* ds=(DateStruct*)this->data();
+        return Timestamp(ds->year,ds->month,ds->day,
+                         0,0,0);
       }
 
     case C_TIME:
       {
-	TimeStruct* ts=(TimeStruct*)this->data();
-	return Timestamp(0,0,0,ts->hour,ts->minute,ts->second);
+        TimeStruct* ts=(TimeStruct*)this->data();
+        return Timestamp(0,0,0,ts->hour,ts->minute,ts->second);
       }
 
     case SQL_C_CHAR:
       if(!isStreamed_) {
-	return Timestamp((ODBCXX_CHAR_TYPE*)this->data()); // XXX lothrop
+        return Timestamp((ODBCXX_CHAR_TYPE*)this->data());
       }
 
     default:
@@ -525,13 +525,18 @@ ODBCXX_STRING DataHandler::getString() const
     switch(cType_) {
     case SQL_C_TCHAR:
       if(!isStreamed_) {
-	if(this->getDataStatus()==SQL_NTS) {
-	  return ODBCXX_STRING_C((ODBCXX_CHAR_TYPE*)this->data());
-	} else {
-	  return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this->data(),this->getDataStatus()/sizeof(ODBCXX_CHAR_TYPE));
-	}
+        switch(this->getDataStatus()) {
+           case SQL_NTS:
+             return ODBCXX_STRING_C((ODBCXX_CHAR_TYPE*)this->data());
+           case SQL_NO_TOTAL:
+             return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this-data(),
+                                     bufferSize_/sizeof(ODBCXX_CHAR_TYPE));
+           default:
+             return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this->data(),
+                                     this->getDataStatus()/sizeof(ODBCXX_CHAR_TYPE));
+        }
       } else {
-	throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: NYI: Getting a stream as a string"));
+        throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: NYI: Getting a stream as a string"));
       }
 
     case C_DATE:
@@ -577,7 +582,7 @@ ODBCXX_BYTES DataHandler::getBytes() const
     case SQL_C_WCHAR :
 #endif
       if(!isStreamed_) {
-	return ODBCXX_BYTES_C(this->data(),this->getDataStatus());
+        return ODBCXX_BYTES_C(this->data(),this->getDataStatus());
       }
 
     default:
@@ -612,12 +617,12 @@ ODBCXX_STREAM* DataHandler::getStream() const
   ODBCXX_DUMMY_RETURN(NULL);
 }
 
-#define SET_TO(type,val)			\
-*(type*)this->data()=(type)val;			\
+#define SET_TO(type,val)                        \
+*(type*)this->data()=(type)val;                        \
 this->setDataStatus(sizeof(type))
 
 
-#define ACCEPT_SET_VAL(id,type,val)		\
+#define ACCEPT_SET_VAL(id,type,val)                \
 case id: SET_TO(type,val); break
 
 #define ACCEPT_SET(id,type) ACCEPT_SET_VAL(id,type,val)
@@ -828,7 +833,7 @@ void DataHandler::setString(const ODBCXX_STRING& str)
     if(!isStreamed_) {
       unsigned int len=(unsigned int)ODBCXX_STRING_LEN(str);
       if((len+1)*sizeof(ODBCXX_CHAR_TYPE)>bufferSize_) {
-	len=(bufferSize_-1)/sizeof(ODBCXX_CHAR_TYPE);
+        len=(bufferSize_-1)/sizeof(ODBCXX_CHAR_TYPE);
       }
       ODBCXX_CHAR_TYPE* buf=(ODBCXX_CHAR_TYPE*)this->data();
       // we want to pad (W)CHARs with spaces
@@ -840,7 +845,7 @@ void DataHandler::setString(const ODBCXX_STRING& str)
 
       memcpy(buf,ODBCXX_STRING_DATA(str),len*sizeof(ODBCXX_CHAR_TYPE));
       for(unsigned int i=0; i<padlen; i++) {
-	buf[len+i]=' ';
+        buf[len+i]=' ';
       }
 
       buf[len+padlen]='\0'; //NULL
@@ -849,7 +854,7 @@ void DataHandler::setString(const ODBCXX_STRING& str)
     } else {
       // we fake a real setStream()
       this->setStream(stringToStream(str),
-		      ODBCXX_STRING_LEN(str));
+                      ODBCXX_STRING_LEN(str));
       ownStream_=true;
     }
     break;
@@ -886,7 +891,7 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
       size_t l=ODBCXX_BYTES_SIZE(b);
       // truncate if needed
       if(l>bufferSize_) {
-	l=bufferSize_;
+        l=bufferSize_;
       }
 
       memcpy(this->data(),ODBCXX_BYTES_DATA(b),l);
@@ -895,7 +900,7 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
     } else {
       // fake a setStream()
       this->setStream(bytesToStream(b),
-		      ODBCXX_BYTES_SIZE(b));
+                      ODBCXX_BYTES_SIZE(b));
       ownStream_=true;
     }
     break;

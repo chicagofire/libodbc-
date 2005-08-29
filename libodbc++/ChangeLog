@@ -1,3 +1,7 @@
+2005-08-29  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* src/datahandler.cpp: Applied patch 1091957
+
 2005-08-26  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* include/odbc++/drivermanager.h: Fixed bug 895033
