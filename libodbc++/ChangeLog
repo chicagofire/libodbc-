@@ -1,3 +1,8 @@
+2005-09-05  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* src/resultset.cpp: Added string length to ResultSet::updateString
+
+
 2005-08-29  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* src/datahandler.cpp: Applied patch 1091957
