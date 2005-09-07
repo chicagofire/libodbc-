@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -38,7 +38,7 @@
   The value generator simply gives different binary chunks of different sizes
   depending on the row number.
 
-  This depends on a datasource that keeps statements open across 
+  This depends on a datasource that keeps statements open across
   commits.
  */
 
@@ -51,45 +51,48 @@
 #include <odbc++/preparedstatement.h>
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
+#include <memory>
+#include <stdlib.h>
 
 using namespace odbc;
 using namespace std;
 
-#define NAME_PREFIX "odbcxx_"
+#define NAME_PREFIX ODBCXX_STRING_CONST("odbcxx_")
 
-#define TABLE_NAME NAME_PREFIX "test"
+#define TABLE_NAME NAME_PREFIX ODBCXX_STRING_CONST("test")
 
 const int SIZE_MULTIPLIER = 1024*20; //1st row=20k, 2nd row=40k ...
-const int MAX_SIZE = 1024*1024; //max 1 megabyte per value
-const int TEST_ROWS = 20; // 
+const int MAX_SIZE        = 1024*1024; //max 1 megabyte per value
+const int TEST_ROWS       = 20; //
 
-typedef pair<istream*,int> TestStream;
+typedef pair<ODBCXX_STREAM*,int> TestStream;
 
 
 static int assertionsFailed=0;
 
-#define ASSERT(x)						\
-do {								\
-  if(!(x)) {							\
-    cerr << "Assertion \"" << #x << "\" failed" << endl;	\
-    assertionsFailed++;                                         \
-  }								\
+#define ASSERT(x)                                                \
+do {                                                             \
+  if(!(x)) {                                                     \
+    cerr << "Assertion \"" << #x << "\" failed" << endl;         \
+    assertionsFailed++;                                          \
+  }                                                              \
 } while(false)
 
 
 
 // dumps all warnings for a given ErrorHandler
-static void dumpWarnings(ErrorHandler* eh, const string& who)
+static void dumpWarnings(ErrorHandler* eh, const ODBCXX_STRING& who)
 {
   WarningList* warnings=eh->getWarnings();
   if(!warnings->empty()) {
-    cout << who << " had " << warnings->size() << " warnings." << endl;
+    ODBCXX_COUT << who << ODBCXX_STRING_CONST(" had ")
+                << warnings->size() << ODBCXX_STRING_CONST(" warnings.") << endl;
     for(WarningList::iterator i=warnings->begin();
-	i!=warnings->end(); i++) {
+        i!=warnings->end(); i++) {
       SQLWarning& w=**i;
-      cout << "SQLState   : " << w.getSQLState() << endl;
-      cout << "Description: " << w.getMessage() << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("SQLState   : ") << w.getSQLState() << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Description: ") << w.getMessage()  << endl;
     }
   }
 }
@@ -100,30 +103,27 @@ static void dumpWarnings(ErrorHandler* eh, const string& who)
 static void createStuff(Connection* con)
 {
   // create our table
-  Statement* stmt=con->createStatement();
-  stmt->executeUpdate
-    ("create table " TABLE_NAME "("
-     "id number constraint " TABLE_NAME "_pk_id primary key, "
-     "content long raw not null)");
-  
-  cout << "Table " << TABLE_NAME << " created." << endl;
-  
-  delete stmt;
+  std::auto_ptr<Statement> stmt=std::auto_ptr<Statement>(con->createStatement());
+  stmt->executeUpdate(
+    ODBCXX_STRING_CONST("create table ") TABLE_NAME ODBCXX_STRING_CONST("(")
+    ODBCXX_STRING_CONST("id number constraint ") TABLE_NAME
+    ODBCXX_STRING_CONST("_pk_id primary key, content long raw not null)"));
+
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Table ") << TABLE_NAME
+              << ODBCXX_STRING_CONST(" created.") << endl;
 }
 
 // Drops the database objects.
 
 static void dropStuff(Connection* con)
 {
-  Statement* stmt=con->createStatement();
+  std::auto_ptr<Statement> stmt=std::auto_ptr<Statement>(con->createStatement());
   try {
-    stmt->executeUpdate("drop table " TABLE_NAME);
-    cout << "Dropped table " << TABLE_NAME << endl;
-  } catch(SQLException& e) {
+    stmt->executeUpdate(ODBCXX_STRING_CONST("drop table ") TABLE_NAME);
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Dropped table ") << TABLE_NAME << endl;
+  } catch(SQLException& /*e*/) {
     //ignore
   }
-  
-  delete stmt;
 }
 
 
@@ -131,8 +131,8 @@ class ValueGen {
 private:
   size_t cnt_;
   size_t rows_;
-  
-  char current[MAX_SIZE];
+
+  ODBCXX_CHAR_TYPE current[MAX_SIZE];
 
 public:
   ValueGen(size_t rows)
@@ -143,27 +143,28 @@ public:
     return ((++cnt_) <= rows_);
   }
 
-  int id() { 
-    return cnt_; 
+  int id() {
+    return cnt_;
   }
 
   TestStream* b() {
     // cnt_ can never be 0 here
     int len=((cnt_)*SIZE_MULTIPLIER)%MAX_SIZE;
-    
+
     for(int i=0; i<len; i++) {
       current[i]=((i+cnt_)%256);
     }
-    istrstream* s=new istrstream(current,len);
+    basic_istringstream<ODBCXX_CHAR_TYPE>* s
+      =new basic_istringstream<ODBCXX_CHAR_TYPE>(current);
     return new TestStream(s,len);
   }
 };
 
 
 // this compares two streams
-inline bool compareStreams(istream* s1, istream* s2, int len)
+inline bool compareStreams(ODBCXX_STREAM* s1, ODBCXX_STREAM* s2, int len)
 {
-  char c1, c2;
+  ODBCXX_CHAR_TYPE c1, c2;
   size_t cnt=0;
   while(s1->get(c1) && s2->get(c2)) {
     cnt++;
@@ -177,8 +178,10 @@ inline bool compareStreams(istream* s1, istream* s2, int len)
 
 static void populate(Connection* con)
 {
-  PreparedStatement* pstmt=con->prepareStatement
-    ("insert into " TABLE_NAME "(id,content) values(?,?)");
+  std::auto_ptr<PreparedStatement> pstmt
+    =std::auto_ptr<PreparedStatement>(con->prepareStatement
+    (ODBCXX_STRING_CONST("insert into ") TABLE_NAME
+     ODBCXX_STRING_CONST("(id,content) values(?,?)")));
 
   ValueGen vg(TEST_ROWS);
   int cnt=0;
@@ -187,24 +190,24 @@ static void populate(Connection* con)
     TestStream* s=vg.b();
     pstmt->setBinaryStream(2,s->first,s->second);
     pstmt->executeUpdate();
-    
+
     delete s->first;
     delete s;
 
-    //we commit after every row, since we can reach pretty 
+    //we commit after every row, since we can reach pretty
     //big chunks of data
-    con->commit(); 
+    con->commit();
     cnt++;
   }
 
   cout << "Inserted " << cnt << " rows using a PreparedStatement" << endl;
-  delete pstmt;
 
   // go cursors
-  Statement* stmt=con->createStatement(ResultSet::TYPE_SCROLL_SENSITIVE,
-				       ResultSet::CONCUR_UPDATABLE);
-  ResultSet* rs=stmt->executeQuery
-    ("select id,content from " TABLE_NAME);
+  std::auto_ptr<Statement> stmt
+    =std::auto_ptr<Statement>(con->createStatement(ResultSet::TYPE_SCROLL_SENSITIVE,
+                                                   ResultSet::CONCUR_UPDATABLE));
+  std::auto_ptr<ResultSet> rs=std::auto_ptr<ResultSet>(stmt->executeQuery
+    (ODBCXX_STRING_CONST("select id,content from ") TABLE_NAME));
 
   rs->next();
   rs->moveToInsertRow();
@@ -215,51 +218,48 @@ static void populate(Connection* con)
 
     rs->insertRow();
 
-    cout << "Did a row" << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Did a row") << endl;
 
     delete s->first;
     delete s;
 
-    con->commit(); 
+    con->commit();
   }
-  
-  cout << "Inserted " << TEST_ROWS/2 << " rows using a ResultSet" << endl;
-  
-  delete rs;
-  delete stmt;
+
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Inserted ") << TEST_ROWS/2
+              << ODBCXX_STRING_CONST(" rows using a ResultSet") << endl;
 }
 
 
 static void compare(Connection* con)
 {
-  Statement* stmt=con->createStatement();
-  ResultSet* rs=stmt->executeQuery("select id,content from " TABLE_NAME
-				   " order by id");
-  
+  std::auto_ptr<Statement> stmt
+    =std::auto_ptr<Statement>(con->createStatement());
+  std::auto_ptr<ResultSet> rs=std::auto_ptr<ResultSet>(stmt->executeQuery
+    (ODBCXX_STRING_CONST("select id,content from ") TABLE_NAME
+     ODBCXX_STRING_CONST(" order by id")));
+
   ValueGen vg(TEST_ROWS);
   int cnt=0;
 
   cout << "Comparing values with database (can take a while)..." << flush;
-  
+
   while(rs->next() && vg.next()) {
     cnt++;
     ASSERT(vg.id()==rs->getInt(1));
 
     TestStream* vgStream=vg.b();
-    istream* rsStream=rs->getBinaryStream(2);
-    
+    ODBCXX_STREAM* rsStream=rs->getBinaryStream(2);
+
     ASSERT(compareStreams(vgStream->first,rsStream,vgStream->second));
 
     delete vgStream->first;
     delete vgStream;
-    
+
     //rsStream is taken care of by the result set
   }
 
   ASSERT(cnt==TEST_ROWS);
-
-  delete rs;
-  delete stmt;
 
   cout << " done." << endl;
 }
@@ -272,38 +272,55 @@ int main(int argc, char** argv)
 {
   if(argc!=2 && argc!=4) {
     cerr << "Usage: " << argv[0] << " connect-string" << endl
-	       << "or     " << argv[0] << " dsn username password" << endl;
+         << "or     " << argv[0] << " dsn username password" << endl;
     return 0;
   }
   try {
-    Connection* con;
-    if(argc==2) {
-      cout << "Connecting to " << argv[1] << "..." << flush;
-      con=DriverManager::getConnection(argv[1]);
-    } else {
-      cout << "Connecting to dsn=" << argv[1]
-	   << ", uid=" << argv[2] 
-	   << ", pwd=" << argv[3] << "..." << flush;
-      con=DriverManager::getConnection(argv[1],argv[2],argv[3]);
+    std::vector<ODBCXX_STRING> vargv(argc-1);
+    const size_t MAX_CHARS = 256;
+    for(int i=1;i<argc;++i)
+    {
+      ODBCXX_STRING& arg=vargv[i-1];
+#if defined(ODBCXX_UNICODE)
+      wchar_t buffer[MAX_CHARS];
+      size_t len=mbstowcs(buffer,argv[i],MAX_CHARS);
+      if(0<len&&MAX_CHARS>len)
+      {
+         arg=buffer;
+      }
+#else
+      arg=argv[i];
+#endif
     }
-    cout << " done." << endl;
+    std::auto_ptr<Connection> con;
+    if(argc==2) {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to ") << vargv[0]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0]));
+    } else {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to dsn=") << vargv[0]
+                  << ODBCXX_STRING_CONST(", uid=") << vargv[1]
+                  << ODBCXX_STRING_CONST(", pwd=") << vargv[2]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0],vargv[1],vargv[2]));
+    }
+    ODBCXX_COUT << ODBCXX_STRING_CONST(" done.") << endl;
 
     // we don't want autocommit
     con->setAutoCommit(false);
 
-    dropStuff(con);
-    createStuff(con);
+    dropStuff(con.get());
+    createStuff(con.get());
 
-    populate(con);
-    compare(con);
-    
-    dropStuff(con);
+    populate(con.get());
+    compare(con.get());
+
+    dropStuff(con.get());
 
 
     con->commit();
-    delete con;
   } catch(SQLException& e) {
-    cerr << endl << e.getMessage() << endl;
+    ODBCXX_CERR << endl << e.getMessage() << endl;
   }
 
   return 0;
