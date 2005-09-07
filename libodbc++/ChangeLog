@@ -1,6 +1,9 @@
 2005-09-07  Kerry W. Lothrop <kerry@lothrop.de>
 
-	* tests/streams.cpp: Made streams test work with wide strings
+	* tests/streams.cpp: Made test work with wide strings
+	* tests/dbmetadata.cpp: Made test work with wide strings
+	* tests/scroll.cpp: Made test work with wide strings
+	* tests/oracle.cpp: Made test work with wide strings
 
 2005-09-05  Kerry W. Lothrop <kerry@lothrop.de>
 

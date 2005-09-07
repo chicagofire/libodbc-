@@ -7,8 +7,9 @@
 #include <odbc++/callablestatement.h>
 #include <odbc++/databasemetadata.h>
 
-#include <strstream>
+#include <sstream>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace odbc;
@@ -16,127 +17,126 @@ using namespace odbc;
 // note: this must be even
 const int TABLE_ROWS=500;
 
-#define PREFIX "odbcxx_"
+#define PREFIX ODBCXX_STRING_CONST("odbcxx_")
 
-const string tableName=PREFIX "test";
-const string procName=PREFIX "ptest";
-const string funcName=PREFIX "ftest";
+const ODBCXX_STRING tableName(PREFIX ODBCXX_STRING_CONST("test"));
+const ODBCXX_STRING procName(PREFIX ODBCXX_STRING_CONST("ptest"));
+const ODBCXX_STRING funcName(PREFIX ODBCXX_STRING_CONST("ftest"));
 
 int assertionsFailed=0;
 
-#define ASSERT(x) 					\
-if(!(x)) { 						\
-  cout << __FILE__ << ":" << __LINE__ << ": " 		\
-       << "Assertion " << #x << " failed." << endl; 	\
-  assertionsFailed++; 					\
-}
+#define ASSERT(x)                                              \
+do {                                                           \
+  if(!(x)) {                                                   \
+    ODBCXX_CERR << ODBCXX_STRING_CONST("Assertion \"") << #x   \
+                << ODBCXX_STRING_CONST("\" failed") << endl;   \
+    assertionsFailed++;                                        \
+  }                                                            \
+} while(false)
 
 static void dumpWarnings(Statement* stmt)
 {
-  WarningList* warnings=stmt->getWarnings();
+  std::auto_ptr<WarningList> warnings
+    =std::auto_ptr<WarningList>(stmt->getWarnings());
   for(WarningList::iterator i=warnings->begin();
       i!=warnings->end(); i++) {
-    cout << "Warning: " << (*i)->getMessage() << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Warning: ")
+                << (*i)->getMessage() << endl;
   }
-  delete warnings;
 }
 
 static void dropStuff(Connection* con)
 {
-  Statement* stmt=con->createStatement();
+  std::auto_ptr<Statement> stmt=std::auto_ptr<Statement>(con->createStatement());
   try {
-    stmt->executeUpdate("drop table "+tableName);
-    cout << "Dropped table " << tableName << endl;
-    dumpWarnings(stmt);
+    stmt->executeUpdate(ODBCXX_STRING_CONST("drop table ")+tableName);
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Dropped table ") << tableName << endl;
+    dumpWarnings(stmt.get());
   } catch(SQLException& e) {}
 
   try {
-    stmt->executeUpdate("drop procedure "+procName);
-    cout << "Dropped procedure " << procName << endl;
-    dumpWarnings(stmt);
+    stmt->executeUpdate(ODBCXX_STRING_CONST("drop procedure ")+procName);
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Dropped procedure ") << procName << endl;
+    dumpWarnings(stmt.get());
   } catch(SQLException& e) {}
 
   try {
-    stmt->executeUpdate("drop function "+funcName);
-    cout << "Dropped function " << funcName << endl;
-    dumpWarnings(stmt);
+    stmt->executeUpdate(ODBCXX_STRING_CONST("drop function ")+funcName);
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Dropped function ") << funcName << endl;
+    dumpWarnings(stmt.get());
   } catch(SQLException& e) {}
-  delete stmt;
 }
 
 static void createStuff(Connection* con)
 {
-  Statement* stmt=con->createStatement();
+  std::auto_ptr<Statement> stmt=std::auto_ptr<Statement>(con->createStatement());
 
   // create the table
-  stmt->executeUpdate("create table "+tableName+" ("
-		      "id number(4) not null primary key, "
-		      "name varchar2(22) not null, "
-		      "ts date)");
-  
-  dumpWarnings(stmt);
-  cout << "Created table " << tableName << endl;
+  stmt->executeUpdate(ODBCXX_STRING_CONST("create table ")+tableName+
+                      ODBCXX_STRING_CONST(" (id number(4) not null primary key, ")
+                      ODBCXX_STRING_CONST("name varchar2(22) not null, ")
+                      ODBCXX_STRING_CONST("ts date)"));
+
+  dumpWarnings(stmt.get());
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Created table ") << tableName << endl;
 
   // create the procedure
   stmt->executeUpdate
-    ("create procedure "+procName+
-     " (a in integer, b out integer, s in out varchar2) as "
-     "begin "
-     "  b:=a*2; "
-     "  s:= s || ': ' || a || '*2=' || b; "
-     "end;");
+    (ODBCXX_STRING_CONST("create procedure ")+procName+
+     ODBCXX_STRING_CONST(" (a in integer, b out integer, s in out varchar2) as ")
+     ODBCXX_STRING_CONST("begin ")
+     ODBCXX_STRING_CONST("  b:=a*2; ")
+     ODBCXX_STRING_CONST("  s:= s || ': ' || a || '*2=' || b; ")
+     ODBCXX_STRING_CONST("end;"));
 
-  dumpWarnings(stmt);
-  cout << "Created procedure " << procName << endl;
+  dumpWarnings(stmt.get());
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Created procedure ") << procName << endl;
 
   // create the function
   stmt->executeUpdate
-    ("create function "+funcName+" (a in number, s in out varchar2) "
-     "return number as "
-     "b number; "
-     "begin "
-     "  b:=a*2; "
-     "  s:= s || ': ' || a || '*2=' || b; "
-     "  return b; "
-     "end;");
+    (ODBCXX_STRING_CONST("create function ")+funcName+
+     ODBCXX_STRING_CONST(" (a in number, s in out varchar2) ")
+     ODBCXX_STRING_CONST("return number as ")
+     ODBCXX_STRING_CONST("b number; ")
+     ODBCXX_STRING_CONST("begin ")
+     ODBCXX_STRING_CONST("  b:=a*2; ")
+     ODBCXX_STRING_CONST("  s:= s || ': ' || a || '*2=' || b; ")
+     ODBCXX_STRING_CONST("  return b; ")
+     ODBCXX_STRING_CONST("end;"));
 
-  dumpWarnings(stmt);
-  cout << "Created function " << funcName << endl;
-
-  delete stmt;
+  dumpWarnings(stmt.get());
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Created function ") << funcName << endl;
 }
 
 static void testProc(Connection* con)
 {
-  CallableStatement* stmt=con->prepareCall
-    ("{call "+procName+"(?,?,?)}");
+  std::auto_ptr<CallableStatement> stmt=std::auto_ptr<CallableStatement>(con->prepareCall
+    (ODBCXX_STRING_CONST("{call ")+procName+ODBCXX_STRING_CONST("(?,?,?)}")));
   stmt->setInt(1,22);
   stmt->registerOutParameter(2,Types::INTEGER);
-  stmt->setString(3, "Okay");
+  stmt->setString(3, ODBCXX_STRING_CONST("Okay"));
   stmt->executeUpdate();
-  
+
   ASSERT(stmt->getInt(2)==44);
-  ASSERT(stmt->getString(3)=="Okay: 22*2=44");
-  delete stmt;
+  ASSERT(stmt->getString(3)==ODBCXX_STRING_CONST("Okay: 22*2=44"));
 }
 
 static void testFunc(Connection* con)
 {
-  CallableStatement* stmt=con->prepareCall
-    ("{?=call "+funcName+"(?,?)}");
+  std::auto_ptr<CallableStatement> stmt=std::auto_ptr<CallableStatement>(con->prepareCall
+    (ODBCXX_STRING_CONST("{?=call ")+procName+ODBCXX_STRING_CONST("(?,?)}")));
 
   stmt->registerOutParameter(1,Types::INTEGER);
   stmt->setInt(2,22);
-  stmt->setString(3,"Okay");
+  stmt->setString(3,ODBCXX_STRING_CONST("Okay"));
   stmt->executeUpdate();
 
   ASSERT(stmt->getInt(1)==44);
-  ASSERT(stmt->getString(3)=="Okay: 22*2=44");
-  delete stmt;
+  ASSERT(stmt->getString(3)==ODBCXX_STRING_CONST("Okay: 22*2=44"));
 }
 
 
-static void testTable(Connection* con) 
+static void testTable(Connection* con)
 {
   int i=0;
   int driverVersion=con->getMetaData()->getDriverMajorVersion();
@@ -144,30 +144,32 @@ static void testTable(Connection* con)
   if(driverVersion<3) {
     // insert the first row using a prepared statement
     // ODBC 2 drivers can't do inserts before a fetch is done.
-    // some can't do inserts if the result set is not on a 
+    // some can't do inserts if the result set is not on a
     // real row.
-    PreparedStatement* pstmt=con->prepareStatement
-      ("insert into "+tableName+" (id,name,ts) values(?,?,?)");
+    std::auto_ptr<PreparedStatement> pstmt
+      =std::auto_ptr<PreparedStatement>(con->prepareStatement
+      (ODBCXX_STRING_CONST("insert into ")+tableName+
+       ODBCXX_STRING_CONST(" (id,name,ts) values(?,?,?)")));
     pstmt->setInt(1,i);
-    pstmt->setString(2,"This is row number 0");
+    pstmt->setString(2,ODBCXX_STRING_CONST("This is row number 0"));
     {
       Timestamp ts;
       pstmt->setTimestamp(3,ts);
     }
     pstmt->executeUpdate();
-    cout << "Inserted row 0" << endl;
-    delete pstmt;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Inserted row 0") << endl;
     i++;
   }
 
   // populate our table using a ResultSet
-  Statement* stmt=con->createStatement
-    (ResultSet::TYPE_SCROLL_SENSITIVE, ResultSet::CONCUR_UPDATABLE);
+  std::auto_ptr<Statement> stmt=std::auto_ptr<Statement>(con->createStatement
+    (ResultSet::TYPE_SCROLL_SENSITIVE, ResultSet::CONCUR_UPDATABLE));
 
   // set fetch size to something useful
   stmt->setFetchSize(10);
 
-  ResultSet* rs=stmt->executeQuery("select id,name,ts from "+tableName);
+  std::auto_ptr<ResultSet> rs=std::auto_ptr<ResultSet>
+    (stmt->executeQuery(ODBCXX_STRING_CONST("select id,name,ts from ")+tableName));
 
   if(driverVersion<3) {
     // position ourselves on a real row
@@ -177,75 +179,73 @@ static void testTable(Connection* con)
   rs->moveToInsertRow();
 
   while(i<TABLE_ROWS) {
-    strstream ns;
-    ns << "This is row number " << i;
-    string name(ns.str(),ns.pcount());
+    basic_ostringstream<ODBCXX_CHAR_TYPE> ns;
+    ns << ODBCXX_CHAR_TYPE("This is row number ") << i;
+    ODBCXX_STRING name(ns.str());
     rs->updateInt(1,i);
     rs->updateString(2,name);
     rs->updateTimestamp(3,Timestamp());
     rs->insertRow();
-    cout << "Inserted row " << i << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Inserted row ") << i << endl;
     i++;
   }
   rs->moveToCurrentRow();
-  delete rs;
 
   con->commit();
 
-  rs=stmt->executeQuery("select id,name from "+tableName);
+  rs=std::auto_ptr<ResultSet>(stmt->executeQuery
+    (ODBCXX_STRING_CONST("select id,name from ")+tableName));
 
   i=0;
   while(rs->next()) {
-    cout << "Checking row " << i << endl;
-    strstream ns;
-    ns << "This is row number " << i;
-    string name(ns.str(),ns.pcount());
-    ASSERT(rs->getString("name")==name);
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Checking row ") << i << endl;
+    basic_ostringstream<ODBCXX_CHAR_TYPE> ns;
+    ns << ODBCXX_STRING_CONST("This is row number ") << i;
+    ODBCXX_STRING name(ns.str());
+    ASSERT(rs->getString(ODBCXX_STRING_CONST("name"))==name);
 
-    ASSERT(rs->getInt("id")==i);
+    ASSERT(rs->getInt(ODBCXX_STRING_CONST("id"))==i);
     i++;
   }
 
-  delete rs;
-  cout << "Check done" << endl;
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Check done") << endl;
 
-  rs=stmt->executeQuery("select id,name,ts from "+tableName);
+  rs=std::auto_ptr<ResultSet>(stmt->executeQuery
+    (ODBCXX_STRING_CONST("select id,name,ts from ")+tableName));
   i=0;
   while(rs->next()) {
     if((i%2)==1) {
-      strstream ns;
-      ns << "This IS row number " << i;
-      string name(ns.str(),ns.pcount());
+      basic_ostringstream<ODBCXX_CHAR_TYPE> ns;
+      ns << ODBCXX_STRING_CONST("This IS row number ") << i;
+      ODBCXX_STRING name(ns.str());
 
-      rs->updateString("name",name);
+      rs->updateString(ODBCXX_STRING_CONST("name"),name);
       Timestamp ts;
-      rs->updateTimestamp("ts",ts);
+      rs->updateTimestamp(ODBCXX_STRING_CONST("ts"),ts);
       rs->updateRow();
-      cout << "Updated row " << i << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Updated row ") << i << endl;
     } else {
       rs->deleteRow();
-      cout << "Deleted row " << i << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Deleted row ") << i << endl;
     }
     i++;
   }
-  delete rs;
 
-  rs=stmt->executeQuery("select id,name,ts from "+tableName);
+  rs=std::auto_ptr<ResultSet>(stmt->executeQuery
+    (ODBCXX_STRING_CONST("select id,name,ts from ")+tableName));
   i=1;
   while(rs->next()) {
-    strstream ns;
-    ns << "This IS row number " << i;
-    string name(ns.str(),ns.pcount());
+    basic_ostringstream<ODBCXX_CHAR_TYPE> ns;
+    ns << ODBCXX_STRING_CONST("This IS row number ") << i;
+    ODBCXX_STRING name(ns.str());
 
-    ASSERT(rs->getString("name")==name);
+    ASSERT(rs->getString(ODBCXX_STRING_CONST("name"))==name);
     ASSERT(rs->getInt(1)==i);
 
     i+=2;
   }
 
   ASSERT(i==TABLE_ROWS+1);
-
-  delete stmt;
 
   con->commit();
 }
@@ -255,56 +255,75 @@ int main(int argc, char** argv)
 {
   if(argc!=2 && argc!=4) {
     cerr << "Usage: " << argv[0] << " connect-string" << endl
-	 << "or     " << argv[0] << " dsn username password" << endl;
+         << "or     " << argv[0] << " dsn username password" << endl;
     return 0;
   }
   try {
-    Connection* con;
-    if(argc==2) {
-      cout << "Connecting to " << argv[1] << "..." << flush;
-      con=DriverManager::getConnection(argv[1]);
-    } else {
-      cout << "Connecting to dsn=" << argv[1]
-	   << ", uid=" << argv[2] 
-	   << ", pwd=" << argv[3] << "..." << flush;
-      con=DriverManager::getConnection(argv[1],argv[2],argv[3]);
+    std::vector<ODBCXX_STRING> vargv(argc-1);
+    const size_t MAX_CHARS = 256;
+    for(int i=1;i<argc;++i)
+    {
+      ODBCXX_STRING& arg=vargv[i-1];
+#if defined(ODBCXX_UNICODE)
+      wchar_t buffer[MAX_CHARS];
+      size_t len=mbstowcs(buffer,argv[i],MAX_CHARS);
+      if(0<len&&MAX_CHARS>len)
+      {
+         arg=buffer;
+      }
+#else
+      arg=argv[i];
+#endif
     }
-    cout << " done." << endl;
-    
+    std::auto_ptr<Connection> con;
+    if(argc==2) {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to ") << vargv[0]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0]));
+    } else {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to dsn=") << vargv[0]
+                  << ODBCXX_STRING_CONST(", uid=") << vargv[1]
+                  << ODBCXX_STRING_CONST(", pwd=") << vargv[2]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0],vargv[1],vargv[2]));
+    }
+    ODBCXX_COUT << ODBCXX_STRING_CONST(" done.") << endl;
+
     int numTests=3;
     int failedTests=0;
 
     con->setAutoCommit(false);
-    dropStuff(con);
-    createStuff(con);
+    dropStuff(con.get());
+    createStuff(con.get());
     try {
-      testProc(con);
+      testProc(con.get());
     } catch(SQLException& e) {
-      cout << "Procedure test FAILED: " << e.getMessage() << endl;
-      failedTests++;
-    }
-    
-    try {
-      testFunc(con);
-    } catch(SQLException& e) {
-      cout << "Function test FAILED: " << e.getMessage() << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Procedure test FAILED: ")
+                  << e.getMessage() << endl;
       failedTests++;
     }
 
     try {
-      testTable(con);
+      testFunc(con.get());
     } catch(SQLException& e) {
-      cout << "Table test FAILED: " << e.getMessage() << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Function test FAILED: ")
+                  << e.getMessage() << endl;
       failedTests++;
     }
-    
-    dropStuff(con);
 
-    delete con;
+    try {
+      testTable(con.get());
+    } catch(SQLException& e) {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Table test FAILED: ")
+                  << e.getMessage() << endl;
+      failedTests++;
+    }
+
+    dropStuff(con.get());
 
     if(failedTests>0) {
-      cout << failedTests << " of " << numTests
-	   << " tests failed." << endl;
+      ODBCXX_COUT << failedTests << ODBCXX_STRING_CONST(" of ") << numTests
+                  << ODBCXX_STRING_CONST(" tests failed.") << endl;
     }
   } catch(exception& e) {
     cout << "Whoops: " << e.what() << endl;
@@ -312,7 +331,7 @@ int main(int argc, char** argv)
   }
 
   if(assertionsFailed>0) {
-    cout << assertionsFailed << " assertions failed." << endl;
+    ODBCXX_COUT << assertionsFailed << ODBCXX_STRING_CONST(" assertions failed.") << endl;
     return 2;
   }
   return 0;

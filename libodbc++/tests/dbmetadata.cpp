@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -32,7 +32,8 @@ using namespace odbc;
 using namespace std;
 
 #if defined(ODBCXX_QT)
-ostream& operator<<(ostream& o, const QString& s) 
+basic_ostream<ODBCXX_CHAR_TYPE>& operator<<(basic_ostream<ODBCXX_CHAR_TYPE>& o,
+                                            const QString& s)
 {
   o << ODBCXX_STRING_CSTR(s);
   return o;
@@ -40,57 +41,59 @@ ostream& operator<<(ostream& o, const QString& s)
 #endif
 
 
-inline const char* s(bool b)
+inline const ODBCXX_CHAR_TYPE* s(bool b)
 {
-  return b?"Yes":"No";
+  return b?ODBCXX_STRING_CONST("Yes"):ODBCXX_STRING_CONST("No");
 }
 
 inline ODBCXX_STRING maybeQuote(const ODBCXX_STRING& str, const ODBCXX_STRING& qc)
 {
-  if(qc!=" ") {
+  if(qc!=ODBCXX_STRING_CONST(" ")) {
     return qc+str+qc;
   }
   return str;
 }
 
-static void rsInfo(DatabaseMetaData* md, int rsType, const char* name)
+static void rsInfo(DatabaseMetaData* md, int rsType, const ODBCXX_CHAR_TYPE* name)
 {
   if(md->supportsResultSetType(rsType)) {
-      cout << name << endl;
+      ODBCXX_COUT << name << endl;
 
       if(md->supportsResultSetConcurrency(rsType,
-					  ResultSet::CONCUR_READ_ONLY)) {
-	cout << "  + ResultSet::CONCUR_READ_ONLY" << endl;
+                                          ResultSet::CONCUR_READ_ONLY)) {
+        ODBCXX_COUT << ODBCXX_STRING_CONST("  + ResultSet::CONCUR_READ_ONLY") << endl;
       }
 
       if(md->supportsResultSetConcurrency(rsType,
-					  ResultSet::CONCUR_UPDATABLE)) {
-	cout << "  + ResultSet::CONCUR_UPDATABLE" << endl;
+                                          ResultSet::CONCUR_UPDATABLE)) {
+        ODBCXX_COUT << ODBCXX_STRING_CONST("  + ResultSet::CONCUR_UPDATABLE") << endl;
       }
 
       if(md->ownInsertsAreVisible(rsType)) {
-	cout << "    Own inserts are visible" << endl;
+        ODBCXX_COUT << ODBCXX_STRING_CONST("    Own inserts are visible") << endl;
       }
 
       if(md->ownUpdatesAreVisible(rsType)) {
-	cout << "    Own updates are visible" << endl;
+        ODBCXX_COUT << ODBCXX_STRING_CONST("    Own updates are visible") << endl;
       }
       if(md->ownDeletesAreVisible(rsType)) {
-	cout << "    Own deletes are visible" << endl;
+        ODBCXX_COUT << ODBCXX_STRING_CONST("    Own deletes are visible") << endl;
       }
 
-      cout << endl;
+      ODBCXX_COUT << endl;
   }
 }
 
 
 void transactionInfo(DatabaseMetaData* md)
 {
-  cout << "Transaction support" << endl
-       << "===================" << endl;
+  ODBCXX_COUT << ODBCXX_STRING_CONST("Transaction support") << endl
+              << ODBCXX_STRING_CONST("===================") << endl;
 
   if(!md->supportsTransactions()) {
-    cout << "This datasource does not support transactions." << endl << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("This datasource does ")
+                   ODBCXX_STRING_CONST("not support transactions.")
+                << endl << endl;
     return;
   }
 
@@ -98,38 +101,41 @@ void transactionInfo(DatabaseMetaData* md)
 
   static struct {
     int id;
-    const char* name;
+    const ODBCXX_CHAR_TYPE* name;
   } levels[] = {
-    { Connection::TRANSACTION_READ_UNCOMMITTED, 
-      "Connection::TRANSACTION_READ_UNCOMMITTED" },
-    { Connection::TRANSACTION_READ_COMMITTED, 
-      "Connection::TRANSACTION_READ_COMMITTED" },
-    { Connection::TRANSACTION_REPEATABLE_READ, 
-      "Connection::TRANSACTION_REPEATABLE_READ" },
-    { Connection::TRANSACTION_SERIALIZABLE, 
-      "Connection::TRANSACTION_SERIALIZABLE" },
+    { Connection::TRANSACTION_READ_UNCOMMITTED,
+      ODBCXX_STRING_CONST("Connection::TRANSACTION_READ_UNCOMMITTED") },
+    { Connection::TRANSACTION_READ_COMMITTED,
+      ODBCXX_STRING_CONST("Connection::TRANSACTION_READ_COMMITTED") },
+    { Connection::TRANSACTION_REPEATABLE_READ,
+      ODBCXX_STRING_CONST("Connection::TRANSACTION_REPEATABLE_READ") },
+    { Connection::TRANSACTION_SERIALIZABLE,
+      ODBCXX_STRING_CONST("Connection::TRANSACTION_SERIALIZABLE") },
     { 0,NULL }
   };
 
   for(int i=0; levels[i].name!=NULL; i++) {
     if(md->supportsTransactionIsolationLevel(levels[i].id)) {
-      cout << " +" << levels[i].name 
-	   << (levels[i].id==defIsolation?" (default)":"") << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST(" +") << levels[i].name
+                  << (levels[i].id==defIsolation
+                     ?ODBCXX_STRING_CONST(" (default)")
+                     :ODBCXX_STRING_CONST(""))
+                  << endl;
     }
   }
 
   // the longest method name I've ever seen!
   if(md->supportsDataDefinitionAndDataManipulationTransactions()) {
-    cout << "  Both DML and DDL can be used within a transaction" << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("  Both DML and DDL can be used within a transaction") << endl;
   } else if(md->supportsDataManipulationTransactionsOnly()) {
-    cout << "  Only DML can be used within a transaction" << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("  Only DML can be used within a transaction") << endl;
   } else if(md->dataDefinitionCausesTransactionCommit()) {
-    cout << "  DDL causes commit" << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("  DDL causes commit") << endl;
   } else if(md->dataDefinitionIgnoredInTransactions()) {
-    cout << "  DDL is ignored in transactions" << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("  DDL is ignored in transactions") << endl;
   }
 
-  cout << endl;
+  ODBCXX_COUT << endl;
 }
 
 
@@ -137,77 +143,95 @@ int main(int argc, char** argv)
 {
   if(argc!=2 && argc!=4) {
     cerr << "Usage: " << argv[0] << " connect-string" << endl
-	       << "or     " << argv[0] << " dsn username password" << endl;
+         << "or     " << argv[0] << " dsn username password" << endl;
     return 0;
   }
   try {
-    Connection* con;
-    if(argc==2) {
-      cout << "Connecting to " << argv[1] << "..." << flush;
-      con=DriverManager::getConnection(argv[1]);
-    } else {
-      cout << "Connecting to dsn=" << argv[1]
-	   << ", uid=" << argv[2] 
-	   << ", pwd=" << argv[3] << "..." << flush;
-      con=DriverManager::getConnection(argv[1],argv[2],argv[3]);
+    std::vector<ODBCXX_STRING> vargv(argc-1);
+    const size_t MAX_CHARS = 256;
+    for(int i=1;i<argc;++i)
+    {
+      ODBCXX_STRING& arg=vargv[i-1];
+#if defined(ODBCXX_UNICODE)
+      wchar_t buffer[MAX_CHARS];
+      size_t len=mbstowcs(buffer,argv[i],MAX_CHARS);
+      if(0<len&&MAX_CHARS>len)
+      {
+         arg=buffer;
+      }
+#else
+      arg=argv[i];
+#endif
     }
-    cout << " done." << endl;
+    std::auto_ptr<Connection> con;
+    if(argc==2) {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to ") << vargv[0]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0]));
+    } else {
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Connecting to dsn=") << vargv[0]
+                  << ODBCXX_STRING_CONST(", uid=") << vargv[1]
+                  << ODBCXX_STRING_CONST(", pwd=") << vargv[2]
+                  << ODBCXX_STRING_CONST("...") << flush;
+      con=std::auto_ptr<Connection>(DriverManager::getConnection(vargv[0],vargv[1],vargv[2]));
+    }
+    ODBCXX_COUT << ODBCXX_STRING_CONST(" done.") << endl;
 
     DatabaseMetaData* md=con->getMetaData();
 
-    cout << "Product name                    : " 
-	 << md->getDatabaseProductName() << endl
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Product name                    : ")
+                << md->getDatabaseProductName() << endl
 
-	 << "Product version                 : " 
-	 << md->getDatabaseProductVersion() << endl
+                << ODBCXX_STRING_CONST("Product version                 : ")
+                << md->getDatabaseProductVersion() << endl
 
-	 << "Driver name                     : "
-	 << md->getDriverName() << endl
+                << ODBCXX_STRING_CONST("Driver name                     : ")
+                << md->getDriverName() << endl
 
-	 << "Driver version                  : " 
-	 << md->getDriverVersion() << endl
+                << ODBCXX_STRING_CONST("Driver version                  : ")
+                << md->getDriverVersion() << endl
 
-	 << "Driver ODBC version             : "
-	 << md->getDriverMajorVersion() << "."
-	 << md->getDriverMinorVersion() << endl
+                << ODBCXX_STRING_CONST("Driver ODBC version             : ")
+                << md->getDriverMajorVersion() << ODBCXX_STRING_CONST(".")
+                << md->getDriverMinorVersion() << endl
 
-	 << "Supports transactions           : " 
-	 << s(md->supportsTransactions()) << endl;
+                << ODBCXX_STRING_CONST("Supports transactions           : ")
+                << s(md->supportsTransactions()) << endl;
 
-    cout << endl;
+    ODBCXX_COUT << endl;
 
     transactionInfo(md);
 
 
-    cout << "Supported system functions" << endl
-	 << "==========================" << endl
-	 << md->getSystemFunctions() << endl << endl
-	 << "Supported string functions" << endl
-	 << "==========================" << endl
-	 << md->getStringFunctions() << endl << endl
-	 << "Supported time/date functions" << endl
-	 << "=============================" << endl
-	 << md->getTimeDateFunctions() << endl << endl
-	 << "Supported numeric functions" << endl
-	 << "===========================" << endl
-	 << md->getNumericFunctions() << endl 
-	 << "Non-ODBC SQL keywords" << endl
-	 << "=====================" << endl
-	 << md->getSQLKeywords() << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Supported system functions") << endl
+                << ODBCXX_STRING_CONST("==========================") << endl
+                << md->getSystemFunctions() << endl << endl
+                << ODBCXX_STRING_CONST("Supported string functions") << endl
+                << ODBCXX_STRING_CONST("==========================") << endl
+                << md->getStringFunctions() << endl << endl
+                << ODBCXX_STRING_CONST("Supported time/date functions") << endl
+                << ODBCXX_STRING_CONST("=============================") << endl
+                << md->getTimeDateFunctions() << endl << endl
+                << ODBCXX_STRING_CONST("Supported numeric functions") << endl
+                << ODBCXX_STRING_CONST("===========================") << endl
+                << md->getNumericFunctions() << endl
+                << ODBCXX_STRING_CONST("Non-ODBC SQL keywords") << endl
+                << ODBCXX_STRING_CONST("=====================") << endl
+                << md->getSQLKeywords() << endl;
 
-    cout << endl;
-    
+    ODBCXX_COUT << endl;
 
 
-    cout << "Supported ResultSet types" << endl
-	 << "=========================" << endl;
+
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Supported ResultSet types") << endl
+                << ODBCXX_STRING_CONST("=========================") << endl;
 
     rsInfo(md,ResultSet::TYPE_FORWARD_ONLY,
-	   "ResultSet::TYPE_FORWARD_ONLY");
+           ODBCXX_STRING_CONST("ResultSet::TYPE_FORWARD_ONLY"));
     rsInfo(md,ResultSet::TYPE_SCROLL_INSENSITIVE,
-	   "ResultSet::TYPE_SCROLL_INSENSITIVE");
+           ODBCXX_STRING_CONST("ResultSet::TYPE_SCROLL_INSENSITIVE"));
     rsInfo(md,ResultSet::TYPE_SCROLL_SENSITIVE,
-	   "ResultSet::TYPE_SCROLL_SENSITIVE");
+           ODBCXX_STRING_CONST("ResultSet::TYPE_SCROLL_SENSITIVE"));
 
 
     bool cdml=md->supportsCatalogsInDataManipulation();
@@ -225,71 +249,69 @@ int main(int argc, char** argv)
     bool hasCatalogs=cdml || cproc || ctd || cid || cpd;
 
     if(hasCatalogs) {
-      cout << "Supported catalog uses" << endl
-	   << "======================" << endl;
-      cout << "Data manipulation    : " << s(cdml) << endl;
-      cout << "Procedure calls      : " << s(cproc) << endl;
-      cout << "Table definitions    : " << s(ctd) << endl;
-      cout << "Index definitions    : " << s(cid) << endl;
-      cout << "Privilege definitions: " << s(cpd) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Supported catalog uses") << endl
+                  << ODBCXX_STRING_CONST("======================") << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Data manipulation    : ") << s(cdml) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Procedure calls      : ") << s(cproc) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Table definitions    : ") << s(ctd) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Index definitions    : ") << s(cid) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Privilege definitions: ") << s(cpd) << endl;
     } else {
-      cout << "This datasource does not support catalogs" << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("This datasource does not support catalogs") << endl;
     }
-    cout << endl;
+    ODBCXX_COUT << endl;
 
     bool hasSchemas=sdml || sproc || std || sid || spd;
 
     if(hasSchemas) {
-      cout << "Supported schema uses" << endl
-	   << "=====================" << endl;
-      cout << "Data manipulation    : " << s(sdml) << endl;
-      cout << "Procedure calls      : " << s(sproc) << endl;
-      cout << "Table definitions    : " << s(std) << endl;
-      cout << "Index definitions    : " << s(sid) << endl;
-      cout << "Privilege definitions: " << s(spd) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Supported schema uses") << endl
+                  << ODBCXX_STRING_CONST("=====================") << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Data manipulation    : ") << s(sdml) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Procedure calls      : ") << s(sproc) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Table definitions    : ") << s(std) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Index definitions    : ") << s(sid) << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Privilege definitions: ") << s(spd) << endl;
     } else {
-      cout << "This datasource does not support schemas" << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("This datasource does not support schemas") << endl;
     }
-    cout << endl;
+    ODBCXX_COUT << endl;
 
     ODBCXX_STRING idq(md->getIdentifierQuoteString());
     // space means no quoting supported
 
     ODBCXX_STRING id(maybeQuote(md->getTableTerm(),idq));
     if(hasSchemas) {
-      id=maybeQuote(md->getSchemaTerm(),idq)+"."+id;
+      id=maybeQuote(md->getSchemaTerm(),idq)+ODBCXX_STRING_CONST(".")+id;
     }
     if(hasCatalogs) {
       ODBCXX_STRING catSep(md->getCatalogSeparator());
       if(md->isCatalogAtStart()) {
-	id=maybeQuote(md->getCatalogTerm(),idq)+catSep+id;
+        id=maybeQuote(md->getCatalogTerm(),idq)+catSep+id;
       } else {
-	id+=catSep+maybeQuote(md->getCatalogTerm(),idq);
+        id+=catSep+maybeQuote(md->getCatalogTerm(),idq);
       }
     }
 
-    cout << "Preferred table identifier format: " << id << endl;
+    ODBCXX_COUT << ODBCXX_STRING_CONST("Preferred table identifier format: ") << id << endl;
 
     if(hasCatalogs) {
-      cout << "Tables available: " << endl;
+      ODBCXX_COUT << ODBCXX_STRING_CONST("Tables available: ") << endl;
       std::vector<ODBCXX_STRING> types;
-      auto_ptr<odbc::ResultSet> rs(md->getTables(ODBCXX_STRING(""),
-                                                ODBCXX_STRING(""),
-                                                ODBCXX_STRING(""),
+      auto_ptr<odbc::ResultSet> rs(md->getTables(ODBCXX_STRING(),
+                                                ODBCXX_STRING(),
+                                                ODBCXX_STRING(),
                                                 types));
       while(rs->next()) {
-        cout << rs->getString(1) << "." 
-             << rs->getString(2) << "."
-             << rs->getString(3) << " type="
-             << rs->getString(4) << " remarks="
+        ODBCXX_COUT << rs->getString(1) << ODBCXX_STRING_CONST(".")
+             << rs->getString(2) << ODBCXX_STRING_CONST(".")
+             << rs->getString(3) << ODBCXX_STRING_CONST(" type=")
+             << rs->getString(4) << ODBCXX_STRING_CONST(" remarks=")
              << rs->getString(5) <<endl;
       }
     }
 
-    delete con;
-
   } catch(SQLException& e) {
-    cerr << endl << e.getMessage() << endl;
+    ODBCXX_CERR << endl << e.getMessage() << endl;
   }
 
   return 0;
