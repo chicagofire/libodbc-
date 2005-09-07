@@ -4,6 +4,7 @@
 	* tests/dbmetadata.cpp: Made test work with wide strings
 	* tests/scroll.cpp: Made test work with wide strings
 	* tests/oracle.cpp: Made test work with wide strings
+	* tests/dmtest.cpp: Made test work with wide strings
 
 2005-09-05  Kerry W. Lothrop <kerry@lothrop.de>
 
