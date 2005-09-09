@@ -16,8 +16,8 @@
         <othername role="mi">W.</othername>
       </author>
     </authorgroup>
-    <date>2005-08-24</date>
-    <releaseinfo>Version 0.2.4pre1</releaseinfo>
+    <date>2005-09-09</date>
+    <releaseinfo>Version 0.2.4pre2</releaseinfo>
     <abstract>
       <para>This tries to explain the installation procedure for libodbc++</para>
     </abstract>
