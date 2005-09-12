@@ -49,8 +49,9 @@ namespace odbc {
    * Question marks (<code>"?"</code>) are used in the SQL statement
    * to represent a parameter, for example:
    * <pre>
-   * PreparedStatement* pstmt=con->prepareStatement
-   *    ("INSERT INTO SOMETABLE(AN_INTEGER_COL,A_VARCHAR_COL) VALUES(?,?)");
+   * std::auto_ptr<PreparedStatement> pstmt
+   *    =std::auto_ptr<PreparedStatement>(con->prepareStatement
+   *    ("INSERT INTO SOMETABLE(AN_INTEGER_COL,A_VARCHAR_COL) VALUES(?,?)"));
    * pstmt->setInt(1,10);
    * pstmt->setString(2,"Hello, world!");
    * int affectedRows=pstmt->executeUpdate();
@@ -75,18 +76,18 @@ namespace odbc {
     bool paramsBound_;
 
     PreparedStatement(Connection* con,
-		      SQLHSTMT hstmt,
-		      const ODBCXX_STRING& sql,
-		      int resultSetType,
-		      int resultSetConcurrency,
-		      int defaultDirection =SQL_PARAM_INPUT);
+                      SQLHSTMT hstmt,
+                      const ODBCXX_STRING& sql,
+                      int resultSetType,
+                      int resultSetConcurrency,
+                      int defaultDirection =SQL_PARAM_INPUT);
 
     void _bindParams();
     void _unbindParams();
 
     void _checkParam(int idx,
-		     int* allowed, int numAllowed,
-		     int defPrec, int defScale);
+                     int* allowed, int numAllowed,
+                     int defPrec, int defScale);
 
   public:
     /** Destructor */

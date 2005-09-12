@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -29,25 +29,27 @@
 namespace odbc {
 
   /** A prepared statement suited for stored procedure calls.
-   * 
-   * A <code>CallableStatement</code> extends the functionality of a 
+   *
+   * A <code>CallableStatement</code> extends the functionality of a
    * <code>PreparedStatement</code>, by allowing output parameters.
    *
-   * The ODBC escapes for calling stored procedures and functions 
+   * The ODBC escapes for calling stored procedures and functions
    * should be used. A procedure call is prepared like this:
    * <pre>
-   * CallableStatement* cstmt=con->prepareCall
-   *     ("{call my_procedure(?,?,?)}");
+   * std::auto_ptr<CallableStatement> cstmt
+   *    =std::auto_ptr<CallableStatement>(con->prepareCall
+   *     ("{call my_procedure(?,?,?)}"));
    * </pre>
-   * 
+   *
    * And for a function call (a procedure that returns a value), the
    * following syntax should be used:
    * <pre>
-   * CallableStatement* cstmt=con->prepareCall
-   *     ("{?=call my_function(?,?)}"); 
+   * std::auto_ptr<CallableStatement> cstmt
+   *    =std::auto_ptr<CallableStatement>(con->prepareCall
+   *     ("{?=call my_function(?,?)}"));
    * </pre>
-   * 
-   * 
+   *
+   *
    * All parameters in a <code>CallableStatement</code> are treated
    * as input/output parameters, unless they are registered as
    * output-only parameters with registerOutParameter(). Note that
@@ -56,21 +58,21 @@ namespace odbc {
    */
   class ODBCXX_EXPORT CallableStatement : public PreparedStatement {
     friend class Connection;
-    
+
   private:
     bool lastWasNull_;
 
   protected:
     CallableStatement(Connection* con,
-		      SQLHSTMT hstmt,
-		      const ODBCXX_STRING& sql,
-		      int resultSetType,
-		      int resultSetConcurrency);
-    
+                      SQLHSTMT hstmt,
+                      const ODBCXX_STRING& sql,
+                      int resultSetType,
+                      int resultSetConcurrency);
+
   public:
     /** Destructor */
     virtual ~CallableStatement();
-    
+
     /** Fetches a parameter as a double
      * @param idx The parameter index, starting at 1
      */
@@ -159,7 +161,7 @@ namespace odbc {
     }
   };
 
-  
+
 } // namespace odbc
 
 
