@@ -49,12 +49,12 @@ namespace odbc {
    * Question marks (<code>"?"</code>) are used in the SQL statement
    * to represent a parameter, for example:
    * <pre>
-   * std::auto_ptr<PreparedStatement> pstmt
-   *    =std::auto_ptr<PreparedStatement>(con->prepareStatement
+   * std::auto_ptr&lt;PreparedStatement&gt; pstmt
+   *    =std::auto_ptr&lt;PreparedStatement&gt;(con-&gt;prepareStatement
    *    ("INSERT INTO SOMETABLE(AN_INTEGER_COL,A_VARCHAR_COL) VALUES(?,?)"));
    * pstmt->setInt(1,10);
    * pstmt->setString(2,"Hello, world!");
-   * int affectedRows=pstmt->executeUpdate();
+   * int affectedRows=pstmt-&gt;executeUpdate();
    * </pre>
    * @see Connection::prepareStatement()
    */
