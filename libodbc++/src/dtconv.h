@@ -113,13 +113,13 @@ namespace odbc {
     snprintf(buf,LONG_STR_LEN,
 # endif
 # if defined(PRId64)
-	     ODBCXX_STRING_PERCENT PRId64
+             ODBCXX_STRING_PERCENT PRId64
 # elif ODBCXX_SIZEOF_LONG==8
-	     ODBCXX_STRING_CONST("%ld")
+             ODBCXX_STRING_CONST("%ld")
 # else
-	     ODBCXX_STRING_CONST("%lld")
+             ODBCXX_STRING_CONST("%lld")
 # endif
-	     ,l);
+             ,l);
 #endif // _i64toa
     return ODBCXX_STRING_C(buf);
   }
@@ -168,7 +168,7 @@ namespace odbc {
     return (Long)strtoq(s,NULL,10);
 # else
     // either 64bit platform, or I'm stupid.
-    return (Long)ODBCXX_STRTOL(s,NULL,10);
+    return (Long)strtol(s,NULL,10);
 # endif
   }
 #endif
@@ -215,8 +215,8 @@ namespace odbc {
   // this should return <=0 on EOF, and number of bytes
   // read otherwise
   inline int readStream(ODBCXX_STREAM* s,
-			ODBCXX_CHAR_TYPE* buf,
-			unsigned int maxlen) {
+                        ODBCXX_CHAR_TYPE* buf,
+                        unsigned int maxlen) {
 #if defined(ODBCXX_QT)
     return s->readBlock(buf,maxlen);
 #else
@@ -272,7 +272,7 @@ namespace odbc {
     while((r=s->readBlock(buf,GETDATA_CHUNK_SIZE))!=-1) {
       char* tmp=new char[size+(unsigned int)r];
       if(size>0) {
-	memcpy((void*)tmp,(void*)bigbuf,size);
+        memcpy((void*)tmp,(void*)bigbuf,size);
       }
       memcpy((void*)&tmp[size],buf,r);
       delete[] bigbuf;
@@ -286,7 +286,7 @@ namespace odbc {
     while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) {
       ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[size+s->gcount()];
       if(size>0) {
-	memcpy((void*)tmp,(void*)bigbuf,size);
+        memcpy((void*)tmp,(void*)bigbuf,size);
       }
       memcpy((void*)&tmp[size],buf,s->gcount());
       delete[] bigbuf;

@@ -1,3 +1,8 @@
+2005-09-23  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* src/dtconv.h: Fixed the 64bit version of strtol for Unicode build
+	* src/thread.cpp: Fixed Unicode build
+
 2005-09-07  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* tests/streams.cpp: Made test work with wide strings
