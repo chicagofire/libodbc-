@@ -1246,7 +1246,11 @@ void ResultSet::updateString(int idx, const ODBCXX_STRING& str)
   CHECK_COL(idx);
   CHECK_LOCATION;
   DataHandler* dh=rowset_->getColumn(idx);
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   if((dh->getSQLType()!=Types::LONGVARCHAR)&&(dh->getSQLType()!=Types::WLONGVARCHAR)) {
+#else
+  if((dh->getSQLType()!=Types::LONGVARCHAR)) {
+#endif
     dh->setString(str);
   } else {
     dh->setStream(stringToStream(str), str.length());
@@ -1265,7 +1269,11 @@ ODBCXX_STRING ResultSet::getString(int idx)
   CHECK_LOCATION;
 
   DataHandler* dh=rowset_->getColumn(idx);
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   if((dh->getSQLType()!=Types::LONGVARCHAR)&&(dh->getSQLType()!=Types::WLONGVARCHAR)) {
+#else
+  if((dh->getSQLType()!=Types::LONGVARCHAR)) {
+#endif
     lastWasNull_=dh->isNull();
     return dh->getString();
   } else {
@@ -1348,7 +1356,11 @@ ODBCXX_STREAM* ResultSet::getAsciiStream(int idx)
   DataHandler* dh=rowset_->getColumn(idx);
   ODBCXX_STREAM* s=dh->getStream();
   if(s==NULL) {
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
     s=new DataStream(this,hstmt_,idx,SQL_C_TCHAR,
+#else
+    s=new DataStream(this,hstmt_,idx,SQL_C_CHAR,
+#endif
                      dh->dataStatus_[dh->currentRow_]);
     dh->setStream(s);
   }

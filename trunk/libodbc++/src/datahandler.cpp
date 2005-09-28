@@ -82,7 +82,10 @@ namespace odbc {
       int id;
       const ODBCXX_CHAR_TYPE* name;
     } cTypes[] = {
-      { SQL_C_TCHAR,          ODBCXX_STRING_CONST("SQL_C_TCHAR") },
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
+      { SQL_C_WCHAR,          ODBCXX_STRING_CONST("SQL_C_WCHAR") },
+#endif
+      { SQL_C_CHAR,           ODBCXX_STRING_CONST("SQL_C_CHAR") },
       { SQL_C_BINARY,         ODBCXX_STRING_CONST("SQL_C_BINARY") },
       { SQL_C_BIT,            ODBCXX_STRING_CONST("SQL_C_BIT") },
       { SQL_C_TINYINT,        ODBCXX_STRING_CONST("SQL_C_TINYINT") },
@@ -167,8 +170,10 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
   case Types::WVARCHAR:
   case Types::WCHAR:
-#endif
     cType_=SQL_C_TCHAR;
+#else
+    cType_=SQL_C_CHAR;
+#endif
     scale_=0;
     bs=(precision_+1)*sizeof(ODBCXX_CHAR_TYPE); //string+null
     break;
@@ -254,8 +259,10 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
   case Types::LONGVARCHAR:
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
   case Types::WLONGVARCHAR:
-#endif
     cType_=SQL_C_TCHAR;
+#else
+    cType_=SQL_C_CHAR;
+#endif
     bs=0; // this one is streamed
     isStreamed_=true;
     break;
@@ -523,13 +530,17 @@ ODBCXX_STRING DataHandler::getString() const
 {
   if(!this->isNull()) {
     switch(cType_) {
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
     case SQL_C_TCHAR:
+#else
+    case SQL_C_CHAR:
+#endif
       if(!isStreamed_) {
         switch(this->getDataStatus()) {
            case SQL_NTS:
              return ODBCXX_STRING_C((ODBCXX_CHAR_TYPE*)this->data());
            case SQL_NO_TOTAL:
-             return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this-data(),
+             return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this->data(),
                                      bufferSize_/sizeof(ODBCXX_CHAR_TYPE));
            default:
              return ODBCXX_STRING_CL((ODBCXX_CHAR_TYPE*)this->data(),
@@ -829,7 +840,11 @@ void DataHandler::setTimestamp(const Timestamp& t)
 void DataHandler::setString(const ODBCXX_STRING& str)
 {
   switch(cType_) {
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   case SQL_C_TCHAR:
+#else
+  case SQL_C_CHAR:
+#endif
     if(!isStreamed_) {
       unsigned int len=(unsigned int)ODBCXX_STRING_LEN(str);
       if((len+1)*sizeof(ODBCXX_CHAR_TYPE)>bufferSize_) {

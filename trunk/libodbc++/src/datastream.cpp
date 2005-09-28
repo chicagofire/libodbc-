@@ -30,7 +30,7 @@ using namespace std;
 #if !defined(ODBCXX_QT)
 
 DataStreamBuf::DataStreamBuf(ErrorHandler* eh, SQLHSTMT hstmt, int col,
-			     int cType,SQLINTEGER& dataStatus)
+                             int cType,SQLINTEGER& dataStatus)
   :errorHandler_(eh),
    hstmt_(hstmt),
    column_(col),
@@ -42,7 +42,11 @@ DataStreamBuf::DataStreamBuf(ErrorHandler* eh, SQLHSTMT hstmt, int col,
     bufferSize_=GETDATA_CHUNK_SIZE;
     break;
 
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   case SQL_C_TCHAR:
+#else
+  case SQL_C_CHAR:
+#endif
     bufferSize_=GETDATA_CHUNK_SIZE+1;
     break;
 
@@ -82,17 +86,21 @@ ODBCXX_STREAMBUF::int_type DataStreamBuf::underflow()
 
   //the actual number of bytes that should end up in our buffer
   //we don't care about NULL termination
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   size_t bs=(cType_==SQL_C_TCHAR?bufferSize_-1:bufferSize_);
+#else
+  size_t bs=(cType_==SQL_C_CHAR?bufferSize_-1:bufferSize_);
+#endif
 
   SQLRETURN r=SQLGetData(hstmt_,column_,
-			 cType_,
-			 (ODBCXX_SQLCHAR*)this->eback(),
-			 bufferSize_*sizeof(ODBCXX_CHAR_TYPE),
-			 &bytes);
+                         cType_,
+                         (ODBCXX_SQLCHAR*)this->eback(),
+                         bufferSize_*sizeof(ODBCXX_CHAR_TYPE),
+                         &bytes);
   dataStatus_=bytes;
 
   errorHandler_->_checkStmtError(hstmt_,
-				 r,ODBCXX_STRING_CONST("Error fetching chunk of data"));
+                                 r,ODBCXX_STRING_CONST("Error fetching chunk of data"));
 
   if(r==ODBC3_C(SQL_NO_DATA,SQL_NO_DATA_FOUND)) {
     return EOF;
@@ -135,7 +143,7 @@ ODBCXX_STREAMBUF::int_type DataStreamBuf::underflow()
 // really ugly
 
 DataStream::DataStream(ErrorHandler* eh, SQLHSTMT hstmt, int col,
-		       int cType,SQLINTEGER& dataStatus)
+                       int cType,SQLINTEGER& dataStatus)
   :errorHandler_(eh),
    hstmt_(hstmt),
    column_(col),
@@ -150,7 +158,11 @@ DataStream::DataStream(ErrorHandler* eh, SQLHSTMT hstmt, int col,
     bufferSize_=GETDATA_CHUNK_SIZE;
     break;
 
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   case SQL_C_TCHAR:
+#else
+  case SQL_C_CHAR:
+#endif
     bufferSize_=GETDATA_CHUNK_SIZE+1;
     break;
 
@@ -179,18 +191,22 @@ void DataStream::_readStep()
   SQLINTEGER bytes;
 
   // see above
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
   size_t bs=(cType_==SQL_C_TCHAR?bufferSize_-1:bufferSize_);
+#else
+  size_t bs=(cType_==SQL_C_CHAR?bufferSize_-1:bufferSize_);
+#endif
 
   SQLRETURN r=SQLGetData(hstmt_,column_,
-			 cType_,
-			 (SQLPOINTER)buffer_,
-			 bufferSize_*sizeof(ODBCXX_CHAR_TYPE),
-			 &bytes);
+                         cType_,
+                         (SQLPOINTER)buffer_,
+                         bufferSize_*sizeof(ODBCXX_CHAR_TYPE),
+                         &bytes);
 
   dataStatus_=bytes; // now a caller of ResultSet::wasNull() knows if this is NULL
 
   errorHandler_->_checkStmtError(hstmt_,
-				 r,"Error fetching chunk of data");
+                                 r,"Error fetching chunk of data");
 
   if(r==ODBC3_C(SQL_NO_DATA,SQL_NO_DATA_FOUND)) {
     eof_=true;
@@ -232,7 +248,7 @@ DataStream::BlockRetType DataStream::readBlock(char* data, BlockLenType len)
     if(b>0) {
 
       if(b>len-bytesRead) {
-	b=len-bytesRead;
+        b=len-bytesRead;
       }
 
       memcpy((void*)data,(void*)&buffer_[bufferStart_],b*sizeof(ODBCXX_CHAR_TYPE));
