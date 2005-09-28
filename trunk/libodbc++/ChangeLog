@@ -1,3 +1,17 @@
+2005-09-27  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* src/datahandler.cpp: Use different defines if ODBCXX_HAVE_SQLUCODE_H
+	is not defined
+	* src/datastream.cpp: Use different defines if ODBCXX_HAVE_SQLUCODE_H
+	is not defined
+	* src/resultset.cpp: Use different defines if ODBCXX_HAVE_SQLUCODE_H
+	is not defined
+
+2005-09-26  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* src/datahandler.cpp: Fixed a typo resulting in a compilation error
+	* include/odbc++/setup.h: Included std namespace for cout/cerr
+
 2005-09-23  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* src/dtconv.h: Fixed the 64bit version of strtol for Unicode build
