@@ -150,20 +150,20 @@
 
 # else
 
-# define ODBCXX_STRING std::string
-# define ODBCXX_STRING_C(s) std::string(s)
-# define ODBCXX_STRING_CL(s,l) std::string(s,l)
-# define ODBCXX_STRING_LEN(s) s.length()
-# define ODBCXX_STRING_DATA(s) s.data()
-# define ODBCXX_STRING_CSTR(s) s.c_str()
+#  define ODBCXX_STRING std::string
+#  define ODBCXX_STRING_C(s) std::string(s)
+#  define ODBCXX_STRING_CL(s,l) std::string(s,l)
+#  define ODBCXX_STRING_LEN(s) s.length()
+#  define ODBCXX_STRING_DATA(s) s.data()
+#  define ODBCXX_STRING_CSTR(s) s.c_str()
 
-# define ODBCXX_STREAM std::istream
+#  define ODBCXX_STREAM std::istream
 #  define ODBCXX_STREAMBUF std::streambuf
 
-# define ODBCXX_BYTES odbc::Bytes
-# define ODBCXX_BYTES_SIZE(b) b.getSize()
-# define ODBCXX_BYTES_DATA(b) b.getData()
-# define ODBCXX_BYTES_C(buf,len) odbc::Bytes((signed char*)buf,(size_t)len)
+#  define ODBCXX_BYTES odbc::Bytes
+#  define ODBCXX_BYTES_SIZE(b) b.getSize()
+#  define ODBCXX_BYTES_DATA(b) b.getData()
+#  define ODBCXX_BYTES_C(buf,len) odbc::Bytes((signed char*)buf,(size_t)len)
 
 # endif // ODBCXX_UNICODE
 
@@ -174,16 +174,16 @@
 # define ODBCXX_SIGNED_CHAR_TYPE wchar_t
 # define ODBCXX_SQLCHAR SQLWCHAR
 # define ODBCXX_STRING_CONST(s) L ## s
-# define ODBCXX_COUT wcout
-# define ODBCXX_CERR wcerr
+# define ODBCXX_COUT std::wcout
+# define ODBCXX_CERR std::wcerr
 # define ODBCXX_STRTOL wcstol
 #else
 # define ODBCXX_CHAR_TYPE char
 # define ODBCXX_SIGNED_CHAR_TYPE signed char
 # define ODBCXX_SQLCHAR SQLCHAR
 # define ODBCXX_STRING_CONST(s) s
-# define ODBCXX_COUT cout
-# define ODBCXX_CERR cerr
+# define ODBCXX_COUT std::cout
+# define ODBCXX_CERR std::cerr
 # define ODBCXX_STRTOL strtol
 #endif
 
