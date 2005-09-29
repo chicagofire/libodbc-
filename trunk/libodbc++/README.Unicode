@@ -1,0 +1,23 @@
+Notes on the Unicode support in libodbc++:
+
+The Unicode support means simply that std::string becomes std::wstring
+and std::istream becomes std::wistream. When passing strings to libodbc++
+remember to pass them as wide strings and retrieve them as wide strings,
+independent of wether your database columns hold wide strings or not.
+
+Example:
+
+std::auto_ptr< odbc::ResultSet > rs
+   = std::auto_ptr< odbc::ResultSet >( stmt->executeQuery(
+   L"SELECT name FROM table1 WHERE id = 1" ) );
+if( rs.get() )
+{
+   std::wstring name( rs->getString( L"name" ) );
+}
+
+For installation instructions, see doc/INSTALL/index.html.
+
+
+
+Last updated:
+2005-09-29
