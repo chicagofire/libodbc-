@@ -1,7 +1,6 @@
-README for libodbc++						(1999-09-30)
+README for libodbc++                                (2005-09-29)
 
-For installation instructions, check doc/INSTALL.txt or if
-you have a browser around, doc/INSTALL.html.
+For installation instructions, check doc/INSTALL/index.html.
 
 For programming examples, check the tests/ directory.
 

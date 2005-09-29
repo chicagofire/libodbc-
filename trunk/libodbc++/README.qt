@@ -8,4 +8,8 @@ Date, Time and Timestamp are not mapped to QDate, QTime and QDateTime;
 QDateTime's resolution is seconds, which is not enough for an SQL
 TIMESTAMP.
 
-For installation instructions, see doc/INSTALL.txt.
+For installation instructions, see doc/INSTALL/index.html.
+
+
+Last updated:
+2005-09-29
