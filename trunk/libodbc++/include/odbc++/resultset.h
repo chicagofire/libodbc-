@@ -1,18 +1,18 @@
-/* 
+/*
    This file is part of libodbc++.
-   
+
    Copyright (C) 1999-2000 Manush Dodunekov <manush@stendahls.net>
-   
+
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Library General Public
    License as published by the Free Software Foundation; either
    version 2 of the License, or (at your option) any later version.
-   
+
    This library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Library General Public License for more details.
-   
+
    You should have received a copy of the GNU Library General Public License
    along with this library; see the file COPYING.  If not, write to
    the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
@@ -38,7 +38,7 @@ namespace odbc {
   class ODBCXX_EXPORT ResultSet : public ErrorHandler {
     friend class Statement;
     friend class ResultSetMetaData;
-    
+
   private:
     Statement* statement_;
     SQLHSTMT hstmt_;
@@ -63,14 +63,14 @@ namespace odbc {
     ResultSetMetaData* metaData_;
 
     int location_;
-    
+
     bool lastWasNull_;
 
     int rowBeforeInsert_;
     int locBeforeInsert_;
 
     ResultSet(Statement* stmt,SQLHSTMT hstmt, bool ownStmt);
-    
+
     //driver info
     const DriverInfo* _getDriverInfo() const {
       return statement_->_getDriverInfo();
@@ -78,7 +78,7 @@ namespace odbc {
 
     //private utils
     void _applyFetchSize();
-    //this makes sure there is a rowset 
+    //this makes sure there is a rowset
     void _resetRowset();
 
     //this should be called before any call to SQLExtendedFetch
@@ -96,16 +96,16 @@ namespace odbc {
     //these bind/unbind all streamed columns
     void _bindStreamedCols();
     void _unbindStreamedCols();
-    
+
     //this sends all needed data from streamed columns
     //to be called from insertRow and updateRow
     void _handleStreams(SQLRETURN r);
-    
+
 
   public:
     /** Destructor */
     virtual ~ResultSet();
-    
+
     //remember to update DatabaseMetaData when changing those values
 
     /** ResultSet concurrency constants.
@@ -118,7 +118,7 @@ namespace odbc {
     };
 
 
-    /** ResultSet type constants 
+    /** ResultSet type constants
      */
     enum {
       /** The result set only goes forward. */
@@ -133,7 +133,7 @@ namespace odbc {
 
     /** Moves the cursor to a specific row in this result set.
      * If row is negative, the actual row number is calculated from the
-     * end of the result set. Calling <code>absolute(0)</code> is 
+     * end of the result set. Calling <code>absolute(0)</code> is
      * equivalent to calling <code>beforeFirst()</code>
      * @return true if the cursor is in the result set
      */
@@ -171,22 +171,22 @@ namespace odbc {
      */
     int getRow();
 
-    /** Moves to the next row in the result set 
+    /** Moves to the next row in the result set
      * @return true if the cursor is in the result set
      */
     bool next();
 
-    /** Moves to the previous row in the result set 
+    /** Moves to the previous row in the result set
      * @return true if the cursor is in the result set
      */
     bool previous();
 
-    /** Moves to the first row in the result set 
+    /** Moves to the first row in the result set
      * @return true if the cursor is in the result set
      */
     bool first();
 
-    /** Moves to the last row in the result set 
+    /** Moves to the last row in the result set
      * @return true if the cursor is in the result set
      */
     bool last();
@@ -197,7 +197,7 @@ namespace odbc {
      * @see moveToCurrentRow()
      */
     void moveToInsertRow();
-    
+
     /** Moves the cursor back to where it was before it was moved
      * to the insert row
      */
@@ -221,7 +221,7 @@ namespace odbc {
     /** Cancels any updates done to the current row */
     void cancelRowUpdates();
 
-    /** Returns meta data about this result set 
+    /** Returns meta data about this result set
      * @see ResultSetMetaData
      */
     ResultSetMetaData* getMetaData() {
@@ -245,8 +245,8 @@ namespace odbc {
 
     /** Gets the concurrency of this result set */
     int getConcurrency();
-    
-    
+
+
     /** Gets this result set's current fetch size */
     int getFetchSize() {
       return newFetchSize_;
@@ -328,7 +328,7 @@ namespace odbc {
      * @param colName The name of the column
      */
     double getDouble(const ODBCXX_STRING& colName);
-    
+
     /** Gets a column's value as a bool
      * @param colName The name of the column
      */
@@ -389,7 +389,7 @@ namespace odbc {
     /** Fetches a column's value as a stream.
      * Note that the stream is owned by the result set
      * and should in no case be deleted by the caller.
-     * Also, the returned stream is only valid while the 
+     * Also, the returned stream is only valid while the
      * cursor remains on this position.
      * @param idx The column index, starting at 1
      */
@@ -398,7 +398,7 @@ namespace odbc {
     /** Fetches a column's value as a stream.
      * Note that the stream is owned by the result set
      * and should in no case be deleted by the caller.
-     * Also, the returned stream is only valid while the 
+     * Also, the returned stream is only valid while the
      * cursor remains on this position.
      * @param colName The column name
      */
@@ -407,7 +407,7 @@ namespace odbc {
     /** Fetches a column's value as a stream.
      * Note that the stream is owned by the result set
      * and should in no case be deleted by the caller.
-     * Also, the returned stream is only valid while the 
+     * Also, the returned stream is only valid while the
      * cursor remains on this position.
      * @param idx The column index, starting at 1
      */
@@ -416,12 +416,12 @@ namespace odbc {
     /** Fetches a column's value as a stream.
      * Note that the stream is owned by the result set
      * and should in no case be deleted by the caller.
-     * Also, the returned stream is only valid while the 
+     * Also, the returned stream is only valid while the
      * cursor remains on this position.
      * @param colName The column name
      */
     ODBCXX_STREAM* getBinaryStream(const ODBCXX_STRING& colName);
-    
+
     /** Checks if the last fetched column value was NULL.
      * Note that if this is true, the returned value was undefined.
      */
@@ -508,7 +508,7 @@ namespace odbc {
     void updateNull(int idx);
 
 
-    /** Sets the value of a column to a double 
+    /** Sets the value of a column to a double
      * @param colName The name of the column
      * @param val The value to set
      */
@@ -530,8 +530,7 @@ namespace odbc {
      * @param colName The name of the column
      * @param val The value to set
      */
-    void updateBytes(const ODBCXX_STRING& colName, 
-		     const ODBCXX_BYTES& val);
+    void updateBytes(const ODBCXX_STRING& colName, const ODBCXX_BYTES& val);
 
 
     /** Sets the value of a column to a Date
@@ -617,7 +616,7 @@ namespace odbc {
     void updateNull(const ODBCXX_STRING& colName);
   };
 
-  
+
 
 } // namespace odbc
 

@@ -71,58 +71,58 @@ namespace odbc {
 
     ResultSet* _getTypeInfo();
     ResultSet* _getTables(const ODBCXX_STRING& catalog,
-			  const ODBCXX_STRING& schema,
-			  const ODBCXX_STRING& tableName,
-			  const ODBCXX_STRING& types);
+                          const ODBCXX_STRING& schema,
+                          const ODBCXX_STRING& tableName,
+                          const ODBCXX_STRING& types);
 
     ResultSet* _getTablePrivileges(const ODBCXX_STRING& catalog,
-				   const ODBCXX_STRING& schema,
-				   const ODBCXX_STRING& tableName);
+                                   const ODBCXX_STRING& schema,
+                                   const ODBCXX_STRING& tableName);
 
     ResultSet* _getColumnPrivileges(const ODBCXX_STRING& catalog,
-				    const ODBCXX_STRING& schema,
-				    const ODBCXX_STRING& tableName,
-				    const ODBCXX_STRING& columnName);
+                                    const ODBCXX_STRING& schema,
+                                    const ODBCXX_STRING& tableName,
+                                    const ODBCXX_STRING& columnName);
 
     ResultSet* _getPrimaryKeys(const ODBCXX_STRING& catalog,
-			       const ODBCXX_STRING& schema,
-			       const ODBCXX_STRING& tableName);
+                               const ODBCXX_STRING& schema,
+                               const ODBCXX_STRING& tableName);
 
     ResultSet* _getColumns(const ODBCXX_STRING& catalog,
-			   const ODBCXX_STRING& schema,
-			   const ODBCXX_STRING& tableName,
-			   const ODBCXX_STRING& columnName);
+                           const ODBCXX_STRING& schema,
+                           const ODBCXX_STRING& tableName,
+                           const ODBCXX_STRING& columnName);
 
     ResultSet* _getIndexInfo(const ODBCXX_STRING& catalog,
-			     const ODBCXX_STRING& schema,
-			     const ODBCXX_STRING& tableName,
-			     bool unique, bool approximate);
+                             const ODBCXX_STRING& schema,
+                             const ODBCXX_STRING& tableName,
+                             bool unique, bool approximate);
 
     ResultSet* _getCrossReference(const ODBCXX_STRING& pc,
-				  const ODBCXX_STRING& ps,
-				  const ODBCXX_STRING& pt,
-				  const ODBCXX_STRING& fc,
-				  const ODBCXX_STRING& fs,
-				  const ODBCXX_STRING& ft);
+                                  const ODBCXX_STRING& ps,
+                                  const ODBCXX_STRING& pt,
+                                  const ODBCXX_STRING& fc,
+                                  const ODBCXX_STRING& fs,
+                                  const ODBCXX_STRING& ft);
 
 
     ResultSet* _getProcedures(const ODBCXX_STRING& catalog,
-			      const ODBCXX_STRING& schema,
-			      const ODBCXX_STRING& procName);
+                              const ODBCXX_STRING& schema,
+                              const ODBCXX_STRING& procName);
 
     ResultSet* _getProcedureColumns(const ODBCXX_STRING& catalog,
-				    const ODBCXX_STRING& schema,
-				    const ODBCXX_STRING& procName,
-				    const ODBCXX_STRING& colName);
+                                    const ODBCXX_STRING& schema,
+                                    const ODBCXX_STRING& procName,
+                                    const ODBCXX_STRING& colName);
 
     ResultSet* _getSpecialColumns(const ODBCXX_STRING& catalog,
-				  const ODBCXX_STRING& schema,
-				  const ODBCXX_STRING& table,
-				  int what,int scope,int nullable);
+                                  const ODBCXX_STRING& schema,
+                                  const ODBCXX_STRING& table,
+                                  int what,int scope,int nullable);
 
   protected:
     Statement(Connection* con, SQLHSTMT hstmt,
-	      int resultSetType, int resultSetConcurrency);
+              int resultSetType, int resultSetConcurrency);
 
     //utilities
     SQLUINTEGER _getNumericOption(SQLINTEGER optnum);
@@ -176,8 +176,7 @@ namespace odbc {
     /** Execute an SQL statement, expected to return a resultset.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;ResultSet&gt; rs =
-     *     std::auto_ptr&lt;ResultSet&gt;(stmt-&gt;executeQuery(s));</tt>
+     * <tt>std::auto_ptr&lt;ResultSet&gt; rs(stmt-&gt;executeQuery(s));</tt>
      *
      * @param sql The string to execute
      * @return A ResultSet object.
