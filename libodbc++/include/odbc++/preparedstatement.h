@@ -49,8 +49,7 @@ namespace odbc {
    * Question marks (<code>"?"</code>) are used in the SQL statement
    * to represent a parameter, for example:
    * <pre>
-   * std::auto_ptr&lt;PreparedStatement&gt; pstmt
-   *    =std::auto_ptr&lt;PreparedStatement&gt;(con-&gt;prepareStatement
+   * std::auto_ptr&lt;PreparedStatement&gt; pstmt(con-&gt;prepareStatement
    *    ("INSERT INTO SOMETABLE(AN_INTEGER_COL,A_VARCHAR_COL) VALUES(?,?)"));
    * pstmt->setInt(1,10);
    * pstmt->setString(2,"Hello, world!");
@@ -110,8 +109,7 @@ namespace odbc {
     /** Executes this statement, assuming it returns a ResultSet.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;ResultSet&gt; rs =
-     *     std::auto_ptr&lt;ResultSet&gt;(pstmt-&gt;executeQuery(s));</tt>
+     * <tt>std::auto_ptr&lt;ResultSet&gt; rs(pstmt-&gt;executeQuery(s));</tt>
      *
      */
     ResultSet* executeQuery();

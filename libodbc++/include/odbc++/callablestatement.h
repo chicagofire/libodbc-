@@ -36,16 +36,14 @@ namespace odbc {
    * The ODBC escapes for calling stored procedures and functions
    * should be used. A procedure call is prepared like this:
    * <pre>
-   * std::auto_ptr&lt;CallableStatement&gt; cstmt
-   *    =std::auto_ptr&lt;CallableStatement&gt;(con-&gt;prepareCall
+   * std::auto_ptr&lt;CallableStatement&gt; cstmt(con-&gt;prepareCall
    *     ("{call my_procedure(?,?,?)}"));
    * </pre>
    *
    * And for a function call (a procedure that returns a value), the
    * following syntax should be used:
    * <pre>
-   * std::auto_ptr&lt;CallableStatement&gt; cstmt
-   *    =std::auto_ptr&lt;CallableStatement&gt;(con-&gt;prepareCall
+   * std::auto_ptr&lt;CallableStatement&gt; cstmt(con-&gt;prepareCall
    *     ("{?=call my_function(?,?)}"));
    * </pre>
    *

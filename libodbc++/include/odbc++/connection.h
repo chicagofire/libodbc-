@@ -153,16 +153,14 @@ namespace odbc {
     /** Creates a non-prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;Statement&gt; stmt =
-     *     std::auto_ptr&lt;Statement&gt;(cnt-&gt;createStatement());</tt>
+     * <tt>std::auto_ptr&lt;Statement&gt; stmt(cnt-&gt;createStatement());</tt>
      */
     Statement* createStatement();
 
     /** Creates a non-prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;Statement&gt; stmt =
-     *     std::auto_ptr&lt;Statement&gt;(cnt-&gt;createStatement(x, y));</tt>
+     * <tt>std::auto_ptr&lt;Statement&gt; stmt(cnt-&gt;createStatement(x, y));</tt>
      *
      * @param resultSetType The type for <tt>ResultSet</tt>s created
      * by this statement
@@ -176,8 +174,7 @@ namespace odbc {
     /** Create a prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;PreparedStatement&gt; pstmt =
-     *     std::auto_ptr&lt;PreparedStatement&gt;(cnt-&gt;prepareStatement(s));</tt>
+     * <tt>std::auto_ptr&lt;PreparedStatement&gt; pstmt(cnt-&gt;prepareStatement(s));</tt>
      *
      * @param sql The string to prepare, optionally containing parameter
      * markers (<tt>?</tt>).
@@ -187,8 +184,7 @@ namespace odbc {
     /** Create a prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;PreparedStatement&gt; pstmt =
-     *     std::auto_ptr&lt;PreparedStatement&gt;(cnt-&gt;prepareStatement(s, x, y));</tt>
+     * <tt>std::auto_ptr&lt;PreparedStatement&gt; pstmt(cnt-&gt;prepareStatement(s, x, y));</tt>
      *
      * @param sql The string to prepare, optionally containing parameter
      * markers.
@@ -204,8 +200,7 @@ namespace odbc {
     /** Create a callable prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;CallableStatement&gt; cstmt =
-     *     std::auto_ptr&lt;CallableStatement&gt;(cnt-&gt;prepareCall(s));</tt>
+     * <tt>std::auto_ptr&lt;CallableStatement&gt; cstmt(cnt-&gt;prepareCall(s));</tt>
      *
      * @param sql The string to prepare, optionally containing parameter
      * markers for input and/or output parameters
@@ -215,8 +210,7 @@ namespace odbc {
     /** Create a callable prepared statement.
      *
      * Example:
-     * <tt>std::auto_ptr&lt;CallableStatement&gt; cstmt =
-     *     std::auto_ptr&lt;CallableStatement&gt;(cnt-&gt;prepareCall(s, x, y));</tt>
+     * <tt>std::auto_ptr&lt;CallableStatement&gt; cstmt(cnt-&gt;prepareCall(s, x, y));</tt>
      *
      * @param sql The string to prepare, optionally containing parameter
      * markers for input and/or output parameters

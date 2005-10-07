@@ -1,3 +1,10 @@
+2005-10-07  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* include/odbc++/callablestatement.h: Simplified documentation
+	* include/odbc++/connection.h: Simplified documentation
+	* include/odbc++/preparedstatement.h: Simplified documentation
+	* include/odbc++/statement.h: Simplified documentation
+
 2005-09-27  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* src/datahandler.cpp: Use different defines if ODBCXX_HAVE_SQLUCODE_H
