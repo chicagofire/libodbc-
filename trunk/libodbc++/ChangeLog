@@ -1,3 +1,21 @@
+2006-01-13  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* include/odbc++/connection.h: Replaced _getNumericOption with
+	_getUIntegerOption and _setNumericOption with _setIntegerOption
+	and _setUIntegerOption
+	* src/connection.cpp: Replaced _getNumericOption with
+	_getUIntegerOption and _setNumericOption with _setIntegerOption
+	and _setUIntegerOption, changed call in setAutoCommit to
+	setIntegerOption
+	* include/odbc++/statement.h: Replaced _getNumericOption with
+	_getUIntegerOption and _setNumericOption with _setUIntegerOption
+	* src/statement.cpp: Replaced _getNumericOption with
+	_getUIntegerOption and _setNumericOption with _setUIntegerOption
+	* src/drivermanager.cpp: Replaced _setNumericOption with
+	_setUIntegerOption
+	* src/resultset.cpp: Replaced _getNumericOption with
+	_getUIntegerOption and _setNumericOption with _setUIntegerOption
+
 2005-10-07  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* include/odbc++/callablestatement.h: Simplified documentation
