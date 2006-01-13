@@ -213,13 +213,13 @@ ResultSet::~ResultSet()
 //private
 void ResultSet::_applyFetchSize()
 {
-  statement_->_setNumericOption
+  statement_->_setUIntegerOption
     (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE),
      currentFetchSize_);
 
   // it is possible that the driver changes the
   // rowset size, so we do an extra check
-  int driverFetchSize=statement_->_getNumericOption
+  int driverFetchSize=statement_->_getUIntegerOption
     (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE));
 
   if(driverFetchSize!=currentFetchSize_) {
@@ -509,7 +509,7 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
         location_+=currentFetchSize_;
       }
     } else {
-      SQLUINTEGER l=statement_->_getNumericOption
+      SQLUINTEGER l=statement_->_getUIntegerOption
         (ODBC3_C(SQL_ATTR_ROW_NUMBER,SQL_ROW_NUMBER));
 
       if(l==0) {
@@ -538,14 +538,14 @@ void ResultSet::_handleStreams(SQLRETURN r)
         int charsPut=0;
 
         ODBCXX_STREAM* s=dh->getStream();
-        
+
         int b;
         while((b=readStream(s,buf,PUTDATA_CHUNK_SIZE))>0) {
           charsPut+=b;
           SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,b*sizeof(ODBCXX_CHAR_TYPE));
           this->_checkStmtError(hstmt_,rPD,ODBCXX_STRING_CONST("SQLPutData failure"));
         }
-        
+
         if(charsPut==0) {
           // SQLPutData has not been called
           SQLRETURN rPD=SQLPutData(hstmt_,(SQLPOINTER)buf,0);
@@ -811,7 +811,7 @@ void ResultSet::moveToCurrentRow()
       // with an ODBC3 driver
       // restore our fetch size and
       // rebind with the real positions
-      statement_->_setNumericOption
+      statement_->_setUIntegerOption
         (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE),
          currentFetchSize_);
 
@@ -869,7 +869,7 @@ void ResultSet::insertRow()
       if(bindPos_==0) {
         // this is the first time we call insertRow()
         // while on the insert row
-        statement_->_setNumericOption
+        statement_->_setUIntegerOption
           (ODBC3_C(SQL_ATTR_ROW_ARRAY_SIZE,SQL_ROWSET_SIZE),1);
         // this would bind only the last row of our rowset
         this->_bindCols();
