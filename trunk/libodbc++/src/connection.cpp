@@ -93,7 +93,7 @@ void Connection::_registerStatement(Statement* stmt)
 
 
 //private
-SQLUINTEGER Connection::_getNumericOption(SQLINTEGER optnum)
+SQLUINTEGER Connection::_getUIntegerOption(SQLINTEGER optnum)
 {
 #if ODBCVER < 0x0300
 
@@ -149,17 +149,31 @@ ODBCXX_STRING Connection::_getStringOption(SQLINTEGER optnum)
 
 
 //private
-void Connection::_setNumericOption(SQLINTEGER optnum, SQLUINTEGER value)
+void Connection::_setIntegerNumericOption(SQLINTEGER optnum, SQLINTEGER value)
 {
   SQLRETURN r=
 #if ODBCVER < 0x0300
     SQLSetConnectOption(hdbc_,optnum,value)
 #else
-    SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,sizeof(value))
+    SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,SQL_IS_INTEGER)
+#endif
+    ;
+   this->_checkConError(hdbc_,r,"Error setting integer connection option");
+}
+
+
+//private
+void Connection::_setUIntegerNumericOption(SQLINTEGER optnum, SQLUINTEGER value)
+{
+  SQLRETURN r=
+#if ODBCVER < 0x0300
+    SQLSetConnectOption(hdbc_,optnum,value)
+#else
+    SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,SQL_IS_UINTEGER)
 #endif
     ;
 
-  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting numeric connection option"));
+  this->_checkConError(hdbc_,r,"Error setting unsigned integer connection option");
 }
 
 
@@ -169,11 +183,11 @@ void Connection::_setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value)
   SQLRETURN r=
 #if ODBCVER < 0x0300
     SQLSetConnectOption(hdbc_,optnum,
-			(SQLUINTEGER)ODBCXX_STRING_CSTR(value))
+                        (SQLUINTEGER)ODBCXX_STRING_CSTR(value))
 #else
     SQLSetConnectAttr(hdbc_,optnum,
-		      (SQLPOINTER)ODBCXX_STRING_CSTR(value),
-		      ODBCXX_STRING_LEN(value));
+                      (SQLPOINTER)ODBCXX_STRING_CSTR(value),
+                      ODBCXX_STRING_LEN(value));
 #endif
     ;
 
@@ -183,16 +197,16 @@ void Connection::_setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value)
 
 //private
 void Connection::_connect(const ODBCXX_STRING& dsn,
-			  const ODBCXX_STRING& user,
-			  const ODBCXX_STRING& password)
+                          const ODBCXX_STRING& user,
+                          const ODBCXX_STRING& password)
 {
   SQLRETURN r=SQLConnect(hdbc_,
-			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(dsn),
-			 ODBCXX_STRING_LEN(dsn),
-			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(user),
-			 ODBCXX_STRING_LEN(user),
-			 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(password),
-			 ODBCXX_STRING_LEN(password));
+                         (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(dsn),
+                         ODBCXX_STRING_LEN(dsn),
+                         (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(user),
+                         ODBCXX_STRING_LEN(user),
+                         (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(password),
+                         ODBCXX_STRING_LEN(password));
 
   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
@@ -204,13 +218,13 @@ void Connection::_connect(const ODBCXX_STRING& connectString)
   ODBCXX_SQLCHAR dummy[256];
   SQLSMALLINT dummySize;
   SQLRETURN r=SQLDriverConnect(hdbc_,
-			       0,
-			       (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(connectString),
-			       ODBCXX_STRING_LEN(connectString),
-			       dummy,
-			       255,
-			       &dummySize,
-			       SQL_DRIVER_COMPLETE);
+                               0,
+                               (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(connectString),
+                               ODBCXX_STRING_LEN(connectString),
+                               dummy,
+                               255,
+                               &dummySize,
+                               SQL_DRIVER_COMPLETE);
 
   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
@@ -221,13 +235,13 @@ void Connection::_connect(const ODBCXX_STRING& connectString)
 
 bool Connection::getAutoCommit()
 {
-  return this->_getNumericOption
+  return this->_getUIntegerOption
     (ODBC3_C(SQL_ATTR_AUTOCOMMIT,SQL_AUTOCOMMIT))==SQL_AUTOCOMMIT_ON;
 }
 
 void Connection::setAutoCommit(bool ac)
 {
-  this->_setNumericOption
+  this->_setIntegerOption
     (ODBC3_C(SQL_ATTR_AUTOCOMMIT,SQL_AUTOCOMMIT),
      ac?SQL_AUTOCOMMIT_ON:SQL_AUTOCOMMIT_OFF);
 }
@@ -262,7 +276,7 @@ void Connection::setCatalog(const ODBCXX_STRING& catalog)
 {
   this->_setStringOption
     (ODBC3_C(SQL_ATTR_CURRENT_CATALOG,
-	     SQL_CURRENT_QUALIFIER), catalog);
+             SQL_CURRENT_QUALIFIER), catalog);
 }
 
 
@@ -276,7 +290,7 @@ Connection::TransactionIsolation
 Connection::getTransactionIsolation()
 {
   if(metaData_->supportsTransactions()) {
-    SQLUINTEGER r=this->_getNumericOption
+    SQLUINTEGER r=this->_getUIntegerOption
       (ODBC3_C(SQL_ATTR_TXN_ISOLATION,SQL_TXN_ISOLATION));
     switch(r) {
     case SQL_TXN_READ_UNCOMMITTED:
@@ -322,9 +336,9 @@ void Connection::setTransactionIsolation(TransactionIsolation i)
 
     default:
       throw SQLException
-	(ODBCXX_STRING_CONST("[libodbc++]: Invalid transaction isolation"));
+        (ODBCXX_STRING_CONST("[libodbc++]: Invalid transaction isolation"));
     }
-    this->_setNumericOption
+    this->_setUIntegerOption
       (ODBC3_C(SQL_ATTR_TXN_ISOLATION,SQL_TXN_ISOLATION),l);
   } else {
     throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Data source does not support transactions"));
@@ -333,27 +347,27 @@ void Connection::setTransactionIsolation(TransactionIsolation i)
 
 void Connection::setReadOnly(bool readOnly)
 {
-  this->_setNumericOption
+  this->_setUIntegerOption
     (ODBC3_C(SQL_ATTR_ACCESS_MODE, SQL_ACCESS_MODE),
      readOnly?SQL_MODE_READ_ONLY:SQL_MODE_READ_WRITE);
 }
 
 bool Connection::isReadOnly()
 {
-  return this->_getNumericOption
+  return this->_getUIntegerOption
     (ODBC3_C(SQL_ATTR_ACCESS_MODE,SQL_ACCESS_MODE))==SQL_MODE_READ_ONLY;
 }
 
 
 bool Connection::getTrace()
 {
-  return this->_getNumericOption
+  return this->_getUIntegerOption
     (ODBC3_C(SQL_ATTR_TRACE,SQL_OPT_TRACE))==SQL_OPT_TRACE_ON;
 }
 
 void Connection::setTrace(bool on)
 {
-  this->_setNumericOption
+  this->_setUIntegerOption
     (ODBC3_C(SQL_ATTR_TRACE,SQL_OPT_TRACE),
      on?SQL_OPT_TRACE_ON:SQL_OPT_TRACE_OFF);
 }
@@ -380,25 +394,25 @@ ODBCXX_STRING Connection::nativeSQL(const ODBCXX_STRING& sql)
   SQLRETURN r;
 
   r=SQLNativeSql(hdbc_,
-		 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
-		 ODBCXX_STRING_LEN(sql),
-		 (ODBCXX_SQLCHAR*)buf,
-		 255,
-		 &dataSize);
+                 (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
+                 ODBCXX_STRING_LEN(sql),
+                 (ODBCXX_SQLCHAR*)buf,
+                 255,
+                 &dataSize);
 
   ODBCXX_STRING msg(ODBCXX_STRING_CONST("Error converting ")+sql+ODBCXX_STRING_CONST(" to native SQL"));
   this->_checkConError(hdbc_,r,
-		       ODBCXX_STRING_CSTR(msg));
+                       ODBCXX_STRING_CSTR(msg));
 
   if(dataSize>255) {
     ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[dataSize+1];
     odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
     r=SQLNativeSql(hdbc_,
-		   (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
-		   ODBCXX_STRING_LEN(sql),
-		   (ODBCXX_SQLCHAR*)tmp,
-		   dataSize+1,
-		   &dataSize);
+                   (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
+                   ODBCXX_STRING_LEN(sql),
+                   (ODBCXX_SQLCHAR*)tmp,
+                   dataSize+1,
+                   &dataSize);
     this->_checkConError(hdbc_, r, ODBCXX_STRING_CSTR(msg));
     return ODBCXX_STRING_C(tmp);
   }
@@ -433,11 +447,11 @@ Statement* Connection::createStatement()
 {
   //default values
   return this->createStatement(ResultSet::TYPE_FORWARD_ONLY,
-			       ResultSet::CONCUR_READ_ONLY);
+                               ResultSet::CONCUR_READ_ONLY);
 }
 
 Statement* Connection::createStatement(int resultSetType,
-				       int resultSetConcurrency)
+                                       int resultSetConcurrency)
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
@@ -451,19 +465,19 @@ PreparedStatement* Connection::prepareStatement(const ODBCXX_STRING& sql)
 {
   //default values
   return this->prepareStatement(sql,
-				ResultSet::TYPE_FORWARD_ONLY,
-				ResultSet::CONCUR_READ_ONLY);
+                                ResultSet::TYPE_FORWARD_ONLY,
+                                ResultSet::CONCUR_READ_ONLY);
 }
 
 PreparedStatement* Connection::prepareStatement(const ODBCXX_STRING& sql,
-						int resultSetType,
-						int resultSetConcurrency)
+                                                int resultSetType,
+                                                int resultSetConcurrency)
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
   PreparedStatement* pstmt=new PreparedStatement(this,hstmt,sql,
-						 resultSetType,
-						 resultSetConcurrency);
+                                                 resultSetType,
+                                                 resultSetConcurrency);
   this->_registerStatement(pstmt);
   return pstmt;
 }
@@ -472,19 +486,19 @@ PreparedStatement* Connection::prepareStatement(const ODBCXX_STRING& sql,
 CallableStatement* Connection::prepareCall(const ODBCXX_STRING& sql)
 {
   return this->prepareCall(sql,
-			   ResultSet::TYPE_FORWARD_ONLY,
-			   ResultSet::CONCUR_READ_ONLY);
+                           ResultSet::TYPE_FORWARD_ONLY,
+                           ResultSet::CONCUR_READ_ONLY);
 }
 
 CallableStatement* Connection::prepareCall(const ODBCXX_STRING& sql,
-					   int resultSetType,
-					   int resultSetConcurrency)
+                                           int resultSetType,
+                                           int resultSetConcurrency)
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
   CallableStatement* cstmt= new CallableStatement(this,hstmt,sql,
-						  resultSetType,
-						  resultSetConcurrency);
+                                                  resultSetType,
+                                                  resultSetConcurrency);
   this->_registerStatement(cstmt);
   return cstmt;
 }
