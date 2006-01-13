@@ -125,10 +125,10 @@ namespace odbc {
               int resultSetType, int resultSetConcurrency);
 
     //utilities
-    SQLUINTEGER _getNumericOption(SQLINTEGER optnum);
+    SQLUINTEGER _getUIntegerOption(SQLINTEGER optnum);
     ODBCXX_STRING _getStringOption(SQLINTEGER optnum);
 
-    void _setNumericOption(SQLINTEGER optnum, SQLUINTEGER value);
+    void _setUIntegerOption(SQLINTEGER optnum, SQLUINTEGER value);
     void _setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value);
 
 #if ODBCVER >= 0x0300
