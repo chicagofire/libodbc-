@@ -128,9 +128,9 @@ void DriverManager::_checkInit()
 #if ODBCVER >= 0x0300
     // this should immediately follow an AllocEnv per ODBC3
     SQLSetEnvAttr(henv_,
-		  SQL_ATTR_ODBC_VERSION,
-		  (SQLPOINTER)SQL_OV_ODBC3,
-		  SQL_IS_UINTEGER);
+                  SQL_ATTR_ODBC_VERSION,
+                  (SQLPOINTER)SQL_OV_ODBC3,
+                  SQL_IS_UINTEGER);
 #endif
 
     try
@@ -171,9 +171,9 @@ int DriverManager::getLoginTimeout()
 // This assumes _checkInit has been called
 Connection* DriverManager::_createConnection()
 {
-  Connection*		con=0;
-  SQLHDBC		hdbc;
-  SQLRETURN		r;
+  Connection* con=0;
+  SQLHDBC     hdbc;
+  SQLRETURN   r;
 
   //allocate a handle
 #if ODBCVER >= 0x0300
@@ -194,9 +194,9 @@ Connection* DriverManager::_createConnection()
       if (loginTimeout_>-1)
       {
 #if ODBCVER < 0x0300
-	con->_setNumericOption(SQL_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
+        con->_setUIntegerOption(SQL_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
 #else
-	con->_setNumericOption(SQL_ATTR_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
+        con->_setUIntegerOption(SQL_ATTR_LOGIN_TIMEOUT, (SQLUINTEGER)loginTimeout_);
 #endif
       }
     } // end of lock scope
@@ -223,8 +223,7 @@ Connection* DriverManager::_createConnection()
 //static
 Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
 {
-  Connection*		con = 0;
-
+  Connection* con = 0;
 
   DriverManager::_checkInit();
 
@@ -245,11 +244,10 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
 
 //static
 Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
-					 const ODBCXX_STRING& user,
-					 const ODBCXX_STRING& password)
+                                         const ODBCXX_STRING& user,
+                                         const ODBCXX_STRING& password)
 {
-  Connection*		con = 0;
-
+  Connection* con = 0;
 
   DriverManager::_checkInit();
 
@@ -283,13 +281,13 @@ DataSourceList* DriverManager::getDataSources()
   {
     ODBCXX_LOCKER(DMAccess);
     r=SQLDataSources(henv_,
-		     SQL_FETCH_FIRST,
-		     (ODBCXX_SQLCHAR*)dsn,
-		     SQL_MAX_DSN_LENGTH+1,
-		     &dsnlen,
-		     (ODBCXX_SQLCHAR*)desc,
-		     256,
-		     &desclen);
+                     SQL_FETCH_FIRST,
+                     (ODBCXX_SQLCHAR*)dsn,
+                     SQL_MAX_DSN_LENGTH+1,
+                     &dsnlen,
+                     (ODBCXX_SQLCHAR*)desc,
+                     256,
+                     &desclen);
 
     eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of datasources"));
 
@@ -297,13 +295,13 @@ DataSourceList* DriverManager::getDataSources()
       l->insert(l->end(),new DataSource(dsn,desc));
 
       r=SQLDataSources(henv_,
-		       SQL_FETCH_NEXT,
-		       (ODBCXX_SQLCHAR*)dsn,
-		       SQL_MAX_DSN_LENGTH+1,
-		       &dsnlen,
-		       (ODBCXX_SQLCHAR*)desc,
-		       256,
-		       &desclen);
+                       SQL_FETCH_NEXT,
+                       (ODBCXX_SQLCHAR*)dsn,
+                       SQL_MAX_DSN_LENGTH+1,
+                       &dsnlen,
+                       (ODBCXX_SQLCHAR*)desc,
+                       256,
+                       &desclen);
 
       eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of datasources"));
     }
@@ -330,13 +328,13 @@ DriverList* DriverManager::getDrivers()
   {
     ODBCXX_LOCKER(DMAccess);
     r=SQLDrivers(henv_,
-		 SQL_FETCH_FIRST,
-		 (ODBCXX_SQLCHAR*)desc,
-		 MAX_DESC_LEN,
-		 &dlen,
-		 (ODBCXX_SQLCHAR*)attrs,
-		 MAX_ATTR_LEN,
-		 &alen);
+                 SQL_FETCH_FIRST,
+                 (ODBCXX_SQLCHAR*)desc,
+                 MAX_DESC_LEN,
+                 &dlen,
+                 (ODBCXX_SQLCHAR*)attrs,
+                 MAX_ATTR_LEN,
+                 &alen);
 
     eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of drivers"));
 
@@ -346,24 +344,24 @@ DriverList* DriverManager::getDrivers()
 
       //find our attributes
       if(attrs[0]!=0) {
-	do {
-	  while(attrs[++i]!=0);
-	  attr.push_back(ODBCXX_STRING_CL(&(attrs[last]),i-last));
-	  last=i+1;
-	} while(attrs[last]!=0);
+        do {
+          while(attrs[++i]!=0);
+          attr.push_back(ODBCXX_STRING_CL(&(attrs[last]),i-last));
+          last=i+1;
+        } while(attrs[last]!=0);
       }
 
       Driver* d=new Driver(desc,attr);
       l->insert(l->end(),d);
 
       r=SQLDrivers(henv_,
-		   SQL_FETCH_NEXT,
-		   (ODBCXX_SQLCHAR*)desc,
-		   MAX_DESC_LEN,
-		   &dlen,
-		   (ODBCXX_SQLCHAR*)attrs,
-		   MAX_ATTR_LEN,
-		   &alen);
+                   SQL_FETCH_NEXT,
+                   (ODBCXX_SQLCHAR*)desc,
+                   MAX_DESC_LEN,
+                   &dlen,
+                   (ODBCXX_SQLCHAR*)attrs,
+                   MAX_ATTR_LEN,
+                   &alen);
 
       eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of drivers"));
     }
