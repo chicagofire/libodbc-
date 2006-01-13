@@ -52,9 +52,10 @@ namespace odbc {
     DriverInfo* driverInfo_;
 
     //utilities
-    SQLUINTEGER _getNumericOption(SQLINTEGER optnum);
+    SQLUINTEGER _getUIntegerOption(SQLINTEGER optnum);
     ODBCXX_STRING _getStringOption(SQLINTEGER optnum);
-    void _setNumericOption(SQLINTEGER optnum, SQLUINTEGER value);
+    void _setIntegerOption(SQLINTEGER optnum, SQLINTEGER value);
+    void _setUIntegerOption(SQLINTEGER optnum, SQLUINTEGER value);
     void _setStringOption(SQLINTEGER optnum, const ODBCXX_STRING& value);
 
     SQLHSTMT _allocStmt();
