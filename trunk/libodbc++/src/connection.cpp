@@ -149,7 +149,7 @@ ODBCXX_STRING Connection::_getStringOption(SQLINTEGER optnum)
 
 
 //private
-void Connection::_setIntegerNumericOption(SQLINTEGER optnum, SQLINTEGER value)
+void Connection::_setIntegerOption(SQLINTEGER optnum, SQLINTEGER value)
 {
   SQLRETURN r=
 #if ODBCVER < 0x0300
@@ -163,7 +163,7 @@ void Connection::_setIntegerNumericOption(SQLINTEGER optnum, SQLINTEGER value)
 
 
 //private
-void Connection::_setUIntegerNumericOption(SQLINTEGER optnum, SQLUINTEGER value)
+void Connection::_setUIntegerOption(SQLINTEGER optnum, SQLUINTEGER value)
 {
   SQLRETURN r=
 #if ODBCVER < 0x0300
