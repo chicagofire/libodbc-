@@ -692,7 +692,7 @@ namespace odbc {
 
   /** The exception thrown when errors occur inside the library.
    */
-  class SQLException : public std::exception {
+  class ODBCXX_EXPORT SQLException : public std::exception {
   private:
     ODBCXX_STRING reason_;
     ODBCXX_STRING sqlState_;
@@ -704,9 +704,9 @@ namespace odbc {
 #endif
   public:
     /** Constructor */
-    SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
-                 const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
-                 int vendorCode =0)
+    explicit SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
+                          const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
+                          int vendorCode =0)
       :reason_(reason),
        sqlState_(sqlState),
        errorCode_(vendorCode)
@@ -774,16 +774,16 @@ namespace odbc {
    *
    * Contains the same info as an SQLException.
    */
-  class SQLWarning : public SQLException {
+  class ODBCXX_EXPORT SQLWarning : public SQLException {
 
     SQLWarning(const SQLWarning&); //forbid
     SQLWarning& operator=(const SQLWarning&); //forbid
 
   public:
     /** Constructor */
-    SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
-               const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
-               int vendorCode =0)
+    explicit SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
+                        const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
+                        int vendorCode =0)
       :SQLException(reason,sqlState,vendorCode) {}
 
     /** Copy from a DriverMessage */
