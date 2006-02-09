@@ -147,7 +147,8 @@ ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
    colsBound_(false),
    streamedColsBound_(false),
    bindPos_(0),
-   location_(BEFORE_FIRST)
+   location_(BEFORE_FIRST),
+   supportsGetDataAnyOrder_(false)
 {
   metaData_=new ResultSetMetaData(this);
 
@@ -162,7 +163,19 @@ ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
 
   newFetchSize_=currentFetchSize_;
 
-
+  supportsGetDataAnyOrder_ = this->_getDriverInfo()->supportsGetDataAnyOrder();
+/*
+#ifdef WIN32
+if(!supportsGetDataAnyOrder_)
+{	
+	int cnt = metaData_->getColumnCount();
+	for(int i = 1; i < cnt;i++)
+	{	if(metaData_->getColumnType(i) == Types::LONGVARCHAR)
+		{	throw SQLException (ODBCXX_STRING_CONST("[libodbc++]: Driver does not support \'GetData() Any_Order\', Text/LongVarChar is not the last"));	}
+	} // for
+}
+#endif
+*/
 #if ODBCVER >= 0x0300
 
   // with ODBC3, we call SQLFetchScroll,
@@ -337,7 +350,8 @@ void ResultSet::_bindCols()
 
   for(int i=1; i<=nc; i++) {
     DataHandler* dh=rowset_->getColumn(i);
-    if(!dh->isStreamed_) {
+    if(!dh->isStreamed_)
+    {
       r=SQLBindCol(hstmt_,
                    (SQLUSMALLINT)i,
                    dh->cType_,
@@ -347,6 +361,33 @@ void ResultSet::_bindCols()
 
       this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error binding column"));
     }
+/*
+// Trying to allocate and bind Streamed column for drivers that doesn't support out-of-order
+// Data fetch, not working correctly, Anyone ??
+    else if(!supportsGetDataAnyOrder_)
+    {
+		if(dh->stream_ == NULL)
+		{	
+			ODBCXX_STREAM* s=dh->getStream();
+#if defined(ODBCXX_HAVE_SQLUCODE_H)
+		    s=new DataStream(this,hstmt_,i,SQL_C_TCHAR,
+#else
+		    s=new DataStream(this,hstmt_,i,SQL_C_CHAR,
+#endif
+						 dh->dataStatus_[dh->currentRow_]);
+			dh->setStream(s);
+		}
+		streamedColsBound_=true;
+		r=SQLBindCol(hstmt_,
+                   (SQLUSMALLINT)i,
+                   dh->cType_,
+                   (SQLPOINTER)dh->data(),
+                   dh->bufferSize_,
+                   &dh->dataStatus_[dh->currentRow_]);
+
+      this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error Streamed binding column"));
+    }
+*/
   }
 }
 
@@ -359,7 +400,8 @@ void ResultSet::_bindStreamedCols()
 
   for(int i=1; i<=nc; i++) {
     DataHandler* dh=rowset_->getColumn(i);
-    if(dh->isStreamed_) {
+// JR - I had a case where the Stream was NULL...
+    if(dh->isStreamed_  && dh->stream_ != NULL) {
       streamedColsBound_=true;
       SQLRETURN r=SQLBindCol(hstmt_,
                              (SQLUSMALLINT)i,
@@ -1426,3 +1468,4 @@ void ResultSet::updateBinaryStream(const ODBCXX_STRING& colName,
 {
   this->updateBinaryStream(findColumn(colName),s,len);
 }
+

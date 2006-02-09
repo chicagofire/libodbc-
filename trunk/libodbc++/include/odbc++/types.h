@@ -165,50 +165,52 @@ namespace odbc {
     /** Type constants
      */
     enum SQLType {
+      /** Invalid SQL Type */
+      UNKNOWN_TYPE   = SQL_UNKNOWN_TYPE,
       /** An SQL BIGINT */
-      BIGINT                = SQL_BIGINT,
+      BIGINT         = SQL_BIGINT,
       /** An SQL BINARY (fixed length) */
-      BINARY                = SQL_BINARY,
+      BINARY         = SQL_BINARY,
       /** An SQL BIT */
-      BIT                = SQL_BIT,
+      BIT            = SQL_BIT,
       /** An SQL CHAR (fixed length) */
-      CHAR                = SQL_CHAR,
+      CHAR           = SQL_CHAR,
       /** An SQL DATE */
-      DATE                = ODBC3_C(SQL_TYPE_DATE,SQL_DATE),
+      DATE           = ODBC3_C(SQL_TYPE_DATE,SQL_DATE),
       /** An SQL DECIMAL (precision,scale) */
-      DECIMAL                = SQL_DECIMAL,
+      DECIMAL        = SQL_DECIMAL,
       /** An SQL DOUBLE */
-      DOUBLE                = SQL_DOUBLE,
+      DOUBLE         = SQL_DOUBLE,
       /** An SQL FLOAT */
-      FLOAT                = SQL_FLOAT,
+      FLOAT          = SQL_FLOAT,
       /** An SQL INTEGER */
-      INTEGER                = SQL_INTEGER,
+      INTEGER        = SQL_INTEGER,
       /** An SQL LONGVARBINARY (variable length, huge) */
-      LONGVARBINARY        = SQL_LONGVARBINARY,
+      LONGVARBINARY  = SQL_LONGVARBINARY,
       /** An SQL LONGVARCHAR (variable length, huge) */
-      LONGVARCHAR        = SQL_LONGVARCHAR,
+      LONGVARCHAR    = SQL_LONGVARCHAR,
       /** An SQL NUMERIC (precision,scale) */
-      NUMERIC                = SQL_NUMERIC,
+      NUMERIC        = SQL_NUMERIC,
       /** An SQL REAL */
-      REAL                = SQL_REAL,
+      REAL           = SQL_REAL,
       /** An SQL SMALLINT */
-      SMALLINT                = SQL_SMALLINT,
+      SMALLINT       = SQL_SMALLINT,
       /** An SQL TIME */
-      TIME                = ODBC3_C(SQL_TYPE_TIME,SQL_TIME),
+      TIME           = ODBC3_C(SQL_TYPE_TIME,SQL_TIME),
       /** An SQL TIMESTAMP */
-      TIMESTAMP                = ODBC3_C(SQL_TYPE_TIMESTAMP,SQL_TIMESTAMP),
+      TIMESTAMP      = ODBC3_C(SQL_TYPE_TIMESTAMP,SQL_TIMESTAMP),
       /** An SQL TINYINT */
-      TINYINT                = SQL_TINYINT,
+      TINYINT        = SQL_TINYINT,
       /** An SQL VARBINARY (variable length less than 256) */
-      VARBINARY                = SQL_VARBINARY,
+      VARBINARY      = SQL_VARBINARY,
       /** An SQL VARCHAR (variable length less than 256) */
-      VARCHAR                = SQL_VARCHAR
+      VARCHAR        = SQL_VARCHAR
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
       ,
       /** A wide SQL CHAR (fixed length less than 256) */
-      WCHAR         = SQL_WCHAR,
+      WCHAR          = SQL_WCHAR,
       /** A wide SQL VARCHAR (variable length less than 256) */
-      WVARCHAR      = SQL_WVARCHAR,
+      WVARCHAR       = SQL_WVARCHAR,
       /** A wide SQL LONGVARCHAR (variable length, huge) */
       WLONGVARCHAR   = SQL_WLONGVARCHAR
 #endif
@@ -692,7 +694,7 @@ namespace odbc {
 
   /** The exception thrown when errors occur inside the library.
    */
-  class ODBCXX_EXPORT SQLException : public std::exception {
+  class SQLException : public std::exception {
   private:
     ODBCXX_STRING reason_;
     ODBCXX_STRING sqlState_;
@@ -704,9 +706,9 @@ namespace odbc {
 #endif
   public:
     /** Constructor */
-    explicit SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
-                          const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
-                          int vendorCode =0)
+    SQLException(const ODBCXX_STRING& reason =ODBCXX_STRING_CONST(""),
+                 const ODBCXX_STRING& sqlState =ODBCXX_STRING_CONST(""),
+                 int vendorCode =0)
       :reason_(reason),
        sqlState_(sqlState),
        errorCode_(vendorCode)
@@ -774,16 +776,16 @@ namespace odbc {
    *
    * Contains the same info as an SQLException.
    */
-  class ODBCXX_EXPORT SQLWarning : public SQLException {
+  class SQLWarning : public SQLException {
 
     SQLWarning(const SQLWarning&); //forbid
     SQLWarning& operator=(const SQLWarning&); //forbid
 
   public:
     /** Constructor */
-    explicit SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
-                        const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
-                        int vendorCode =0)
+    SQLWarning(const ODBCXX_STRING& reason = ODBCXX_STRING_CONST(""),
+               const ODBCXX_STRING& sqlState = ODBCXX_STRING_CONST(""),
+               int vendorCode =0)
       :SQLException(reason,sqlState,vendorCode) {}
 
     /** Copy from a DriverMessage */
@@ -821,3 +823,4 @@ namespace odbc {
 
 
 #endif // __ODBCXX_TYPES_H
+

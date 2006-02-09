@@ -69,6 +69,9 @@ namespace odbc {
     int rowBeforeInsert_;
     int locBeforeInsert_;
 
+    // Flag to determine if we can lazyfetch data
+    bool supportsGetDataAnyOrder_;
+
     ResultSet(Statement* stmt,SQLHSTMT hstmt, bool ownStmt);
 
     //driver info
