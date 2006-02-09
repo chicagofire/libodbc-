@@ -1,3 +1,12 @@
+2006-02-09  Kerry W. Lothrop <kerry@lothrop.de>
+
+	* include/odbc++/resultset.h: Modifications by JR Andreassen
+	* include/odbc++/types.h: Modifications by JR Andreassen
+	* src/datetime.cpp: Modifications by JR Andreassen
+	* src/driverinfo.h: Modifications by JR Andreassen
+	* src/driverinfo.cpp: Modifications by JR Andreassen
+	* src/resultset.cpp: Modifications by JR Andreassen
+
 2006-01-25  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* include/odbc++/types.h: Added ODBCXX_EXPORT to SQL exception classes.

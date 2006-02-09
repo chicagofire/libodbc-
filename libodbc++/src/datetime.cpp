@@ -138,8 +138,8 @@ ODBCXX_STRING Date::toString() const
     sprintf(buf
 # endif
 #endif
-	  ,ODBCXX_STRING_CONST("%.4d-%.2d-%.2d"),
-	  year_,month_,day_);
+          ,ODBCXX_STRING_CONST("%.4d-%.2d-%.2d"),
+          year_,month_,day_);
   return ODBCXX_STRING(buf);
 }
 
@@ -202,8 +202,8 @@ ODBCXX_STRING Time::toString() const
     sprintf(buf
 # endif
 #endif
-	  ,ODBCXX_STRING_CONST("%.2d:%.2d:%.2d"),
-	  hour_,minute_,second_);
+          ,ODBCXX_STRING_CONST("%.2d:%.2d:%.2d"),
+          hour_,minute_,second_);
   return ODBCXX_STRING_C(buf);
 }
 
@@ -272,6 +272,7 @@ ODBCXX_STRING Timestamp::toString() const
 # endif
 #endif
       ,ODBCXX_STRING_CONST("%09d"),nanos_);
+      buf[9] = NULL;// Terminate string
     ret+=ODBCXX_STRING(buf);
   }
   return ret;

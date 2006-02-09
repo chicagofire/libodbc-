@@ -37,12 +37,14 @@ DriverInfo::DriverInfo(Connection* con)
    dynamicA2_(0),
 #endif
   supportedFunctions_(new SQLUSMALLINT[ODBC3_C(SQL_API_ODBC3_ALL_FUNCTIONS_SIZE,
-						100)])
+                                                100)])
 {
   DatabaseMetaData* md=con->getMetaData();
   majorVersion_=md->getDriverMajorVersion();
   minorVersion_=md->getDriverMinorVersion();
 
+// Load getDataExtention capabilities
+  getdataExt_=md->_getNumeric32(SQL_GETDATA_EXTENSIONS);
   cursorMask_=md->_getNumeric32(SQL_SCROLL_OPTIONS);
 
 #if ODBCVER >= 0x0300
@@ -71,54 +73,56 @@ DriverInfo::DriverInfo(Connection* con)
 
 
   SQLRETURN r=SQLGetFunctions(con->hdbc_,
-			      ODBC3_C(SQL_API_ODBC3_ALL_FUNCTIONS,
-				      SQL_API_ALL_FUNCTIONS),
-			      supportedFunctions_);
+                              ODBC3_C(SQL_API_ODBC3_ALL_FUNCTIONS,
+                                      SQL_API_ALL_FUNCTIONS),
+                              supportedFunctions_);
   con->_checkConError(con->hdbc_,
-		      r,ODBCXX_STRING_CONST("Failed to retrieve a list of supported functions"));
+                      r,ODBCXX_STRING_CONST("Failed to retrieve a list of supported functions"));
 }
+
+
 
 #if ODBCVER >= 0x0300
 
-#define IMPLEMENT_SUPPORTS(SUFFIX,VALUE_3,VALUE_2)	\
-bool DriverInfo::supports##SUFFIX(int ct) const		\
-{							\
-  bool r=false;						\
-							\
-  if(majorVersion_>=3) {				\
-    switch(ct) {					\
-    case SQL_CURSOR_FORWARD_ONLY:			\
-      r=(forwardOnlyA2_&VALUE_3)!=0;			\
-      break;						\
-      							\
-    case SQL_CURSOR_STATIC:				\
-      r=(staticA2_&VALUE_3)!=0;				\
-      break;						\
-      							\
-    case SQL_CURSOR_KEYSET_DRIVEN:			\
-      r=(keysetA2_&VALUE_3)!=0;				\
-      break;						\
-      							\
-    case SQL_CURSOR_DYNAMIC:	 			\
-      r=(dynamicA2_&VALUE_3)!=0;			\
-      break;						\
-      							\
-    default:						\
-      assert(false);					\
-      break;						\
-    }							\
-  } else {						\
-    r=(concurMask_&VALUE_2)!=0;				\
-  }							\
-  return r;						\
+#define IMPLEMENT_SUPPORTS(SUFFIX,VALUE_3,VALUE_2)   \
+bool DriverInfo::supports##SUFFIX(int ct) const      \
+{                                                    \
+  bool r=false;                                      \
+                                                     \
+  if(majorVersion_>=3) {                             \
+    switch(ct) {                                     \
+    case SQL_CURSOR_FORWARD_ONLY:                    \
+      r=(forwardOnlyA2_&VALUE_3)!=0;                 \
+      break;                                         \
+                                                     \
+    case SQL_CURSOR_STATIC:                          \
+      r=(staticA2_&VALUE_3)!=0;                      \
+      break;                                         \
+                                                     \
+    case SQL_CURSOR_KEYSET_DRIVEN:                   \
+      r=(keysetA2_&VALUE_3)!=0;                      \
+      break;                                         \
+                                                     \
+    case SQL_CURSOR_DYNAMIC:                         \
+      r=(dynamicA2_&VALUE_3)!=0;                     \
+      break;                                         \
+                                                     \
+    default:                                         \
+      assert(false);                                 \
+      break;                                         \
+    }                                                \
+  } else {                                           \
+    r=(concurMask_&VALUE_2)!=0;                      \
+  }                                                  \
+  return r;                                          \
 }
 
 #else
 
-#define IMPLEMENT_SUPPORTS(SUFFIX,VALUE_3,VALUE_2)		\
-bool DriverInfo::supports##SUFFIX(int ct) const			\
-{								\
-  return (concurMask_&VALUE_2)!=0;				\
+#define IMPLEMENT_SUPPORTS(SUFFIX,VALUE_3,VALUE_2)   \
+bool DriverInfo::supports##SUFFIX(int ct) const      \
+{                                                    \
+  return (concurMask_&VALUE_2)!=0;                   \
 }
 
 #endif
