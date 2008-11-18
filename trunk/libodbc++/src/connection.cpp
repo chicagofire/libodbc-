@@ -158,7 +158,7 @@ void Connection::_setIntegerOption(SQLINTEGER optnum, SQLINTEGER value)
     SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,SQL_IS_INTEGER)
 #endif
     ;
-   this->_checkConError(hdbc_,r,"Error setting integer connection option");
+   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting integer connection option"));
 }
 
 
@@ -173,7 +173,7 @@ void Connection::_setUIntegerOption(SQLINTEGER optnum, SQLUINTEGER value)
 #endif
     ;
 
-  this->_checkConError(hdbc_,r,"Error setting unsigned integer connection option");
+  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting unsigned integer connection option"));
 }
 
 
