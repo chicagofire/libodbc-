@@ -132,7 +132,12 @@ ODBCXX_STREAMBUF::int_type DataStreamBuf::underflow()
   }
 
   this->setg(this->eback(), this->eback(), this->eback()+bytes);
-  return (ODBCXX_CHAR_TYPE) *this->gptr();
+
+// Removed:
+// 		return (ODBCXX_CHAR_TYPE) *this->gptr();
+// because in binary streams, *this->gptr() could return EOF which
+// would end the operation (maybe returning ~EOF is a better idea)
+  return 0;
 }
 
 #else // defined(ODBCXX_QT)
