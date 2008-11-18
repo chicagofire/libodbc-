@@ -219,12 +219,13 @@ void PreparedStatement::_bindParams()
 #if !defined(WIN32)
       SQLUINTEGER precision=0;
 #else
-      SQLUINTEGER precision=dh->dataStatus_[i-1];
-      if(precision!=SQL_NULL_DATA) {
-	// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
-	precision=SQL_LEN_DATA_AT_EXEC(precision);
+      SQLUINTEGER precision;
+			
+      if(dh->getDataStatus()!=SQL_NULL_DATA) {
+				// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
+				precision= (SQLULEN) SQL_LEN_DATA_AT_EXEC(dh->getDataStatus());
       } else {
-	precision=0;
+				precision=dh->precision_;
       }
 #endif
       //we send in dh->dataStatus_, as it contains
@@ -311,7 +312,7 @@ bool PreparedStatement::execute()
 	
 	ODBCXX_STREAM* s=dh->getStream();
 
-	assert(s!=NULL);
+	// assert(s!=NULL);
 
 	int b;
 
@@ -429,11 +430,11 @@ IMPLEMENT_SET(short,Short,
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_4(Types::VARCHAR,Types::CHAR,Types::WVARCHAR,Types::WCHAR),
-	      255);
+				4095);
 #else
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_2(Types::VARCHAR,Types::CHAR),
-	      255);
+	      4095);
 #endif
 
 IMPLEMENT_SET(const Date&,Date,
