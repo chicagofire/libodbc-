@@ -61,11 +61,12 @@ PreparedStatement::PreparedStatement(Connection* con,
 				     int defaultDirection)
   :Statement(con,hstmt,resultSetType,resultSetConcurrency),
    sql_(sql),
-   rowset_(new Rowset(1,ODBC3_DC(true,false))), //always one row for now
+   rowset_(0),
    numParams_(0),
    defaultDirection_(defaultDirection),
    paramsBound_(false)
 {
+  rowset_ = new Rowset(1,ODBC3_DC(true,false)); //always one row for now
   this->_prepare();
   this->_setupParams();
 }
@@ -219,14 +220,15 @@ void PreparedStatement::_bindParams()
 #if !defined(WIN32)
       SQLUINTEGER precision=0;
 #else
-      SQLUINTEGER precision;
-			
+      SQLUINTEGER precision=dh->precision_;
+/*			
       if(dh->getDataStatus()!=SQL_NULL_DATA) {
 				// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
 				precision= (SQLULEN) SQL_LEN_DATA_AT_EXEC(dh->getDataStatus());
       } else {
 				precision=dh->precision_;
       }
+*/
 #endif
       //we send in dh->dataStatus_, as it contains
       //SQL_LEN_DATA_AT_EXEC(size) after setStream, or SQL_NULL_DATA
