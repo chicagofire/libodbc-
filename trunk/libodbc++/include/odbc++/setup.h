@@ -79,7 +79,9 @@
 // NDEBUG and cassert
 #if defined(IN_ODBCXX)
 # if !defined(ODBCXX_DEBUG)
-#  define NDEBUG
+#  if !defined(NDEBUG)
+#   define NDEBUG
+#  endif
 # endif
 # include <cassert>
 #endif
