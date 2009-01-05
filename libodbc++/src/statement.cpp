@@ -672,7 +672,7 @@ int Statement::getUpdateCount()
 
   if(lastExecute_!=ODBC3_C(SQL_NO_DATA,SQL_NO_DATA_FOUND)) {
 
-    SQLINTEGER res;
+    SQLLEN res;
     SQLRETURN r=SQLRowCount(hstmt_,&res);
     this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching update count"));
     return res;

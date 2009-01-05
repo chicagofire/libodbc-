@@ -24,6 +24,7 @@
 
 #include <odbc++/setup.h>
 
+#include <cstring>
 #include <exception>
 #include <assert.h>
 

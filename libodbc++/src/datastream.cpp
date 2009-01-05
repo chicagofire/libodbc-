@@ -30,7 +30,7 @@ using namespace std;
 #if !defined(ODBCXX_QT)
 
 DataStreamBuf::DataStreamBuf(ErrorHandler* eh, SQLHSTMT hstmt, int col,
-                             int cType,SQLINTEGER& dataStatus)
+                             int cType,SQLLEN& dataStatus)
   :errorHandler_(eh),
    hstmt_(hstmt),
    column_(col),
@@ -82,7 +82,7 @@ ODBCXX_STREAMBUF::int_type DataStreamBuf::underflow()
 
   //after the call, this is the number of bytes that were
   //available _before_ the call
-  SQLINTEGER bytes;
+  SQLLEN bytes;
 
   //the actual number of bytes that should end up in our buffer
   //we don't care about NULL termination

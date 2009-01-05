@@ -290,7 +290,7 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
   };
   this->setupBuffer(bs);
 
-  dataStatus_=new SQLINTEGER[rows_];
+  dataStatus_=new SQLLEN[rows_];
 
   //set everything to NULL
   for(unsigned int i=0; i<rows_; i++) {

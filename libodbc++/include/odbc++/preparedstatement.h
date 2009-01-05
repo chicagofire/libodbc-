@@ -33,6 +33,8 @@
 # include <iostream>
 #endif
 
+#include <set>
+
 namespace odbc {
 
   class Rowset;
@@ -71,6 +73,7 @@ namespace odbc {
     Rowset* rowset_;
     size_t numParams_;
     std::vector<int> directions_;
+    std::set<SQLUINTEGER> columnIndicies_;
     int defaultDirection_;
     bool paramsBound_;
 
