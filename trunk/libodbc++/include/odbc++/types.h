@@ -25,6 +25,7 @@
 #include <odbc++/setup.h>
 
 #include <exception>
+#include <assert.h>
 
 #if !defined(ODBCXX_QT)
 # include <string>
@@ -214,6 +215,10 @@ namespace odbc {
       /** A wide SQL LONGVARCHAR (variable length, huge) */
       WLONGVARCHAR   = SQL_WLONGVARCHAR
 #endif
+#if (ODBCVER >= 0x0350)
+		,
+		GUID             = SQL_GUID
+#endif
     };
   };
 
@@ -304,7 +309,144 @@ namespace odbc {
     }
   };
 #endif
-
+	
+#if (ODBCVER >= 0x0350)
+	/** A GUID class.
+	 *
+	 * Used for setting and getting GUID values.
+	 */
+	class ODBCXX_EXPORT Guid {
+	private:
+		ODBCXX_SIGNED_CHAR_TYPE data_[16];
+		
+	public:
+		/** Default constructor */
+		Guid() {
+			for( size_t x = 0; x < 16; ++x ) {
+				data_[x] = 0;
+			}
+		}
+		
+		/** Constructor */
+		Guid(const ODBCXX_SIGNED_CHAR_TYPE* data, size_t dataLen) {
+			// data lenth should always be 16 for raw data
+			if (dataLen != 16)
+				return;
+			
+			// copy into local store
+			for (size_t x = 0; x < dataLen; ++x) {
+				data_[x] = data[x];
+			}
+		}
+		
+		
+		/** Copy constructor */
+		Guid(const Guid& b) {
+			for (int x = 0; x < 16; ++x) {
+				data_[x] = b.data_[x];
+			}
+		}
+		
+		/** Comparison */
+		bool operator==(const Guid& b) const {
+			// iterate through all of the items,
+			// we know it has to be 16 in length
+			for (size_t x=0; x < 16; ++x) {
+				// check for any difference
+				if(data_[x] != b.data_[x])
+					// if there is abort
+					return false;
+			}
+			// else if all the same, then true;
+			return true;
+		}
+		
+		/** Destructor */
+		~Guid() { }
+		
+		/** Returns a pointer to the data */
+		const ODBCXX_SIGNED_CHAR_TYPE* getData() const {
+			return (ODBCXX_SIGNED_CHAR_TYPE *)data_;
+		}
+		
+		/** Returns the size of the data */
+		size_t getSize() const {
+			return 16;
+		}
+		
+		/** Returns a Bytes class containing data */
+		Bytes getBytes() const {
+			return Bytes(getData(), getSize());
+		}
+		
+		/** Create a native guid struct for native use *
+		 * @return _GUID a guid in a native structure  *
+		 */
+		const _GUID toStruct() const {
+			_GUID structGuid;
+			// not exactly sure why this is such a pain, the rest worked fine.
+			// but to be paranoid, i'm going to do them all. except for data4.
+			structGuid.Data1 = ((unsigned char)data_[3] << 24)
+			| ((unsigned char)data_[2] << 16)
+			| ((unsigned char)data_[1] << 8)
+			|  (unsigned char)data_[0];
+			structGuid.Data2 = (data_[5] << 8) | (unsigned char)data_[4];
+			structGuid.Data3 = (data_[7] << 8) | (unsigned char)data_[6];
+			structGuid.Data4[0] = data_[8];
+			structGuid.Data4[1] = data_[9];
+			structGuid.Data4[2] = data_[10];
+			structGuid.Data4[3] = data_[11];
+			structGuid.Data4[4] = data_[12];
+			structGuid.Data4[5] = data_[13];
+			structGuid.Data4[6] = data_[14];
+			structGuid.Data4[7] = data_[15];
+			return structGuid;
+		}
+	private:
+		const ODBCXX_STRING CharToHexStr(ODBCXX_SIGNED_CHAR_TYPE item) const {
+			// This method is mainly to make conversion to a string char
+			// much more easy and readable. Was having issues with some
+			// over run bits with GCC 4, When given 0xFF to strstream,
+			// I was getting 0xFFFFFFFF in return. This mandates last 2 chars.
+			ODBCXX_SSTREAM stream;
+			stream << std::hex << 0 << 0;
+			stream << static_cast<int>(item);
+			ODBCXX_STRING result = stream.str();
+			return result.substr(result.size() - 2, 2);
+		}
+	public:
+		const ODBCXX_STRING toString() const {
+			// create string from data, follow ole2 style conventions
+			// TODO: Check edianness of this conversion
+			ODBCXX_SSTREAM stream;
+			stream // construct string from data
+				<< ODBCXX_STRING_CONST("{")
+				<< CharToHexStr(data_[3])
+				<< CharToHexStr(data_[2])
+				<< CharToHexStr(data_[1])
+				<< CharToHexStr(data_[0])
+				<< ODBCXX_STRING_CONST("-")
+				<< CharToHexStr(data_[5])
+				<< CharToHexStr(data_[4])
+				<< ODBCXX_STRING_CONST("-")
+				<< CharToHexStr(data_[7])
+				<< CharToHexStr(data_[6])
+				<< ODBCXX_STRING_CONST("-")
+				<< CharToHexStr(data_[8])
+				<< CharToHexStr(data_[9])
+				<< CharToHexStr(data_[10])
+				<< CharToHexStr(data_[11])
+				<< CharToHexStr(data_[12])
+				<< CharToHexStr(data_[13])
+				<< CharToHexStr(data_[14])
+				<< CharToHexStr(data_[15])
+				<< ODBCXX_STRING_CONST("}");
+			return stream.str();
+		}
+	};
+#endif
+	
+	
   /** An SQL DATE */
   class ODBCXX_EXPORT Date {
   protected:

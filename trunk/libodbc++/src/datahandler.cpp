@@ -65,6 +65,9 @@ namespace odbc {
       { Types::TINYINT,       ODBCXX_STRING_CONST("TINYINT") },
       { Types::VARBINARY,     ODBCXX_STRING_CONST("VARBINARY") },
       { Types::VARCHAR,       ODBCXX_STRING_CONST("VARCHAR") },
+#if (ODBCVER >= 0x0350)
+    { Types::GUID,          ODBCXX_STRING_CONST("GUID") },
+#endif
       { 0,                    NULL }
     };
 
@@ -271,7 +274,14 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
     cType_=SQL_C_BINARY;
     bs=0; // same here
     isStreamed_=true;
-    break;
+	break;
+		  
+#if (ODBCVER >= 0x0350)
+  case Types::GUID:
+	  cType_ = SQL_C_GUID;
+	  bs=36;
+	  break;
+#endif		  
 
   default:
     throw SQLException
@@ -459,6 +469,21 @@ Date DataHandler::getDate() const
   return Date();
 }
 
+#if (ODBCVER >= 0X0350)
+Guid DataHandler::getGuid() const
+{
+  if(!this->isNull()) {
+    switch(cType_) {
+    case SQL_C_GUID:
+        return Guid((ODBCXX_SIGNED_CHAR_TYPE*)this->data(), this->getDataStatus());
+    default:
+      UNSUPPORTED_GET(ODBCXX_STRING_CONST("a Guid"));
+    }
+  }
+  return Guid();
+}
+#endif
+
 Time DataHandler::getTime() const
 {
   if(!this->isNull()) {
@@ -552,6 +577,11 @@ ODBCXX_STRING DataHandler::getString() const
 
     case C_DATE:
       return this->getDate().toString();
+
+#if ODBCVER >= 0x0350
+    case SQL_C_GUID:
+      return this->getGuid().toString();
+#endif
 
     case C_TIME:
       return this->getTime().toString();
@@ -902,6 +932,9 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
 {
   switch(cType_) {
   case SQL_C_BINARY:
+#if (ODBCVER >= 0x0350)
+  case SQL_GUID:
+#endif
     if(!isStreamed_) {
       size_t l=ODBCXX_BYTES_SIZE(b);
       // truncate if needed
@@ -924,6 +957,13 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
     UNSUPPORTED_SET(ODBCXX_STRING_CONST("a const Bytes&"));
   }
 }
+
+#if (ODBCVER >= 0x0350)
+void DataHandler::setGuid(const Guid& g) {
+    Bytes data(g.getData(), g.getSize());
+    setBytes(data);
+}
+#endif
 
 void DataHandler::setStream(ODBCXX_STREAM* s)
 {
