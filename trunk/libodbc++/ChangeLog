@@ -1,3 +1,18 @@
+2009-01-05 Mark Kromis <greybird@mac.com>
+	* added Visual Studio files
+	* new file:   win32/vc9/libodbc++.sln
+	* new file:   win32/vc9/libodbc++/ReadMe.txt
+	* new file:   win32/vc9/libodbc++/libodbc++.vcproj
+	* new file:   win32/vc9/libodbc++/stdafx.cpp
+	* new file:   win32/vc9/libodbc++/stdafx.h
+	* new file:   win32/vc9/libodbc++/targetver.h
+	* new file:   win32/vc9/mysql/ReadMe.txt
+	* new file:   win32/vc9/mysql/mysql.vcproj
+	* new file:   win32/vc9/mysql/stdafx.cpp
+	* new file:   win32/vc9/mysql/stdafx.h
+	* new file:   win32/vc9/mysql/targetver.h
+
+
 2009-01-04 Mark Kromis <greybird@mac.com>
 	* include/odbc++/config-win32.h: modified for windows compile, due to guid update.
 	* include/odbc++/setup.h: modified ODBCXX_SSTREAM to always be available.
