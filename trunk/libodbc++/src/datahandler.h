@@ -48,7 +48,7 @@ namespace odbc {
     size_t rows_;
     char* buffer_;
     size_t bufferSize_;
-    SQLINTEGER* dataStatus_;
+    SQLLEN* dataStatus_;
     bool isStreamed_;
     ODBCXX_STREAM* stream_;
     bool ownStream_;

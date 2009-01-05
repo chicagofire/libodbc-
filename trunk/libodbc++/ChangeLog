@@ -20,6 +20,40 @@
 	* src/datahandler.cpp: Added Guid support.
 	* src/datahandler.h: Added Guid support.
 
+2008-07-10  Bob Ham  <rah@bash.sh>
+
+	* m4/ac_check_odbc.m4 (odbc_includes_dir): Fix warning about
+	preprocessor working but compilation not
+
+	* src/datastream.cpp (DataStreamBuf::DataStreamBuf): Fixes for
+	type errors and warnings
+	* tests/oracle.cpp (testTable): Fixes for type errors and warnings
+	* src/drivermanager.cpp (DriverManager::shutdown): Fixes for type
+ 	errors and warnings
+	* src/datastream.h: Fixes for type errors and warnings
+	* src/statement.cpp (Statement::getUpdateCount): Fixes for type
+	errors and warnings
+	* src/preparedstatement.cpp (PreparedStatement::_setupParams):
+	Fixes for type errors and warnings
+	* src/datastream.cpp (DataStreamBuf::underflow): Fixes for type
+	errors and warnings
+	* src/datahandler.h: Fixes for type errors and warnings
+	* src/datahandler.cpp (DataHandler::DataHandler): Fixes for type
+	errors and warnings
+	* include/odbc++/types.h: Fixes for type errors and warnings
+	
+	* src/preparedstatement.cpp (PreparedStatement::execute)
+	(PreparedStatement::_bindParams): Change from passing integer in a
+	pointer to storing integer and passing pointer to it
+	* include/odbc++/preparedstatement.h: Change from passing integer
+	in a pointer to storing integer and passing pointer to it
+	* src/resultset.cpp (ResultSet::_handleStreams): Change from
+	passing integer in a pointer to storing integer and passing
+	pointer to it
+	
+	* doc/Makefile.am: Ensure installation works without generated
+	documentation files
+
 2006-02-09  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* include/odbc++/resultset.h: Modifications by JR Andreassen

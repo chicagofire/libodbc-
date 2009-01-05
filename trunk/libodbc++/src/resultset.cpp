@@ -573,7 +573,7 @@ void ResultSet::_handleStreams(SQLRETURN r)
       r=SQLParamData(hstmt_,&currentCol);
       this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLParamData failure"));
       if(r==SQL_NEED_DATA) {
-        DataHandler* dh=rowset_->getColumn((int)currentCol);
+        DataHandler* dh=rowset_->getColumn(*static_cast<SQLUINTEGER *>(currentCol));
 
         assert(dh->isStreamed_);
 

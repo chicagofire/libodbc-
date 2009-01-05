@@ -39,11 +39,22 @@ if test "x$odbc_dir" != "xno"; then
     LIBS="$LIBS -L$odbc_libraries_dir"
   fi
 
-  AC_CHECK_HEADERS([sql.h sqlext.h sqlucode.h],
+  AC_CHECK_HEADERS([sql.h sqlext.h],
   [odbc_ok=yes; odbc_headers="$odbc_headers $ac_hdr"],
   [odbc_ok=no; break]
   )
 
+  # sqlucode.h requires sqltypes.h, which is included
+  # by the already-checked-for sql.h
+  if test "x$odbc_ok" = "xyes"
+  then
+    AC_CHECK_HEADERS(sqlucode.h,
+    [odbc_headers="$odbc_headers sqlucode.h"],
+    [odbc_ok=no; break],
+    [#include <sql.h>]
+    )
+  fi
+  
   if test "x$odbc_ok" = "xyes"
   then
     AC_CHECK_LIB(odbc,SQLConnect,[odbc_ok=yes],[odbc_ok=no])

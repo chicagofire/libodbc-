@@ -58,7 +58,7 @@ odbc::Mutex & DMAccessMutex(bool shutdown=0)
 
 void DriverManager::shutdown()
 {
-  ODBCXX_CHAR_TYPE* pszErr = 0;
+  const ODBCXX_CHAR_TYPE* pszErr = 0;
 
   {
     ODBCXX_LOCKER(DMAccess);

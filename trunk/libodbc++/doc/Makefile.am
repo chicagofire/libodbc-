@@ -38,15 +38,21 @@ dist-hook: all-local
 	cp -r $(srcdir)/$(instdoc_name) $(distdir)
 
 install-data-local:
-	$(mkinstalldirs) $(DESTDIR)$(instdoc_dir) $(DESTDIR)$(instdoc_dir)/stylesheet-images
-	for i in $(srcdir)/$(instdoc_name)/*; do \
-		fn=`basename $$i` \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(instdoc_dir)/$$fn; \
-	done
-	for i in $(srcdir)/$(instdoc_name)/stylesheet-images/*; do \
-		fn=`basename $$i` \
-		$(INSTALL_DATA) $$i $(DESTDIR)$(instdoc_dir)/stylesheet-images/$$fn; \
-	done
+	test -z "$(db2html)" || ( \
+		$(mkinstalldirs) $(DESTDIR)$(instdoc_dir) $(DESTDIR)$(instdoc_dir)/stylesheet-images; \
+		for i in $(srcdir)/$(instdoc_name)/*; do \
+			if test -e $$i; then \
+				fn=`basename $$i`; \
+				$(INSTALL_DATA) $$i $(DESTDIR)$(instdoc_dir)/$$fn; \
+			fi; \
+		done; \
+		for i in $(srcdir)/$(instdoc_name)/stylesheet-images/*; do \
+			if test -e $$i; then \
+				fn=`basename $$i`; \
+				$(INSTALL_DATA) $$i $(DESTDIR)$(instdoc_dir)/stylesheet-images/$$fn; \
+			fi; \
+		done; \
+	)
 
 uninstall-local:
 	if test -d $(DESTDIR)$(instdoc_dir); then \

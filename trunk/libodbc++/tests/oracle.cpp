@@ -180,7 +180,7 @@ static void testTable(Connection* con)
 
   while(i<TABLE_ROWS) {
     basic_ostringstream<ODBCXX_CHAR_TYPE> ns;
-    ns << ODBCXX_CHAR_TYPE("This is row number ") << i;
+    ns << ODBCXX_STRING_CONST("This is row number ") << i;
     ODBCXX_STRING name(ns.str());
     rs->updateInt(1,i);
     rs->updateString(2,name);
