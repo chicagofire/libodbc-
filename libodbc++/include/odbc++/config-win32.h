@@ -2,6 +2,8 @@
 # error "Do not include this file directly. Use <odbc++/setup.h> instead"
 #endif
 
+#include <sstream>
+
 #define ODBCXX_HAVE_SQL_H
 #define ODBCXX_HAVE_SQLEXT_H
 #define ODBCXX_HAVE_SQLUCODE_H

@@ -1,3 +1,10 @@
+2009-01-04 Mark Kromis <greybird@mac.com>
+	* include/odbc++/config-win32.h: modified for windows compile, due to guid update.
+	* include/odbc++/setup.h: modified ODBCXX_SSTREAM to always be available.
+	* include/odbc++/types.h: Added Guid support.
+	* src/datahandler.cpp: Added Guid support.
+	* src/datahandler.h: Added Guid support.
+
 2006-02-09  Kerry W. Lothrop <kerry@lothrop.de>
 
 	* include/odbc++/resultset.h: Modifications by JR Andreassen

@@ -114,7 +114,9 @@ namespace odbc {
     Long getLong() const;
     float getFloat() const;
     double getDouble() const;
-
+#if (ODBCVER >= 0x0350)
+    Guid getGuid() const;
+#endif
     Date getDate() const;
     Time getTime() const;
     Timestamp getTimestamp() const;
@@ -143,6 +145,9 @@ namespace odbc {
     void setTime(const Time& t);
     void setTimestamp(const Timestamp& ts);
     void setString(const ODBCXX_STRING& s);
+#if (ODBCVER >= 0X0350)
+    void setGuid(const Guid& g);
+#endif
 
     //this is called by ResultSet for a fetch - does not touch the data status
     void setStream(ODBCXX_STREAM* s);
