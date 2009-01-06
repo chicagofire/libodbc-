@@ -29,6 +29,7 @@ using namespace std;
 
 SQLHENV DriverManager::henv_=SQL_NULL_HENV;
 ErrorHandler* DriverManager::eh_=0;
+SQLUSMALLINT	DriverManager::driverCompletion_ = SQL_DRIVER_COMPLETE;
 
 //-1 means don't touch, 0 means wait forever, >0 means set it for every opened
 //connection
@@ -44,9 +45,9 @@ int DriverManager::loginTimeout_=-1;
 
 odbc::Mutex & DMAccessMutex(bool shutdown=0)
 {
-  static odbc::Mutex* mtx = new odbc::Mutex();
+  static odbc::Mutex* mtx = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) odbc::Mutex();
   if ( shutdown ) {
-    delete mtx;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) mtx;
     mtx = 0;
   }
   return *mtx;
@@ -89,7 +90,7 @@ void DriverManager::shutdown()
       henv_ = SQL_NULL_HENV;
 
       //if henv_ was valid, so is eh_
-      delete eh_;
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) eh_;
       eh_ = 0;
     }
   } // lock scope end
@@ -100,7 +101,7 @@ void DriverManager::shutdown()
 #endif /* ODBCXX_ENABLE_THREADS */
 
   if (pszErr!=0)
-    throw SQLException(pszErr);
+    throw SQLException(pszErr, SQLException::scDEFSQLSTATE);
 }
 
 
@@ -122,7 +123,7 @@ void DriverManager::_checkInit()
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO)
     {
       throw SQLException
-        (ODBCXX_STRING_CONST("Failed to allocate environment handle"));
+        (ODBCXX_STRING_CONST("Failed to allocate environment handle"), SQLException::scDEFSQLSTATE);
     }
 
 #if ODBCVER >= 0x0300
@@ -136,13 +137,13 @@ void DriverManager::_checkInit()
     try
     {
       // don't collect warnings
-      eh_ = new ErrorHandler(false);
+      eh_ = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ErrorHandler(false);
     }
     catch (...)
     {
       eh_ = 0;
       throw SQLException
-        (ODBCXX_STRING_CONST("Failed to allocate error handler"));
+        (ODBCXX_STRING_CONST("Failed to allocate error handler"), SQLException::scDEFSQLSTATE);
     }
   }
 }
@@ -156,6 +157,20 @@ void DriverManager::setLoginTimeout(int to)
   loginTimeout_=to;
 }
 
+// -------------------------------------------
+//static
+/** Sets the Driver completion for Connections
+ * @param drvcmpl Driver Completion Value
+ *	SQL_DRIVER_NOPROMPT, SQL_DRIVER_COMPLETE(Default), SQL_DRIVER_PROMPT, SQL_DRIVER_COMPLETE_REQUIRED
+ * See Options for SQLDriverConnect
+ */
+void DriverManager::setDriverCompletion(SQLUSMALLINT drvcmpl)
+{
+  ODBCXX_LOCKER(DMAccess);
+  DriverManager::driverCompletion_ = drvcmpl;
+}
+SQLUSMALLINT DriverManager::getDriverCompletion(void)
+{ return DriverManager::driverCompletion_;}
 
 
 //static
@@ -184,9 +199,9 @@ Connection* DriverManager::_createConnection()
 
   try
   {
-    eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to allocate connection handle"));
+    eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to allocate connection handle"), SQLException::scDEFSQLSTATE);
 
-    con = new Connection(hdbc);
+    con = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Connection(hdbc);
     {
       ODBCXX_LOCKER(DMAccess); //since we read loginTimeout_
 
@@ -203,16 +218,16 @@ Connection* DriverManager::_createConnection()
   }
   catch (SQLException &)
   {
-    delete con;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) con;
     con = 0;
     throw;
   }
   catch (...)
   {
-    delete con;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) con;
     con = 0;
     throw SQLException
-      (ODBCXX_STRING_CONST("Failed to allocate connection handle"));
+      (ODBCXX_STRING_CONST("Failed to allocate connection handle"), SQLException::scDEFSQLSTATE);
   }
 
   return con;
@@ -230,11 +245,11 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& connectString)
   try
   {
     con = DriverManager::_createConnection();
-    con->_connect(connectString);
+    con->_connect(connectString, getDriverCompletion());
   }
   catch (...)
   {
-    delete con;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) con;
     throw;
   }
 
@@ -258,7 +273,7 @@ Connection* DriverManager::getConnection(const ODBCXX_STRING& dsn,
   }
   catch (...)
   {
-    delete con;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) con;
     throw;
   }
 
@@ -273,7 +288,7 @@ DataSourceList* DriverManager::getDataSources()
   SQLRETURN r;
   SQLSMALLINT dsnlen,desclen;
 
-  DataSourceList* l = new DataSourceList();
+  DataSourceList* l = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DataSourceList();
 
   ODBCXX_CHAR_TYPE dsn[SQL_MAX_DSN_LENGTH+1];
   ODBCXX_CHAR_TYPE desc[256];
@@ -292,7 +307,7 @@ DataSourceList* DriverManager::getDataSources()
     eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to obtain a list of datasources"));
 
     while(r==SQL_SUCCESS || r==SQL_SUCCESS_WITH_INFO) {
-      l->insert(l->end(),new DataSource(dsn,desc));
+      l->insert(l->end(),ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DataSource(dsn,desc));
 
       r=SQLDataSources(henv_,
                        SQL_FETCH_NEXT,
@@ -317,7 +332,7 @@ DriverList* DriverManager::getDrivers()
   DriverManager::_checkInit();
 
   SQLRETURN r;
-  DriverList* l=new DriverList();
+  DriverList* l=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverList();
 
 
   ODBCXX_CHAR_TYPE desc[MAX_DESC_LEN];
@@ -351,7 +366,7 @@ DriverList* DriverManager::getDrivers()
         } while(attrs[last]!=0);
       }
 
-      Driver* d=new Driver(desc,attr);
+      Driver* d=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Driver(desc,attr);
       l->insert(l->end(),d);
 
       r=SQLDrivers(henv_,

@@ -49,7 +49,7 @@ namespace odbc {
     SQLHSTMT hstmt_;
     int column_;
     int cType_;
-    SQLLEN& dataStatus_;
+    DATASTATUS_TYPE& dataStatus_;
     size_t bufferSize_;
 
     virtual int_type underflow();
@@ -77,7 +77,7 @@ namespace odbc {
     }
 
     DataStreamBuf(ErrorHandler* eh, SQLHSTMT hstmt, int col, int cType,
-		  SQLLEN& dataStatus);
+		  DATASTATUS_TYPE& dataStatus);
     virtual ~DataStreamBuf();
   };
 
@@ -89,7 +89,7 @@ namespace odbc {
 
   protected:
     DataStreamBase(ErrorHandler* eh, SQLHSTMT hstmt, int column,
-		   int cType,SQLLEN& ds)
+		   int cType,DATASTATUS_TYPE& ds)
       :buf_(eh,hstmt,column,cType,ds) {}
 
     virtual ~DataStreamBase() {}
@@ -108,24 +108,32 @@ namespace odbc {
     friend class Rowset;
   private:
     DataStream(ErrorHandler* eh, SQLHSTMT hstmt, int column, int cType,
-	       SQLLEN &ds)
+	       DATASTATUS_TYPE& ds)
       :
 #if !defined(ODBCXX_HAVE_ISO_CXXLIB)
       DataStreamBase(eh,hstmt,column,cType,ds),ODBCXX_STREAM(this->rdbuf())
 #else
 # if !defined(_MSC_VER)
-      ODBCXX_STREAM(new odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
+      ODBCXX_STREAM(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
 # else
       // Some bug in MSC makes it fail to realise that std::istream
       // is inherited by this class
       std::basic_istream<ODBCXX_CHAR_TYPE, std::char_traits<ODBCXX_CHAR_TYPE> >
-    (new odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
+    (ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) odbc::DataStreamBuf(eh,hstmt,column,cType,ds))
 # endif // _MSC_VER
 #endif
-    {}
+    {
+#ifndef THROWING_SHIT_IN_THE_CONSTRUCTOR_IS_A_BAD_IDEA_MAN
+  // fetch the first chunk of data - otherwise we don't know whether it's
+  // NULL or not
+		odbc::DataStreamBuf* dsbuff = dynamic_cast<odbc::DataStreamBuf*>(rdbuf()); 
+		if(dsbuff != NULL)
+		{	dsbuff->underflow();}
+#endif // THROWING_SHIT_IN_THE_CONSTRUCTOR_IS_A_BAD_IDEA_MAN
+	  }
     ~DataStream() {
 #if defined(ODBCXX_HAVE_ISO_CXXLIB)
-      delete this->rdbuf();
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) this->rdbuf();
 #endif
     }
   };

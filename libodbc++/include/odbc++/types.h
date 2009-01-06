@@ -59,6 +59,9 @@ class QIODevice;
 # include <sqlucode.h>
 #endif
 
+#if defined(ODBCXX_HAVE_DB2SQLCLI_H)
+#include <sqlcli.h>
+#endif
 // fixups for current iODBC, which kindly doesn't provide SQL_TRUE and
 // SQL_FALSE macros
 
@@ -109,7 +112,7 @@ class QIODevice;
 #endif
 
 #include <vector>
-
+#include <map>
 
 namespace odbc {
 
@@ -119,12 +122,15 @@ namespace odbc {
 
   typedef __int64 Long;
 
+#define  DATASTATUS_TYPE SQLLEN
+//#define  DATASTATUS_TYPE SQLINTEGER
+
 #elif defined(ODBCXX_HAVE_INTTYPES_H)
 
   typedef int64_t Long;
-
+#define  DATASTATUS_TYPE SQLINTEGER
 #else
-
+#define  DATASTATUS_TYPE SQLINTEGER
 # if ODBCXX_SIZEOF_INT == 8
 
   typedef int Long;
@@ -240,7 +246,7 @@ namespace odbc {
       Rep(const ODBCXX_SIGNED_CHAR_TYPE* b, size_t l)
         :len_(l), refCount_(0) {
         if(len_>0) {
-          buf_=new ODBCXX_SIGNED_CHAR_TYPE[len_];
+          buf_= ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_SIGNED_CHAR_TYPE[len_];
           memcpy((void*)buf_,(void*)b,len_);
         } else {
           buf_=NULL;
@@ -255,13 +261,13 @@ namespace odbc {
   public:
     /** Default constructor */
     Bytes()
-      :rep_(new Rep(NULL,0)) {
+      :rep_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Rep(NULL,0)) {
       rep_->refCount_++;
     }
 
     /** Constructor */
     Bytes(const ODBCXX_SIGNED_CHAR_TYPE* data, size_t dataLen)
-      :rep_(new Rep(data,dataLen)) {
+      :rep_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Rep(data,dataLen)) {
       rep_->refCount_++;
     }
 
@@ -274,7 +280,7 @@ namespace odbc {
     /** Assignment */
     Bytes& operator=(const Bytes& b) {
       if(--rep_->refCount_==0) {
-        delete rep_;
+        ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) rep_;
       }
       rep_=b.rep_;
       rep_->refCount_++;
@@ -295,7 +301,7 @@ namespace odbc {
     /** Destructor */
     ~Bytes() {
       if(--rep_->refCount_==0) {
-        delete rep_;
+        ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) rep_;
       }
     }
 
@@ -446,8 +452,7 @@ namespace odbc {
 		}
 	};
 #endif
-	
-	
+
   /** An SQL DATE */
   class ODBCXX_EXPORT Date {
   protected:
@@ -789,7 +794,7 @@ namespace odbc {
       typename std::vector<T>::iterator i=this->begin();
       typename std::vector<T>::iterator end=this->end();
       while(i!=end) {
-        delete *i;
+        ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) *i;
         ++i;
       }
       this->clear();
@@ -858,7 +863,7 @@ namespace odbc {
 #if defined(ODBCXX_UNICODE)
 {
    const size_t length =sizeof(wchar_t)*reason_.size();
-   char* temp =new char[length+1];
+   char* temp =ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) char[length+1];
    wcstombs(temp,reason_.c_str(),length);
    reason8_ =temp;
    delete[] temp;
@@ -912,6 +917,10 @@ namespace odbc {
 # endif
 #endif
     }
+	/** Default SQLSTATE for Exceptions */
+static const ODBCXX_CHAR_TYPE*	scDEFSQLSTATE;
+	/** Default SQLSTATE for Exceptions */
+static const ODBCXX_STRING		ssDEFSQLSTATE;
   };
 
 
@@ -955,7 +964,7 @@ namespace odbc {
       :ptr_(ptr), isArray_(isArray) {}
     ~Deleter() {
       if(!isArray_) {
-        delete ptr_;
+        ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) ptr_;
       } else {
         delete[] ptr_;
       }
@@ -966,4 +975,3 @@ namespace odbc {
 
 
 #endif // __ODBCXX_TYPES_H
-

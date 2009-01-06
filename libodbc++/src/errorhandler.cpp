@@ -23,6 +23,10 @@
 
 using namespace odbc;
 using namespace std;
+// -------------------------------------------------------------
+const ODBCXX_CHAR_TYPE*	SQLException::scDEFSQLSTATE = ODBCXX_STRING_CONST("HY000");
+const ODBCXX_STRING		SQLException::ssDEFSQLSTATE("HY000");
+// -------------------------------------------------------------
 
 #if ODBCVER < 0x0300
 
@@ -33,7 +37,7 @@ DriverMessage* DriverMessage::fetchMessage(SQLHENV henv,
 					   SQLHDBC hdbc,
 					   SQLHSTMT hstmt)
 {
-  DriverMessage* m=new DriverMessage();
+  DriverMessage* m=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverMessage();
 
   SQLSMALLINT tmp;
   SQLRETURN r=SQLError(henv, hdbc, hstmt,
@@ -50,21 +54,21 @@ DriverMessage* DriverMessage::fetchMessage(SQLHENV henv,
 
   case SQL_INVALID_HANDLE:
     // internal whoops
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     throw SQLException
-      ("[libodbc++]: fetchMessage() called with invalid handle");
+      ("[libodbc++]: fetchMessage() called with invalid handle", SQLException::scDEFSQLSTATE);
     break;
 
   case SQL_ERROR:
     // this should be extremely rare, but still..
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     throw SQLException
-      ("[libodbc++]: SQLError() returned SQL_ERROR");
+      ("[libodbc++]: SQLError() returned SQL_ERROR", SQLException::scDEFSQLSTATE);
     break;
 
   default:
     // we got no message it seems
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     m=NULL;
     break;
   }
@@ -82,7 +86,7 @@ DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
 					   SQLHANDLE h,
 					   int idx)
 {
-  DriverMessage* m=new DriverMessage();
+  DriverMessage* m=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverMessage();
 
   SQLSMALLINT tmp;
 
@@ -100,21 +104,21 @@ DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
 
   case SQL_INVALID_HANDLE:
     // internal whoops
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: fetchMessage() called with invalid handle"));
+      (ODBCXX_STRING_CONST("[libodbc++]: fetchMessage() called with invalid handle"), SQLException::scDEFSQLSTATE);
     break;
 
   case SQL_ERROR:
     // this should be extremely rare, but still..
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: SQLGetDiagRec() returned SQL_ERROR"));
+      (ODBCXX_STRING_CONST("[libodbc++]: SQLGetDiagRec() returned SQL_ERROR"), SQLException::scDEFSQLSTATE);
     break;
 
   default:
     // we got no message it seems
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
     m=NULL;
     break;
   }
@@ -125,6 +129,7 @@ DriverMessage* DriverMessage::fetchMessage(SQLINTEGER handleType,
 #endif
 
 
+
 struct ErrorHandler::PD {
 #ifdef ODBCXX_ENABLE_THREADS
     Mutex access_;
@@ -132,16 +137,16 @@ struct ErrorHandler::PD {
 };
 
 ErrorHandler::ErrorHandler(bool cw)
-  :pd_(new PD()),
-   warnings_(new WarningList()),
+  :pd_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) PD()),
+   warnings_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) WarningList()),
    collectWarnings_(cw)
 {
 }
 
 ErrorHandler::~ErrorHandler()
 {
-  delete warnings_;
-  delete pd_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) warnings_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) pd_;
 }
 
 void ErrorHandler::clearWarnings()
@@ -149,8 +154,8 @@ void ErrorHandler::clearWarnings()
   ODBCXX_LOCKER(pd_->access_);
   if(!warnings_->empty()) {
     WarningList* old=warnings_;
-    warnings_=new WarningList();
-    delete old;
+    warnings_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) WarningList();
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) old;
   }
 }
 
@@ -159,7 +164,7 @@ WarningList* ErrorHandler::getWarnings()
 {
   ODBCXX_LOCKER(pd_->access_);
   WarningList* ret=warnings_;
-  warnings_=new WarningList();
+  warnings_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) WarningList();
   return ret;
 }
 
@@ -174,11 +179,11 @@ void ErrorHandler::_postWarning(SQLWarning* w)
     if(warnings_->size()>MAX_WARNINGS) {
       //nuke oldest warning
       WarningList::iterator i=warnings_->begin();
-      delete *i;
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) *i;
       warnings_->erase(i);
     }
   } else {
-    delete w;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) w;
   }
 }
 
@@ -190,7 +195,7 @@ void ErrorHandler::_postWarning(SQLWarning* w)
 
 void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 				    SQLRETURN ret,
-				    const ODBCXX_STRING& what)
+				    const ODBCXX_STRING& what, const ODBCXX_STRING& sqlstate)
 {
 
   DriverMessage* m=DriverMessage::fetchMessage(henv, hdbc, hstmt);
@@ -213,20 +218,20 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 			 m->getNativeCode());
     } else {
       errmsg+="No description available";
-      throw SQLException(errmsg);
+      throw SQLException(errmsg, sqlstate);
     }
 
   } else if(ret==SQL_SUCCESS_WITH_INFO) {
 
     while(m!=NULL) {
-      this->_postWarning(new SQLWarning(*m));
-      delete m;
+      this->_postWarning(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) SQLWarning(*m));
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
       m=DriverMessage::fetchMessage(henv, hdbc, hstmt);
     }
 
   } else {
 
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
 
   }
 
@@ -237,7 +242,7 @@ void ErrorHandler::_checkErrorODBC2(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt,
 
 void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
 				    SQLRETURN ret,
-				    const ODBCXX_STRING& what)
+				    const ODBCXX_STRING& what, const ODBCXX_STRING& sqlstate)
 {
 
   int idx=1;
@@ -254,7 +259,20 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
     if(ODBCXX_STRING_LEN(what)>0) {
       errmsg=what+ODBCXX_STRING_CONST(": ");
     }
-
+//-----------------------------------------------------------------------------------
+// JR DEBUG
+#if 1
+	DriverMessage* m2 = NULL;
+    while((m2=DriverMessage::fetchMessage(handleType, handle, ++idx))!=NULL) 
+	{ 
+		errmsg += "**#**";
+		errmsg += m->getSQLState();
+		errmsg += "/";
+		errmsg += m2->getDescription();
+		ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m2;
+    }
+#endif //
+//-----------------------------------------------------------------------------------
     if(m!=NULL) {
       errmsg+=m->getDescription();
       throw SQLException(errmsg,
@@ -262,20 +280,20 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
 			 m->getNativeCode());
     } else {
       errmsg+=ODBCXX_STRING_CONST("No description available");
-      throw SQLException(errmsg);
+      throw SQLException(errmsg, sqlstate);
     }
 
   } else if(ret==SQL_SUCCESS_WITH_INFO) {
 
     while(m!=NULL) {
-      _postWarning(new SQLWarning(*m));
-      delete m;
+      _postWarning(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) SQLWarning(*m));
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
       m=DriverMessage::fetchMessage(handleType, handle, ++idx);
     }
 
   } else {
 
-    delete m;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) m;
 
   }
 

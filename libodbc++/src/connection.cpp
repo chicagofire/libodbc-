@@ -41,11 +41,11 @@ struct Connection::PD {
 };
 
 Connection::Connection(SQLHDBC h)
-  :pd_(new PD()),
+  :pd_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) PD()),
    hdbc_(h),
    driverInfo_(NULL)
 {
-  metaData_=new DatabaseMetaData(this);
+  metaData_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DatabaseMetaData(this);
 }
 
 Connection::~Connection()
@@ -53,11 +53,11 @@ Connection::~Connection()
   while(!pd_->statements_.empty()) {
     PD::StatementList::iterator
       i=pd_->statements_.begin();
-    delete *i;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) *i;
   }
 
-  delete metaData_;
-  delete driverInfo_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) metaData_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) driverInfo_;
 
   //no error checking performed here
   SQLDisconnect(hdbc_);
@@ -67,7 +67,7 @@ Connection::~Connection()
   SQLFreeHandle(SQL_HANDLE_DBC,hdbc_);
 #endif
 
-  delete pd_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) pd_;
 }
 
 //private
@@ -136,7 +136,7 @@ ODBCXX_STRING Connection::_getStringOption(SQLINTEGER optnum)
   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching string connection attribute"));
 
   if(optSize>255) {
-    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[optSize+1];
+    ODBCXX_CHAR_TYPE* tmp=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[optSize+1];
     odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
     r=SQLGetConnectAttr(hdbc_,optnum,(SQLPOINTER)tmp,optSize,&optSize);
     this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error fetching string connection attribute"));
@@ -158,7 +158,7 @@ void Connection::_setIntegerOption(SQLINTEGER optnum, SQLINTEGER value)
     SQLSetConnectAttr(hdbc_,optnum,(SQLPOINTER)value,SQL_IS_INTEGER)
 #endif
     ;
-   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting integer connection option"));
+   this->_checkConError(hdbc_,r,"Error setting integer connection option");
 }
 
 
@@ -173,7 +173,7 @@ void Connection::_setUIntegerOption(SQLINTEGER optnum, SQLUINTEGER value)
 #endif
     ;
 
-  this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Error setting unsigned integer connection option"));
+  this->_checkConError(hdbc_,r,"Error setting unsigned integer connection option");
 }
 
 
@@ -210,10 +210,10 @@ void Connection::_connect(const ODBCXX_STRING& dsn,
 
   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
-  driverInfo_=new DriverInfo(this);
+  driverInfo_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverInfo(this);
 }
 
-void Connection::_connect(const ODBCXX_STRING& connectString)
+void Connection::_connect(const ODBCXX_STRING& connectString, SQLUSMALLINT drvcompl)
 {
   ODBCXX_SQLCHAR dummy[256];
   SQLSMALLINT dummySize;
@@ -224,11 +224,11 @@ void Connection::_connect(const ODBCXX_STRING& connectString)
                                dummy,
                                255,
                                &dummySize,
-                               SQL_DRIVER_COMPLETE);
+                               drvcompl);
 
   this->_checkConError(hdbc_,r,ODBCXX_STRING_CONST("Failed to connect to datasource"));
 
-  driverInfo_=new DriverInfo(this);
+  driverInfo_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverInfo(this);
 }
 
 
@@ -336,12 +336,12 @@ void Connection::setTransactionIsolation(TransactionIsolation i)
 
     default:
       throw SQLException
-        (ODBCXX_STRING_CONST("[libodbc++]: Invalid transaction isolation"));
+        (ODBCXX_STRING_CONST("[libodbc++]: Invalid transaction isolation"), ODBCXX_STRING_CONST("S1009"));
     }
     this->_setUIntegerOption
       (ODBC3_C(SQL_ATTR_TXN_ISOLATION,SQL_TXN_ISOLATION),l);
   } else {
-    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Data source does not support transactions"));
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Data source does not support transactions"), ODBCXX_STRING_CONST("IM001"));
   }
 }
 
@@ -405,7 +405,7 @@ ODBCXX_STRING Connection::nativeSQL(const ODBCXX_STRING& sql)
                        ODBCXX_STRING_CSTR(msg));
 
   if(dataSize>255) {
-    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[dataSize+1];
+    ODBCXX_CHAR_TYPE* tmp=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[dataSize+1];
     odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
     r=SQLNativeSql(hdbc_,
                    (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(sql),
@@ -455,7 +455,7 @@ Statement* Connection::createStatement(int resultSetType,
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
-  Statement* stmt=new Statement(this,hstmt,resultSetType,resultSetConcurrency);
+  Statement* stmt=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Statement(this,hstmt,resultSetType,resultSetConcurrency);
   this->_registerStatement(stmt);
   return stmt;
 }
@@ -475,7 +475,7 @@ PreparedStatement* Connection::prepareStatement(const ODBCXX_STRING& sql,
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
-  PreparedStatement* pstmt=new PreparedStatement(this,hstmt,sql,
+  PreparedStatement* pstmt=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) PreparedStatement(this,hstmt,sql,
                                                  resultSetType,
                                                  resultSetConcurrency);
   this->_registerStatement(pstmt);
@@ -496,7 +496,7 @@ CallableStatement* Connection::prepareCall(const ODBCXX_STRING& sql,
 {
   SQLHSTMT hstmt=this->_allocStmt();
 
-  CallableStatement* cstmt= new CallableStatement(this,hstmt,sql,
+  CallableStatement* cstmt= ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) CallableStatement(this,hstmt,sql,
                                                   resultSetType,
                                                   resultSetConcurrency);
   this->_registerStatement(cstmt);

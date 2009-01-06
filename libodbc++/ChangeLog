@@ -1,3 +1,30 @@
+2009-01-06 JR Andreassen <janrune@io.com>
+	* THANKS : Added JR Anderson
+	* include/odbc++/connection.h : SQLException enhancement
+	* include/odbc++/drivermanger.h : Added Driver completion addion
+	* include/odbc++/errorhandler.h : SQLException enhancement
+	* include/odbc++/resultsetmetadata.h : Added metadata column names
+	* include/odbc++/setup.h : added new/delete macros
+	* include/odbc++/threads.h : modified destructors for inheritance
+	* include/odbc++/types.h : new/delete, and SQLExecption enhancement
+	* src/callablestatement.cpp : Enhanced error message
+	* src/connection.cpp : new/delete enhancement
+	* src/databasemetadata.cpp : new/delete, &  SQLException enhancement
+	* src/datahandler.cpp :  new/delete, &  SQLException enhancement, stream tweak
+	* src/datahandler.h : new/delete enhancement, stream tweak
+	* src/datastream.cpp : SQLExcpetion enhancement, stream tweak
+	* src/datastream.h : new / delete, & stream enhancement
+	* src/datetime.cpp : SQLException enhancement 
+	* src/driverinfo.cpp : new / delete enhancement
+	* src/drivermanager.cpp : new / delete enhancement, setDriverCompletion
+	* src/dtconv.h : new / delete enhancement, null checks
+	* src/errorhandler.cpp : new / delete enhancement
+	* src/preparedstatement.cpp : new / delete enhancement, stream tweaks
+	* src/resultset.cpp : SQLExcption enhancement
+	* src/resultmetadata.cpp : new / delete enhancement, remap_datatype, use_index_metadata_colnames
+	* src/statement.cpp : new / delete enhacement
+	* src/threads.cpp : SQLException enhancement, new/delete methods, getFileNamePtr
+
 2009-01-05 Mark Kromis <greybird@mac.com>
 	* added Visual Studio files
 	* new file:   win32/vc9/libodbc++.sln

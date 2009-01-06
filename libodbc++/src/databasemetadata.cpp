@@ -55,7 +55,7 @@ inline int getODBCCursorTypeFor(int rsType, const DriverInfo* di)
     }
     break;
   default:
-    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(rsType));
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(rsType), ODBCXX_STRING_CONST("S1009"));
   }
 
   return r;
@@ -167,7 +167,7 @@ ODBCXX_STRING DatabaseMetaData::_getStringInfo(int what)
   do {
     len1=len2;
 
-    buf=new ODBCXX_CHAR_TYPE[len1+1];
+    buf=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[len1+1];
 
     //    ODBCXX_CERR << ODBCXX_STRING_CONST("Calling SQLGetInfo: len1=")
     //                << len1 << ODBCXX_STRING_CONST(", len2=") << len2 << endl;
@@ -354,7 +354,7 @@ int DatabaseMetaData::getDriverMajorVersion()
 		       );
   }
   throw SQLException
-    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s);
+    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s, SQLException::scDEFSQLSTATE);
 
   ODBCXX_DUMMY_RETURN(0);
 }
@@ -372,7 +372,7 @@ int DatabaseMetaData::getDriverMinorVersion()
 		       );
   }
   throw SQLException
-    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s);
+    (ODBCXX_STRING_CONST("[libodbc++]: Invalid ODBC version string received from driver: ")+s, SQLException::scDEFSQLSTATE);
   ODBCXX_DUMMY_RETURN(0);
 }
 
@@ -521,7 +521,7 @@ bool DatabaseMetaData::supportsResultSetType(int type)
   default:
     throw SQLException
       (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+
-       intToString(type));
+       intToString(type), SQLException::scDEFSQLSTATE);
   }
 
   ODBCXX_DUMMY_RETURN(false);
@@ -556,7 +556,7 @@ bool DatabaseMetaData::supportsResultSetConcurrency(int type,
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(type));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet concurrency ")+intToString(type), ODBCXX_STRING_CONST("S1108"));
   }
 
   switch(concurrency) {
@@ -570,7 +570,7 @@ bool DatabaseMetaData::supportsResultSetConcurrency(int type,
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet concurrency ")+intToString(type));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet concurrency ")+intToString(type), ODBCXX_STRING_CONST("S1108"));
   }
 
   ODBCXX_DUMMY_RETURN(false);
@@ -1327,12 +1327,12 @@ bool DatabaseMetaData::supportsConvert(int fromType,
       }
       throw SQLException
 	(ODBCXX_STRING_CONST("[libodbc++]: supportsConvert(): Unknown toType ")+
-	 intToString(toType));
+	 intToString(toType), SQLException::scDEFSQLSTATE);
     }
   }
   throw SQLException
     (ODBCXX_STRING_CONST("[libodbc++]: supportsConvert(): Unknown fromType ")+
-     intToString(fromType));
+     intToString(fromType), SQLException::scDEFSQLSTATE);
 
   ODBCXX_DUMMY_RETURN(false);
 }
@@ -1512,7 +1512,7 @@ ResultSet* DatabaseMetaData::getTypeInfo()
   try {
     return stmt->_getTypeInfo();
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1537,7 +1537,7 @@ ResultSet* DatabaseMetaData::getTables(const ODBCXX_STRING& catalog,
 			    tableNamePattern,
 			    typesStr);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1554,7 +1554,7 @@ ResultSet* DatabaseMetaData::getColumns(const ODBCXX_STRING& catalog,
 			     tableNamePattern,
 			     columnNamePattern);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1569,7 +1569,7 @@ ResultSet* DatabaseMetaData::getTablePrivileges(const ODBCXX_STRING& catalog,
 				     schemaPattern,
 				     tableNamePattern);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1586,7 +1586,7 @@ ResultSet* DatabaseMetaData::getColumnPrivileges(const ODBCXX_STRING& catalog,
 				      tableNamePattern,
 				      columnNamePattern);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1603,7 +1603,7 @@ ResultSet* DatabaseMetaData::getPrimaryKeys(const ODBCXX_STRING& catalog,
 				 schema,
 				 table);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1626,7 +1626,7 @@ ResultSet* DatabaseMetaData::getCrossReference(const ODBCXX_STRING& primaryCatal
 				    foreignSchema,
 				    foreignTable);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1642,7 +1642,7 @@ ResultSet* DatabaseMetaData::getTableTypes()
                             ODBCXX_STRING_CONST(""),
                             ODBCXX_STRING_CONST("%"));
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1657,7 +1657,7 @@ ResultSet* DatabaseMetaData::getSchemas()
                             ODBCXX_STRING_CONST(""),
                             ODBCXX_STRING_CONST(""));
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1673,7 +1673,7 @@ ResultSet* DatabaseMetaData::getCatalogs()
                             ODBCXX_STRING_CONST(""),
                             ODBCXX_STRING_CONST(""));
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1690,7 +1690,7 @@ ResultSet* DatabaseMetaData::getIndexInfo(const ODBCXX_STRING& catalog,
     return stmt->_getIndexInfo(catalog,schemaPattern,tableNamePattern,
 			       unique,accurate);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1704,7 +1704,7 @@ ResultSet* DatabaseMetaData::getProcedures(const ODBCXX_STRING& catalog,
   try {
     return stmt->_getProcedures(catalog,schemaPattern,procedureNamePattern);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1723,7 +1723,7 @@ ResultSet* DatabaseMetaData::getProcedureColumns(const ODBCXX_STRING& catalog,
 				      procedureNamePattern,
 				      columnNamePattern);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1743,7 +1743,7 @@ ResultSet* DatabaseMetaData::getBestRowIdentifier(const ODBCXX_STRING& catalog,
 				    scope,
 				    nullable?SQL_NULLABLE:SQL_NO_NULLS);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }
@@ -1760,7 +1760,7 @@ ResultSet* DatabaseMetaData::getVersionColumns(const ODBCXX_STRING& catalog,
 				    SQL_ROWVER,SQL_SCOPE_CURROW,
 				    SQL_NULLABLE);
   } catch(...) {
-    delete stmt;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stmt;
     throw;
   }
 }

@@ -25,21 +25,32 @@
 #include <odbc++/setup.h>
 #include <odbc++/types.h>
 #include <odbc++/resultset.h>
-
+#define ODBCXX_USE_INDEXED_METADATA_COLNAMES
 namespace odbc {
 
   class ResultSet;
   class DriverInfo;
-
+#ifdef ODBCXX_USE_INDEXED_METADATA_COLNAMES
+typedef struct caseinsesnless 
+: public std::less<ODBCXX_STRING>
+{
+	bool operator()(const ODBCXX_STRING _Left, const ODBCXX_STRING _Right) const;
+}CaseInsesitiveLess;
+#endif // ODBCXX_USE_INDEXED_METADATA_COLNAMES
   /** Provides meta data about a result set */
   class ODBCXX_EXPORT ResultSetMetaData {
     friend class ResultSet;
     friend class Statement;
   private:
+
     ResultSet* resultSet_;
 
     int numCols_;
     std::vector<ODBCXX_STRING> colNames_;
+#ifdef ODBCXX_USE_INDEXED_METADATA_COLNAMES
+	std::map<const ODBCXX_STRING, int, CaseInsesitiveLess>	colNameIndex_;
+	int findColumn(const ODBCXX_STRING& colName);
+#endif // ODBCXX_USE_INDEXED_METADATA_COLNAMES
     std::vector<int> colTypes_;
     std::vector<int> colPrecisions_;
     std::vector<int> colScales_;

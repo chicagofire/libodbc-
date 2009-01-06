@@ -59,7 +59,7 @@ Statement::~Statement()
 {
   if(currentResultSet_!=NULL) {
     currentResultSet_->ownStatement_=false;
-    delete currentResultSet_;
+    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) currentResultSet_;
     currentResultSet_=NULL;
   }
 
@@ -149,7 +149,7 @@ ODBCXX_STRING Statement::_getStringOption(SQLINTEGER optnum)
 
   if(dataSize>255) {
     // we have a longer attribute here
-    ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[dataSize+1];
+    ODBCXX_CHAR_TYPE* tmp=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[dataSize+1];
     odbc::Deleter<ODBCXX_CHAR_TYPE> _tmp(tmp,true);
 
     r=SQLGetStmtAttr(hstmt_,optnum,(SQLPOINTER)tmp,dataSize,&dataSize);
@@ -228,7 +228,7 @@ void Statement::_applyResultSetType()
       ct=SQL_CURSOR_STATIC;
     } else {
       throw SQLException
-        (ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_INSENSITIVE"));
+        (ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_INSENSITIVE"), ODBCXX_STRING_CONST("S1C00"));
     }
     break;
 
@@ -237,13 +237,13 @@ void Statement::_applyResultSetType()
       ct=di->getScrollSensitive();
     } else {
       throw SQLException
-        (ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_SENSITIVE"));
+        (ODBCXX_STRING_CONST("[libodbc++]: Datasource does not support ResultSet::TYPE_SCROLL_SENSITIVE"), ODBCXX_STRING_CONST("S1C00"));
     }
     break;
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type"));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type"), ODBCXX_STRING_CONST("S1009"));
   }
 
   if(ct!=SQL_CURSOR_FORWARD_ONLY) {
@@ -262,7 +262,7 @@ void Statement::_applyResultSetType()
           (ODBC3_C(SQL_ATTR_CONCURRENCY,SQL_CONCURRENCY),SQL_CONCUR_READ_ONLY);
       } else {
         throw SQLException
-          (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_READ_ONLY not supported for given type"));
+          (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_READ_ONLY not supported for given type"), SQLException::scDEFSQLSTATE);
       }
     }
     break;
@@ -276,13 +276,13 @@ void Statement::_applyResultSetType()
 
     } else {
       throw SQLException
-        (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_UPDATABLE not supported for given type"));
+        (ODBCXX_STRING_CONST("[libodbc++]: ResultSet::CONCUR_UPDATABLE not supported for given type"), SQLException::scDEFSQLSTATE);
     }
     break;
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Invalid concurrency level"));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid concurrency level"), SQLException::scDEFSQLSTATE);
   }
 }
 
@@ -298,7 +298,7 @@ bool Statement::_checkForResults()
 //protected
 ResultSet* Statement::_getResultSet(bool hideMe)
 {
-  ResultSet* rs=new ResultSet(this,hstmt_,hideMe);
+  ResultSet* rs=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ResultSet(this,hstmt_,hideMe);
   this->_registerResultSet(rs);
   return rs;
 }
@@ -311,12 +311,12 @@ void Statement::_beforeExecute()
 
   if(currentResultSet_!=NULL) {
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Cannot re-execute; statement has an open resultset"));
+      (ODBCXX_STRING_CONST("[libodbc++]: Cannot re-execute; statement has an open resultset"), SQLException::scDEFSQLSTATE);
   }
 
   if(state_==STATE_OPEN) {
     SQLRETURN r=SQLFreeStmt(hstmt_,SQL_CLOSE);
-    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing statement"));
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing statement"), SQLException::scDEFSQLSTATE);
 
     state_=STATE_CLOSED;
   }
@@ -500,7 +500,8 @@ ResultSet* Statement::_getCrossReference(const ODBCXX_STRING& pc,
                              ODBCXX_STRING_LEN(fc),
                              valueOrNull(fs),
                              ODBCXX_STRING_LEN(fs),
-                             (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(ft),
+                             valueOrNull(ft),
+//                             (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(ft),
                              ODBCXX_STRING_LEN(ft));
 
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching foreign keys information"));
@@ -738,7 +739,7 @@ bool Statement::getMoreResults()
 {
   if(this->_getDriverInfo()->supportsFunction(SQL_API_SQLMORERESULTS)) {
     SQLRETURN r=SQLMoreResults(hstmt_);
-    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error checking for more results"));
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error checking for more results"), SQLException::scDEFSQLSTATE);
     // needed for getUpdateCount() to correctly
     // support the traversal of multiple results
     lastExecute_=r;
@@ -757,7 +758,7 @@ void Statement::setFetchSize(int fs)
   } else if (fs==0) {
     fetchSize_=SQL_ROWSET_SIZE_DEFAULT;
   } else {
-    throw SQLException(ODBCXX_STRING_CONST("Invalid fetch size"));
+    throw SQLException(ODBCXX_STRING_CONST("Invalid fetch size"), SQLException::scDEFSQLSTATE);
   }
 }
 
@@ -778,7 +779,7 @@ void Statement::close()
 {
   if(state_==STATE_OPEN) {
     SQLRETURN r=SQLFreeStmt(hstmt_,SQL_CLOSE);
-    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing all results for statement"));
+    this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error closing all results for statement"), SQLException::scDEFSQLSTATE);
 
     state_=STATE_CLOSED;
   }

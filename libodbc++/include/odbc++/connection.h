@@ -67,7 +67,7 @@ namespace odbc {
                   const ODBCXX_STRING& user,
                   const ODBCXX_STRING& password);
 
-    void _connect(const ODBCXX_STRING& connectString);
+    void _connect(const ODBCXX_STRING& connectString, SQLUSMALLINT drvcompl = SQL_DRIVER_COMPLETE);
 
     void _registerStatement(Statement* stmt);
     void _unregisterStatement(Statement* stmt);

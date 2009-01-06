@@ -55,25 +55,28 @@ namespace odbc {
 			  SQLHDBC hdbc,
 			  SQLHSTMT hstmt,
 			  SQLRETURN r,
-			  const ODBCXX_STRING& what);
+			  const ODBCXX_STRING& what, 
+			  const ODBCXX_STRING& sqlstate = ODBCXX_STRING("HY000"));
 #else
 
     void _checkErrorODBC3(SQLINTEGER handleType,
 			  SQLHANDLE h,
-			  SQLRETURN r, const ODBCXX_STRING& what);
+			  SQLRETURN r, const ODBCXX_STRING& what, 
+			  const ODBCXX_STRING& sqlstate = SQLException::ssDEFSQLSTATE);
 #endif //ODBCVER < 0x0300
 
     void _checkStmtError(SQLHSTMT hstmt,
-			 SQLRETURN r, const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST("")) {
+			 SQLRETURN r, const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST(""), 
+						const ODBCXX_CHAR_TYPE* sqlstate=SQLException::scDEFSQLSTATE) {
 
       if(r==SQL_SUCCESS_WITH_INFO || r==SQL_ERROR) {
 #if ODBCVER < 0x0300
 
 	this->_checkErrorODBC2(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt,
-			       r,ODBCXX_STRING_C(what));
+			       r,ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 #else
 	
-	this->_checkErrorODBC3(SQL_HANDLE_STMT,hstmt,r,ODBCXX_STRING_C(what));
+	this->_checkErrorODBC3(SQL_HANDLE_STMT,hstmt,r,ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 	
 #endif
       }
@@ -81,16 +84,17 @@ namespace odbc {
 
     void _checkConError(SQLHDBC hdbc,
                         SQLRETURN r,
-                        const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST("")) {
+                        const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST(""), 
+						const ODBCXX_CHAR_TYPE* sqlstate=SQLException::scDEFSQLSTATE) {
       if(r==SQL_SUCCESS_WITH_INFO || r==SQL_ERROR) {
 #if ODBCVER < 0x0300
 	
 	this->_checkErrorODBC2(SQL_NULL_HENV, hdbc, SQL_NULL_HSTMT, r,
-			       ODBCXX_STRING_C(what));
+			       ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 	
 #else
 	
-	this->_checkErrorODBC3(SQL_HANDLE_DBC, hdbc, r, ODBCXX_STRING_C(what));
+	this->_checkErrorODBC3(SQL_HANDLE_DBC, hdbc, r, ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 
 #endif
       }
@@ -98,16 +102,17 @@ namespace odbc {
 
     void _checkEnvError(SQLHENV henv,
                         SQLRETURN r,
-                        const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST("")) {
+                        const ODBCXX_CHAR_TYPE* what=ODBCXX_STRING_CONST(""), 
+						const ODBCXX_CHAR_TYPE* sqlstate=SQLException::scDEFSQLSTATE) {
       if(r==SQL_SUCCESS_WITH_INFO || r==SQL_ERROR) {
 #if ODBCVER < 0x0300
 	
 	this->_checkErrorODBC2(henv,SQL_NULL_HDBC,SQL_NULL_HSTMT,r,
-			       ODBCXX_STRING_C(what));
+			       ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 	
 #else
 	
-	this->_checkErrorODBC3(SQL_HANDLE_ENV,henv,r,ODBCXX_STRING_C(what));
+	this->_checkErrorODBC3(SQL_HANDLE_ENV,henv,r,ODBCXX_STRING_C(what), ODBCXX_STRING_C(sqlstate));
 	
 #endif
       }

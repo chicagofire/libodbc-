@@ -124,7 +124,7 @@ throw SQLException                                                \
  intToString(sqlType_)+ODBCXX_STRING_CONST(" (")+ \
  nameOfSQLType(sqlType_)+ODBCXX_STRING_CONST("), C type ")+ \
  intToString(cType_)+ODBCXX_STRING_CONST(" (")+ \
- nameOfCType(cType_)+ODBCXX_STRING_CONST(") as ") as_type)
+ nameOfCType(cType_)+ODBCXX_STRING_CONST(") as ") as_type, SQLException::scDEFSQLSTATE)
 
 #define UNSUPPORTED_SET(to_type)                                \
 throw SQLException                                                \
@@ -132,7 +132,7 @@ throw SQLException                                                \
  intToString(sqlType_)+ ODBCXX_STRING_CONST(" (")+ \
  nameOfSQLType(sqlType_)+ODBCXX_STRING_CONST("), C type ")+ \
  intToString(cType_)+ODBCXX_STRING_CONST(" (")+ \
- nameOfCType(cType_)+ODBCXX_STRING_CONST(") to ") to_type)
+ nameOfCType(cType_)+ODBCXX_STRING_CONST(") to ") to_type, SQLException::scDEFSQLSTATE)
 
 
 
@@ -140,13 +140,14 @@ throw SQLException                                                \
 
 void DataHandler::setupBuffer(size_t s)
 {
-  if(bufferSize_>0) {
-    delete[] buffer_;
+  if(bufferSize_>0 && buffer_ != NULL) 
+  {//    delete[] buffer_;
+	  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__)[] buffer_;
   }
 
   bufferSize_=s;
   if(bufferSize_>0) {
-    buffer_=new char[rows_*bufferSize_];
+    buffer_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) char[rows_*bufferSize_];
   } else {
     buffer_=NULL;
   }
@@ -163,6 +164,8 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
    precision_(precision),
    scale_(scale),
    use3_(use3)
+#ifdef CACHE_STREAMED_DATA
+#endif // CACHE_STREAMED_DATA
 {
 
   size_t bs=0;
@@ -285,13 +288,13 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: DataHandler: unhandled SQL type ")+intToString(sqlType_));
+      (ODBCXX_STRING_CONST("[libodbc++]: DataHandler: unhandled SQL type ")+intToString(sqlType_), SQLException::scDEFSQLSTATE);
 
   };
   this->setupBuffer(bs);
 
-  dataStatus_=new SQLLEN[rows_];
 
+  dataStatus_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DATASTATUS_TYPE[rows_];
   //set everything to NULL
   for(unsigned int i=0; i<rows_; i++) {
     dataStatus_[i]=SQL_NULL_DATA;
@@ -572,7 +575,7 @@ ODBCXX_STRING DataHandler::getString() const
                                      this->getDataStatus()/sizeof(ODBCXX_CHAR_TYPE));
         }
       } else {
-        throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: NYI: Getting a stream as a string"));
+        throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: NYI: Getting a stream as a string"), SQLException::scDEFSQLSTATE);
       }
 
     case C_DATE:
@@ -950,6 +953,8 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
       this->setStream(bytesToStream(b),
                       ODBCXX_BYTES_SIZE(b));
       ownStream_=true;
+#ifdef CACHE_STREAMED_DATA
+#endif // CACHE_STREAMED_DATA
     }
     break;
 
@@ -970,9 +975,11 @@ void DataHandler::setStream(ODBCXX_STREAM* s)
   this->resetStream();
   stream_=s;
   ownStream_=true;
+#ifdef CACHE_STREAMED_DATA
+#endif // CACHE_STREAMED_DATA
 }
 
-void DataHandler::setStream(ODBCXX_STREAM* s, int len)
+void DataHandler::setStream(ODBCXX_STREAM* s, int len, bool ownstream)
 {
   switch(cType_) {
   case SQL_C_CHAR:
@@ -980,17 +987,14 @@ void DataHandler::setStream(ODBCXX_STREAM* s, int len)
     if(isStreamed_) {
       this->resetStream();
       stream_=s;
-      ownStream_=false;
-
-			if (!s || len <= 0)
-				setDataStatus(SQL_NULL_DATA);
-			else
-				setDataStatus(SQL_LEN_DATA_AT_EXEC(len*sizeof(ODBCXX_CHAR_TYPE)));
-
+      ownStream_=ownstream;
+      this->setDataStatus(SQL_LEN_DATA_AT_EXEC(len*sizeof(ODBCXX_CHAR_TYPE)));
       break;
     }
 
   default:
     UNSUPPORTED_SET(ODBCXX_STRING_CONST("a stream"));
   }
+#ifdef CACHE_STREAMED_DATA
+#endif // CACHE_STREAMED_DATA
 }
