@@ -45,7 +45,7 @@ namespace odbc {
 
   public:
     explicit Mutex();
-    ~Mutex();
+	virtual ~Mutex();
 
     void lock();
     void unlock();
@@ -60,7 +60,7 @@ namespace odbc {
       m_.lock();
     }
     
-    ~Locker() {
+	  virtual ~Locker() {
       m_.unlock();
     }
   };

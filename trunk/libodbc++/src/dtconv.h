@@ -232,11 +232,11 @@ namespace odbc {
   // returns a newly allocated stream
   inline ODBCXX_STREAM* stringToStream(const ODBCXX_STRING& str) {
 #if !defined(ODBCXX_QT)
-    ODBCXX_SSTREAM* s=new ODBCXX_SSTREAM();
+    ODBCXX_SSTREAM* s=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_SSTREAM();
     *s << str;
     return s;
 #else // defined(ODBCXX_QT)
-    QBuffer* b=new QBuffer();
+    QBuffer* b=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) QBuffer();
     b->open(IO_WriteOnly);
     b->writeBlock(ODBCXX_STRING_CSTR(str),ODBCXX_STRING_LEN(str));
     b->close();
@@ -251,14 +251,16 @@ namespace odbc {
 #if defined(ODBCXX_QT)
     int r;
     QString ret;
-    while((r=s->readBlock(buf,GETDATA_CHUNK_SIZE))>0) {
-      ret+=ODBCXX_STRING_CL(buf,r);
-    }
+	if(s != NULL)
+	{	while((r=s->readBlock(buf,GETDATA_CHUNK_SIZE))>0) 
+		{	ret+=ODBCXX_STRING_CL(buf,r);    }
+	}
 #else
     ODBCXX_STRING ret;
-    while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) {
-      ret+=ODBCXX_STRING_CL(buf,s->gcount());
-    }
+	if(s != NULL)
+	{    while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) 
+		 {	ret+=ODBCXX_STRING_CL(buf,s->gcount());  }
+	}
 #endif
     return ret;
   }
@@ -270,7 +272,7 @@ namespace odbc {
 #if defined(ODBCXX_QT)
     int r;
     while((r=s->readBlock(buf,GETDATA_CHUNK_SIZE))!=-1) {
-      char* tmp=new char[size+(unsigned int)r];
+      char* tmp=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) char[size+(unsigned int)r];
       if(size>0) {
         memcpy((void*)tmp,(void*)bigbuf,size);
       }
@@ -284,7 +286,7 @@ namespace odbc {
     return QByteArray().assign(bigbuf,size);
 #else
     while(s->read(buf,GETDATA_CHUNK_SIZE) || s->gcount()) {
-      ODBCXX_CHAR_TYPE* tmp=new ODBCXX_CHAR_TYPE[size+s->gcount()];
+      ODBCXX_CHAR_TYPE* tmp=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[size+s->gcount()];
       if(size>0) {
         memcpy((void*)tmp,(void*)bigbuf,size);
       }
@@ -303,13 +305,13 @@ namespace odbc {
 
   inline ODBCXX_STREAM* bytesToStream(const ODBCXX_BYTES& b) {
 #if !defined(ODBCXX_QT)
-    ODBCXX_SSTREAM* s=new ODBCXX_SSTREAM();
+    ODBCXX_SSTREAM* s=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_SSTREAM();
     if(b.getSize()>0) {
       s->write((ODBCXX_CHAR_TYPE*)b.getData(),b.getSize());
     }
     return s;
 #else // ODBCXX_QT
-    QBuffer* buf=new QBuffer(b.copy());
+    QBuffer* buf=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) QBuffer(b.copy());
     buf->open(IO_ReadOnly);
     return buf;
 #endif

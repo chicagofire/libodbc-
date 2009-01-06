@@ -36,8 +36,8 @@ DriverInfo::DriverInfo(Connection* con)
    keysetA2_(0),
    dynamicA2_(0),
 #endif
-  supportedFunctions_(new SQLUSMALLINT[ODBC3_C(SQL_API_ODBC3_ALL_FUNCTIONS_SIZE,
-                                                100)])
+  supportedFunctions_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) SQLUSMALLINT[ODBC3_C(SQL_API_ODBC3_ALL_FUNCTIONS_SIZE,
+						100)])
 {
   DatabaseMetaData* md=con->getMetaData();
   majorVersion_=md->getDriverMajorVersion();

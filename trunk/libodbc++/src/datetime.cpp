@@ -43,7 +43,7 @@ void Time::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
   ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid TIME: ");
   msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
      +intToString(value)+ODBCXX_STRING_CONST(")");
-  throw SQLException(msg);
+  throw SQLException(msg, ODBCXX_STRING_CONST("22007"));
 }
 
 void Date::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
@@ -51,7 +51,7 @@ void Date::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
   ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid DATE: ");
   msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
      +intToString(value)+ODBCXX_STRING_CONST(")");
-  throw SQLException(msg);
+  throw SQLException(msg, ODBCXX_STRING_CONST("22007"));
 }
 
 void Timestamp::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
@@ -59,7 +59,7 @@ void Timestamp::_invalid(const ODBCXX_CHAR_TYPE* what, int value)
   ODBCXX_STRING msg=ODBCXX_STRING_CONST("Invalid TIMESTAMP: ");
   msg+=what+ODBCXX_STRING(ODBCXX_STRING_CONST(" out of range ("))
      +intToString(value)+ODBCXX_STRING_CONST(")");
-  throw SQLException(msg);
+  throw SQLException(msg, ODBCXX_STRING_CONST("22007"));
 }
 
 namespace odbc {
@@ -146,7 +146,7 @@ ODBCXX_STRING Date::toString() const
 void Date::parse(const ODBCXX_STRING& in)
 {
   if(ODBCXX_STRING_LEN(in)!=10) {
-    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Unrecognized date format: ")+in);
+    throw SQLException(ODBCXX_STRING_CONST("[libodbc++]: Unrecognized date format: ")+in, ODBCXX_STRING_CONST("22007"));
   }
 
   ODBCXX_CHAR_TYPE buf[11];
@@ -210,7 +210,7 @@ ODBCXX_STRING Time::toString() const
 void Time::parse(const ODBCXX_STRING& in)
 {
   if(ODBCXX_STRING_LEN(in)!=8) {
-    throw SQLException(ODBCXX_STRING_CONST("Unrecognized time format: ")+in);
+    throw SQLException(ODBCXX_STRING_CONST("Unrecognized time format: ")+in, ODBCXX_STRING_CONST("22007"));
   }
 
   ODBCXX_CHAR_TYPE buf[9];
@@ -283,7 +283,7 @@ void Timestamp::parse(const ODBCXX_STRING& in)
   // YYYY-MM-DD HH:MM:SS.xxxxxxxxxx (max 30 chars)
   if(ODBCXX_STRING_LEN(in)<19 ||
      ODBCXX_STRING_LEN(in)>30) {
-    throw SQLException(ODBCXX_STRING_CONST("Unrecognized timestamp format: ")+in);
+    throw SQLException(ODBCXX_STRING_CONST("Unrecognized timestamp format: ")+in, ODBCXX_STRING_CONST("22007"));
   }
 
   ODBCXX_CHAR_TYPE buf[31];

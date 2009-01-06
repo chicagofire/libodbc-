@@ -102,6 +102,7 @@ namespace odbc {
     static SQLHENV henv_;
     static ErrorHandler* eh_;
     static int loginTimeout_;
+	static SQLUSMALLINT	driverCompletion_;
 
     static void _checkInit();
     static Connection* _createConnection();
@@ -131,6 +132,14 @@ namespace odbc {
      * to open. Set to 0 to disable.
      */
     static void setLoginTimeout(int seconds);
+	// -------------------------------------------
+    /** Sets the Driver completion for Connections
+     * @param drvcmpl Driver Completion Value
+	 *	SQL_DRIVER_NOPROMPT, SQL_DRIVER_COMPLETE(Default), SQL_DRIVER_PROMPT, SQL_DRIVER_COMPLETE_REQUIRED
+	 * See Options for SQLDriverConnect
+     */
+    static void setDriverCompletion(SQLUSMALLINT drvcmpl);
+    static SQLUSMALLINT getDriverCompletion(void);
 
     /** Fetch a list of all available data sources
      */

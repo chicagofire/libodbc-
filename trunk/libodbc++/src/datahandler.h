@@ -48,7 +48,7 @@ namespace odbc {
     size_t rows_;
     char* buffer_;
     size_t bufferSize_;
-    SQLLEN* dataStatus_;
+    DATASTATUS_TYPE* dataStatus_;
     bool isStreamed_;
     ODBCXX_STREAM* stream_;
     bool ownStream_;
@@ -68,15 +68,20 @@ namespace odbc {
     }
 
     void resetStream() {
-      if(isStreamed_) {
-	if(ownStream_) {
-	  delete stream_;
-	  ownStream_=false;
-	}
-	stream_=NULL;
-      } else {
-	assert(stream_==NULL);
-      }
+      if(isStreamed_) 
+	  {
+		if(ownStream_) 
+		{
+			ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) stream_;
+			ownStream_=false;
+		}
+		stream_=NULL;
+#ifdef CACHE_STREAMED_DATA
+		// Clear any buffer
+		setupBuffer(0);
+#endif // CACHE_STREAMED_DATA
+      } 
+	  else {assert(stream_==NULL);     }
     }
 
     //same, const version
@@ -99,7 +104,7 @@ namespace odbc {
     ~DataHandler() {
       this->resetStream();
       this->setupBuffer(0);
-      delete[] dataStatus_;
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__)[] dataStatus_;
     }
 
     int getSQLType() const {
@@ -117,6 +122,7 @@ namespace odbc {
 #if (ODBCVER >= 0x0350)
     Guid getGuid() const;
 #endif
+
     Date getDate() const;
     Time getTime() const;
     Timestamp getTimestamp() const;
@@ -154,7 +160,7 @@ namespace odbc {
 
     //this is called for a set - sets the data status to
     //data-at-exec(len)
-    void setStream(ODBCXX_STREAM* s, int len);
+    void setStream(ODBCXX_STREAM* s, int len, bool ownstream = false);
 
     //this is called when the rowset moves to another row
     void rowChanged() {
@@ -199,7 +205,7 @@ namespace odbc {
     bool use3_;
 
     DataHandler* _createColumn(int sqlType, int precision, int scale) {
-      return new DataHandler
+      return ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DataHandler
 	(currentRow_,rows_,sqlType,precision,scale,use3_);
     }
 
@@ -214,7 +220,7 @@ namespace odbc {
     ~Rowset() {
       while(!dataHandlers_.empty()) {
 	DataHandlerList::iterator i=dataHandlers_.begin();
-	delete *i;
+	ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) *i;
 	dataHandlers_.erase(i);
       }
     }
@@ -228,7 +234,7 @@ namespace odbc {
       assert(idx>0 && idx<=(int)dataHandlers_.size());
 
       DataHandler* h=this->_createColumn(sqlType,precision,scale);
-      delete dataHandlers_[idx-1];
+      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) dataHandlers_[idx-1];
       dataHandlers_[idx-1]=h;
     }
 

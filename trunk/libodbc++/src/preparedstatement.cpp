@@ -61,12 +61,11 @@ PreparedStatement::PreparedStatement(Connection* con,
 				     int defaultDirection)
   :Statement(con,hstmt,resultSetType,resultSetConcurrency),
    sql_(sql),
-   rowset_(0),
+   rowset_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Rowset(1,ODBC3_DC(true,false))), //always one row for now
    numParams_(0),
    defaultDirection_(defaultDirection),
    paramsBound_(false)
 {
-  rowset_ = new Rowset(1,ODBC3_DC(true,false)); //always one row for now
   this->_prepare();
   this->_setupParams();
 }
@@ -77,7 +76,7 @@ PreparedStatement::~PreparedStatement()
     this->_unbindParams();
   }
 
-  delete rowset_;
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) rowset_;
 }
 
 void PreparedStatement::_prepare()
@@ -87,7 +86,7 @@ void PreparedStatement::_prepare()
 			 ODBCXX_STRING_LEN(sql_));
 
   ODBCXX_STRING msg=ODBCXX_STRING_CONST("Error preparing ")+sql_;
-  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CSTR(msg));
+  this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CSTR(msg), ODBCXX_STRING_CONST("HY007"));
 }
 
 void PreparedStatement::_checkParam(int idx,
@@ -101,7 +100,7 @@ void PreparedStatement::_checkParam(int idx,
   if(idx<=0 || idx>numParams_+1) {
     throw SQLException
       (ODBCXX_STRING_CONST("[libodbc++]: PreparedStatement: parameter index ")+
-       intToString(idx)+ODBCXX_STRING_CONST(" out of bounds"));
+       intToString(idx)+ODBCXX_STRING_CONST(" out of bounds"), ODBCXX_STRING_CONST("S1093"));
   }
   
   assert(allowed!=NULL && numAllowed>0);
@@ -220,15 +219,13 @@ void PreparedStatement::_bindParams()
 #if !defined(WIN32)
       SQLUINTEGER precision=0;
 #else
-      SQLUINTEGER precision=dh->precision_;
-/*			
-      if(dh->getDataStatus()!=SQL_NULL_DATA) {
-				// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
-				precision= (SQLULEN) SQL_LEN_DATA_AT_EXEC(dh->getDataStatus());
+      SQLUINTEGER precision=dh->dataStatus_[i-1];
+      if(precision!=SQL_NULL_DATA) {
+	// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
+	precision=SQL_LEN_DATA_AT_EXEC(precision);
       } else {
-				precision=dh->precision_;
+	precision=0;
       }
-*/
 #endif
       //we send in dh->dataStatus_, as it contains
       //SQL_LEN_DATA_AT_EXEC(size) after setStream, or SQL_NULL_DATA
@@ -321,7 +318,7 @@ bool PreparedStatement::execute()
 	
 	ODBCXX_STREAM* s=dh->getStream();
 
-	// assert(s!=NULL);
+	assert(s!=NULL);
 
 	int b;
 
@@ -439,11 +436,11 @@ IMPLEMENT_SET(short,Short,
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_4(Types::VARCHAR,Types::CHAR,Types::WVARCHAR,Types::WCHAR),
-				4095);
+	      255);
 #else
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_2(Types::VARCHAR,Types::CHAR),
-	      4095);
+	      255);
 #endif
 
 IMPLEMENT_SET(const Date&,Date,

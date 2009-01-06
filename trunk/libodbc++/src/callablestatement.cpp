@@ -67,7 +67,7 @@ do {											\
       (ODBCXX_STRING_CONST("[libodbc++]: PreparedStatement::set") \
        ODBCXX_STRING_CONST(#FUNCSUFFIX) \
        ODBCXX_STRING_CONST("(): parameter index ")+	\
-       intToString(idx)+ODBCXX_STRING_CONST(" out of range"));						\
+       intToString(idx)+ODBCXX_STRING_CONST(" out of range"), ODBCXX_STRING_CONST("S1093"));						\
   }											\
 } while(false)
 

@@ -23,10 +23,23 @@
 #include <odbc++/resultset.h>
 #include "driverinfo.h"
 
-
+#if FALSE
+#include "/DB2/SQLLIB/include/sqlcli.h"
+#else
+/* SQL extended data types */
+#define  SQL_GRAPHIC            -95
+#define  SQL_VARGRAPHIC         -96
+#define  SQL_LONGVARGRAPHIC     -97
+#define  SQL_BLOB               -98
+#define  SQL_CLOB               -99
+#define  SQL_DBCLOB             -350
+#define  SQL_DATALINK           -400
+#define  SQL_USER_DEFINED_TYPE  -450
+#endif
 using namespace odbc;
 using namespace std;
 
+// ---------------------------------------
 ResultSetMetaData::ResultSetMetaData(ResultSet* rs)
   :resultSet_(rs),
    needsGetData_(false)
@@ -39,7 +52,7 @@ ResultSetMetaData::ResultSetMetaData(ResultSet* rs)
 int ResultSetMetaData::_getNumericAttribute(unsigned int col,
 					   SQLUSMALLINT attr)
 {
-  SQLINTEGER res=0;
+  SQLLEN res=0;
   SQLRETURN r=
     ODBC3_C(SQLColAttribute,SQLColAttributes)(resultSet_->hstmt_,
 					      (SQLUSMALLINT)col,
@@ -59,11 +72,11 @@ ODBCXX_STRING
 ResultSetMetaData::_getStringAttribute(unsigned int col,
 				       SQLUSMALLINT attr, unsigned int maxlen)
 {
-  ODBCXX_CHAR_TYPE* buf=new ODBCXX_CHAR_TYPE[maxlen+1];
+  ODBCXX_CHAR_TYPE* buf=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[maxlen+1];
   odbc::Deleter<ODBCXX_CHAR_TYPE> _buf(buf,true);
   buf[maxlen]=0;
 
-  SQLINTEGER res=0;
+  SQLLEN res=0;
   SQLSMALLINT len=0;
 
   SQLRETURN r=
@@ -79,6 +92,89 @@ ResultSetMetaData::_getStringAttribute(unsigned int col,
   return ODBCXX_STRING_C(buf);
 }
 
+// 
+int REMAP_DATATYPE(int type)
+{
+	int retVal = type;
+   switch(retVal)
+   {
+   case SQL_GRAPHIC: //    -95
+       retVal = Types::BINARY;
+       break;
+   case SQL_VARGRAPHIC: // Image         -96
+       retVal = Types::VARBINARY;
+       break;
+//    case SQL_DATALINK: //         -400
+// ???
+//    case SQL_USER_DEFINED_TYPE:    // -450
+// Should be treated as a BLOB, though it is User defined
+   case SQL_LONGVARGRAPHIC: // -97
+   case SQL_BLOB:    // -98
+       retVal = Types::LONGVARBINARY;
+       break;
+   case SQL_CLOB:    // -99
+       retVal = Types::LONGVARCHAR ;
+       break;
+   case SQL_DBCLOB:    // Double Byte CLOB -350
+       retVal = Types::WLONGVARCHAR;
+       break;
+
+   }
+   return retVal;
+}
+
+// ----------------------------------------------------
+
+#ifdef ODBCXX_USE_INDEXED_METADATA_COLNAMES
+
+/*
+	bool operator()(const _Ty& _Left, const _Ty& _Right) const
+		{	// apply operator< to operands
+		return (_Left < _Right);
+		}
+*/
+bool caseinsesnless::operator()(const ODBCXX_STRING _Left, const ODBCXX_STRING _Right) const
+{
+	bool retVal = false;
+    if(
+#if !defined(WIN32)
+# if defined(ODBCXX_UNICODE)
+       wcscasecmp
+# else
+       strcasecmp
+# endif
+#elif defined(ODBCXX_HAVE__STRICMP)
+# if defined(ODBCXX_UNICODE)
+       _wcsicmp
+# else
+       _stricmp
+# endif
+#elif defined(ODBCXX_HAVE_STRICMP)
+# if defined(ODBCXX_UNICODE)
+       wcsicmp
+# else
+       stricmp
+# endif
+#else
+# error Cannot determine case-insensitive string compare function
+#endif
+       (ODBCXX_STRING_CSTR(_Left),
+        ODBCXX_STRING_CSTR(_Right)) < 0) 
+	{ retVal = true;  }
+	return retVal;
+}
+int ResultSetMetaData::findColumn(const ODBCXX_STRING& colName)
+{
+	int retVal = -1;
+	std::map<const ODBCXX_STRING, int, CaseInsesitiveLess>::iterator iter =
+		colNameIndex_.find(colName);
+	if(iter != colNameIndex_.end())
+	{	retVal = iter->second;}
+	return retVal;
+}
+
+#endif // ODBCXX_USE_INDEXED_METADATA_COLNAMES
+
 //private
 void ResultSetMetaData::_fetchColumnInfo()
 {
@@ -89,9 +185,14 @@ void ResultSetMetaData::_fetchColumnInfo()
   for(int i=1; i<=numCols_; i++) {
     colNames_.push_back(this->_getStringAttribute
 			(i,ODBC3_DC(SQL_DESC_NAME,SQL_COLUMN_NAME)));
+#ifdef ODBCXX_USE_INDEXED_METADATA_COLNAMES
+	colNameIndex_.insert(make_pair(colNames_[i-1], i));
+#endif // ODBCXX_USE_INDEXED_METADATA_COLNAMES
+//    int colType=this->_getNumericAttribute
+//      (i,ODBC3_DC(SQL_DESC_CONCISE_TYPE,SQL_COLUMN_TYPE));
+    int colType=REMAP_DATATYPE(this->_getNumericAttribute
+      (i,ODBC3_DC(SQL_DESC_CONCISE_TYPE,SQL_COLUMN_TYPE)));
 
-    int colType=this->_getNumericAttribute
-      (i,ODBC3_DC(SQL_DESC_CONCISE_TYPE,SQL_COLUMN_TYPE));
     colTypes_.push_back(colType);
 
     //remember if we saw any column that needs GetData
@@ -120,7 +221,7 @@ void ResultSetMetaData::_fetchColumnInfo()
 do {							\
   if(x<1 || x>numCols_) {				\
     throw SQLException					\
-      (ODBCXX_STRING_CONST("Column index out of bounds"));			\
+      (ODBCXX_STRING_CONST("Column index out of bounds"), ODBCXX_STRING_CONST("42S22"));			\
   } 							\
 } while(false)
 
