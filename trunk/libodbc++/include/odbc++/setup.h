@@ -25,6 +25,7 @@
 #if defined(__WIN32__) && !defined(WIN32)
 # define WIN32 1
 #endif
+
 #if !defined(WIN32)
 # include <odbc++/config.h>
 #		define	ODBCXX_OPERATOR_NEW	new
@@ -45,6 +46,11 @@ void	operator delete(void*  p, const char* debFile, int debLine);
 #		define	ODBCXX_OPERATOR_NEW_DEBUG(debFile, debLine)	new
 #		define	ODBCXX_OPERATOR_DELETE_DEBUG(debFile, debLine)	delete
 #endif // _DEBUG
+
+
+# include <odbc++/config-win32.h>
+#endif // defined(__WIN32__) && !defined(WIN32)
+
 #define ODBCXX_DELETE_POINTER(x, debfile, debline)\
 	if(x != 0)\
 	{	ODBCXX_OPERATOR_DELETE_DEBUG(debfile, debline) x;\
@@ -55,10 +61,6 @@ void	operator delete(void*  p, const char* debFile, int debLine);
 	{	ODBCXX_OPERATOR_DELETE_DEBUG(debfile, debline)[] x;\
 		x = NULL;\
 	}
-
-
-# include <odbc++/config-win32.h>
-#endif // defined(__WIN32__) && !defined(WIN32)
 
 
 #if defined(IN_ODBCXX) && defined(ODBCXX_ENABLE_THREADS)

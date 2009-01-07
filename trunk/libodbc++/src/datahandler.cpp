@@ -472,7 +472,7 @@ Date DataHandler::getDate() const
   return Date();
 }
 
-#if (ODBCVER >= 0X0350)
+#if (ODBCVER > 0x0351)
 Guid DataHandler::getGuid() const
 {
   if(!this->isNull()) {
@@ -581,7 +581,7 @@ ODBCXX_STRING DataHandler::getString() const
     case C_DATE:
       return this->getDate().toString();
 
-#if ODBCVER >= 0x0350
+#if ODBCVER > 0x0351
     case SQL_C_GUID:
       return this->getGuid().toString();
 #endif
@@ -963,7 +963,7 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
   }
 }
 
-#if (ODBCVER >= 0x0350)
+#if (ODBCVER > 0x0351)
 void DataHandler::setGuid(const Guid& g) {
     Bytes data(g.getData(), g.getSize());
     setBytes(data);

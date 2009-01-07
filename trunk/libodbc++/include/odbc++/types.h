@@ -128,7 +128,7 @@ namespace odbc {
 #elif defined(ODBCXX_HAVE_INTTYPES_H)
 
   typedef int64_t Long;
-#define  DATASTATUS_TYPE SQLINTEGER
+#define  DATASTATUS_TYPE SQLLEN
 #else
 #define  DATASTATUS_TYPE SQLINTEGER
 # if ODBCXX_SIZEOF_INT == 8
@@ -317,7 +317,7 @@ namespace odbc {
   };
 #endif
 	
-#if (ODBCVER >= 0x0350)
+#if (ODBCVER > 0x0351)
 	/** A GUID class.
 	 *
 	 * Used for setting and getting GUID values.
