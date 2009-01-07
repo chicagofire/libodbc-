@@ -95,7 +95,13 @@ then
 
 AC_CHECK_FUNCS(localtime_r)
 
+#make sure pkgconfig has proper library
+ODBCPP_LIBRARY="odbc++-mt"
+else
+ODBCPP_LIBRARY="odbc++"
+
 fi
+AC_SUBST(ODBCPP_LIBRARY)
 
 AM_CONDITIONAL(THREADS, test x$enable_threads = xyes)
 
