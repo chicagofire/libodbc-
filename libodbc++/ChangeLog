@@ -1,3 +1,24 @@
+2009-01-07  Bob Ham  <rah@bash.sh>
+
+	* src/resultset.cpp: Fixed taking references of temporaries
+	
+	* src/datahandler.h: Fixed check of ODBC version for usage of
+	struct _GUID which, according to
+	http://support.microsoft.com/kb/197916 is not recognised in ODBC
+	3.51 and below
+	* src/datahandler.cpp: Fixed check of ODBC version for usage of
+	struct _GUID which, according to
+	http://support.microsoft.com/kb/197916 is not recognised in ODBC
+	3.51 and below
+	
+	* include/odbc++/types.h: Fixed type of DATASTATUS_TYPE; I'm not
+	sure this macro need exist as DATASTATUS_TYPE is likely to always
+	be SQLLEN
+	
+	* include/odbc++/setup.h: Fixed #ifdef logic for #defines of
+	ODBCXX_DELETE_POINTER and ODBCXX_DELETE_ARRPOINTER; these aren't
+	dependant on either win32 or debugging
+
 2009-01-07 Mark Kromis <greybird@mac.com>
 	* include/odbc++/setup.h : Tweaked setup.h for include in non lib
 

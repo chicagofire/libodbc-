@@ -1366,7 +1366,7 @@ ODBCXX_STRING ResultSet::getString(int idx)
   } else {	
     // lazily fetch the stream as a string
 	  // return streamToString(this->getAsciiStream(idx));
-	  ODBCXX_STRING& retVal = streamToString(this->getAsciiStream(idx));
+          ODBCXX_STRING retVal( streamToString(this->getAsciiStream(idx)) );
 #ifdef HACK_BYPASS_UPDATE_BUG
 	  dh->resetStream();
 #endif // HACK_BYPASS_UPDATE_BUG
@@ -1419,7 +1419,7 @@ ODBCXX_BYTES ResultSet::getBytes(int idx)
     return dh->getBytes();
   } else {
 //    return streamToBytes(this->getBinaryStream(idx));
-	  ODBCXX_BYTES& retVal = streamToBytes(this->getBinaryStream(idx));
+	  ODBCXX_BYTES retVal = streamToBytes(this->getBinaryStream(idx));
 #ifdef HACK_BYPASS_UPDATE_BUG
 	  dh->resetStream();
 #endif // HACK_BYPASS_UPDATE_BUG
