@@ -1,5 +1,9 @@
 2009-01-07  Bob Ham  <rah@bash.sh>
 
+	* libodbc++.pc.in: Make use of library soname from ODBCPP_LIBRARY
+	* configure.ac: Add ODBCPP_LIBRARY with library soname, for use in
+	pkgconfig 
+
 	* src/resultset.cpp: Fixed taking references of temporaries
 	
 	* src/datahandler.h: Fixed check of ODBC version for usage of
