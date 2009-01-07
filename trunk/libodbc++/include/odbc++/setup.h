@@ -32,11 +32,9 @@
 #		define	ODBCXX_OPERATOR_NEW_DEBUG(debFile, debLine)	new
 #		define	ODBCXX_OPERATOR_DELETE_DEBUG(debFile, debLine)	delete
 #else
-#ifdef _DEBUG
-#ifdef IN_ODBCXX
+#if defined(_DEBUG) && defined(IN_ODBCXX)
 void*	operator new(size_t n, const char* debFile, int debLine);
 void	operator delete(void*  p, const char* debFile, int debLine);
-#endif // IN_ODBCXX
 #		define	ODBCXX_OPERATOR_NEW	new(__FILE__, __LINE__)
 #		define	ODBCXX_OPERATOR_DELETE delete
 #		define	ODBCXX_OPERATOR_NEW_DEBUG(debFile, debLine)	new(debFile, debLine)
