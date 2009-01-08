@@ -22,8 +22,9 @@
 #ifndef __ODBCXX_DRIVERMANAGER_H
 #define __ODBCXX_DRIVERMANAGER_H
 
-#include <odbc++/setup.h>
+#include <memory>
 
+#include <odbc++/setup.h>
 #include <odbc++/types.h>
 
 /** The namespace where all <b>libodbc++</b> classes reside */
@@ -100,7 +101,7 @@ namespace odbc {
   class ODBCXX_EXPORT DriverManager {
   private:
     static SQLHENV henv_;
-    static ErrorHandler* eh_;
+	static std::auto_ptr<ErrorHandler> eh_;
     static int loginTimeout_;
 	static SQLUSMALLINT	driverCompletion_;
 
