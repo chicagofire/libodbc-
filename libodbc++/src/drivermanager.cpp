@@ -23,12 +23,13 @@
 #include <odbc++/errorhandler.h>
 #include <odbc++/connection.h>
 
+#include <memory>
 
 using namespace odbc;
 using namespace std;
 
 SQLHENV DriverManager::henv_=SQL_NULL_HENV;
-ErrorHandler* DriverManager::eh_=0;
+std::auto_ptr<ErrorHandler> DriverManager::eh_ = auto_ptr<ErrorHandler>();
 SQLUSMALLINT	DriverManager::driverCompletion_ = SQL_DRIVER_COMPLETE;
 
 //-1 means don't touch, 0 means wait forever, >0 means set it for every opened
@@ -43,24 +44,18 @@ int DriverManager::loginTimeout_=-1;
 
 #define DMAccess DMAccessMutex()
 
-odbc::Mutex & DMAccessMutex(bool shutdown=0)
+odbc::Mutex & DMAccessMutex()
 {
-  static odbc::Mutex* mtx = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) odbc::Mutex();
-  if ( shutdown ) {
-    ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) mtx;
-    mtx = 0;
-  }
-  return *mtx;
+	// Here we wrap into auto ptr, because of failing on muliple shutdown calls.
+	static std::auto_ptr<odbc::Mutex> mtx(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) odbc::Mutex());
+	return *(mtx.get());
 }
 
 #endif /* ODBCXX_ENABLE_THREADS */
 
 
-
 void DriverManager::shutdown()
 {
-  const ODBCXX_CHAR_TYPE* pszErr = 0;
-
   {
     ODBCXX_LOCKER(DMAccess);
 
@@ -82,26 +77,14 @@ void DriverManager::shutdown()
           break;
 
         case SQL_ERROR:
-          // set error message but continue and throw later
-          pszErr = ODBCXX_STRING_CONST("Failed to shutdown DriverManager");
+		  eh_->_checkEnvError(henv_,r,ODBCXX_STRING_CONST("Failed to shutdown DriverManager"));
           break;
+
       }
 
       henv_ = SQL_NULL_HENV;
-
-      //if henv_ was valid, so is eh_
-      ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) eh_;
-      eh_ = 0;
     }
   } // lock scope end
-
-#ifdef ODBCXX_ENABLE_THREADS
-  // remove the mutex as we can't rely on static destructors
-  DMAccessMutex(1);
-#endif /* ODBCXX_ENABLE_THREADS */
-
-  if (pszErr!=0)
-    throw SQLException(pszErr, SQLException::scDEFSQLSTATE);
 }
 
 
@@ -137,11 +120,11 @@ void DriverManager::_checkInit()
     try
     {
       // don't collect warnings
-      eh_ = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ErrorHandler(false);
+      eh_ = auto_ptr<ErrorHandler>(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ErrorHandler(false));
     }
     catch (...)
     {
-      eh_ = 0;
+      eh_.reset();
       throw SQLException
         (ODBCXX_STRING_CONST("Failed to allocate error handler"), SQLException::scDEFSQLSTATE);
     }

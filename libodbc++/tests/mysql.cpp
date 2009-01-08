@@ -516,6 +516,7 @@ int main(int argc, char** argv)
 
     dropTables(con.get());
 
+	con.reset();	// Drop connection so that we can shutdown properly
     DriverManager::shutdown();
 
     if(assertionsFailed) {
