@@ -1,3 +1,6 @@
+2009-01-21 Mark Kromis <greybird@mac.com>
+    * test/mysql.cpp - added release of auto_ptr before new assignment.
+
 2009-01-08 Mark Kromis <greybird@mac.com>
     * include/odbc++/drivermanager.h : put ErrorHandler into an auto_ptr
     * src/drivermanager.cpp : modified ErrorHandler for auto_ptr, modified
