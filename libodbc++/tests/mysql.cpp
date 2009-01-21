@@ -408,6 +408,9 @@ static void checkTables(Connection* con)
   ODBCXX_COUT << ODBCXX_STRING_CONST("(") << cnt
               << ODBCXX_STRING_CONST(")") << flush;
 
+  // Clear out old data before asigning new
+  rs.reset();
+
   stmt=std::auto_ptr<Statement>(con->createStatement());
   stmt->setFetchSize(10);
   rs=std::auto_ptr<ResultSet>(stmt->executeQuery

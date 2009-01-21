@@ -18,7 +18,7 @@
 #  Boston, MA 02111-1307, USA.
 
 AC_PREREQ(2.53)
-AC_INIT(libodbcxx,0.2.4pre2,libodbcxx-devel@lists.sourceforge.net,libodbc++)
+AC_INIT(libodbcxx,0.2.4pre4,libodbcxx-devel@lists.sourceforge.net,libodbc++)
 AC_CONFIG_SRCDIR(src/connection.cpp)
 AM_INIT_AUTOMAKE
 AM_CONFIG_HEADER(config.h)
