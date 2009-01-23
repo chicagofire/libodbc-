@@ -1,3 +1,6 @@
+2009-01-23 Vadim Zeitlin
+    * configure.ac - tweaked of instead of disabling QT usage. Patch ID# 1847840
+
 2009-01-21 Mark Kromis <greybird@mac.com>
     * test/mysql.cpp - added release of auto_ptr before new assignment.
 
