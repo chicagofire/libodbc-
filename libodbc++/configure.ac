@@ -213,6 +213,8 @@ qt_prefix=/usr/local/qt
 AC_ARG_WITH(qt,
 [  --with-qt[=PREFIX]        Use QT installed in DIR],
 [
+if test "x$withval" != "xno"
+then
 enable_qt=yes
 if test "x$withval" = "xyes"
 then
@@ -222,6 +224,7 @@ then
 	fi
 else
 	qt_prefix="$withval"
+fi
 fi
 ])
 
