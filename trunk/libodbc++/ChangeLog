@@ -1,3 +1,7 @@
+2009-02-05 Mark Kromis <greybird@mac.com>
+    * src/preparedstatement.cpp - added setGuid
+    * src/resultset.cpp - added getGuid
+
 2009-01-23 Vadim Zeitlin
     * configure.ac - tweaked of instead of disabling QT usage. Patch ID# 1847840
 
