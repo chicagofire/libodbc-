@@ -1433,9 +1433,21 @@ ODBCXX_BYTES ResultSet::getBytes(const ODBCXX_STRING& colName)
   return this->getBytes(this->findColumn(colName));
 }
 
+#if (ODBCVER > 0x0351)
+odbc::Guid ResultSet::getGuid(int idx) 
+{
+	CHECK_COL(idx);
+	CHECK_LOCATION;
 
-
-
+	DataHandler* dh=rowset_->getColumn(idx);
+	if (dh->getSQLType() == Types::GUID ) {
+		lastWasNull_=dh->isNull();
+		return dh->getGuid();
+	} else {
+		throw SQLException("ResultSet::getGuid from non GUID not implemented");
+	}
+}
+#endif
 
 //nor did this
 void ResultSet::updateNull(int idx)

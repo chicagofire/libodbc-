@@ -417,6 +417,8 @@ IMPLEMENT_SET(signed char,Byte,
 	      A_1(Types::TINYINT),
 	      0);
 
+
+
 IMPLEMENT_SET(float, Float,
 	      A_3(Types::REAL,Types::FLOAT,Types::DOUBLE),
 	      0);
@@ -474,3 +476,10 @@ void PreparedStatement::setBinaryStream(int idx, ODBCXX_STREAM* s, int len)
   this->_checkParam(idx,&allowed,1,0,0);
   rowset_->getColumn(idx)->setStream(s,len);
 }
+#if (ODBCVER > 0x0351)
+void PreparedStatement::setGuid(int idx, odbc::Guid guid) {
+	int allowed=Types::GUID;
+	this->_checkParam(idx, &allowed,1,0,0);
+	rowset_->getColumn(idx)->setGuid(guid);
+}
+#endif
