@@ -119,7 +119,7 @@ namespace odbc {
     Long getLong() const;
     float getFloat() const;
     double getDouble() const;
-#if (ODBCVER > 0x0351)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
     Guid getGuid() const;
 #endif
 
@@ -151,7 +151,7 @@ namespace odbc {
     void setTime(const Time& t);
     void setTimestamp(const Timestamp& ts);
     void setString(const ODBCXX_STRING& s);
-#if (ODBCVER > 0x0351)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
     void setGuid(const Guid& g);
 #endif
 

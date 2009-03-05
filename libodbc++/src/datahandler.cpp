@@ -65,7 +65,7 @@ namespace odbc {
       { Types::TINYINT,       ODBCXX_STRING_CONST("TINYINT") },
       { Types::VARBINARY,     ODBCXX_STRING_CONST("VARBINARY") },
       { Types::VARCHAR,       ODBCXX_STRING_CONST("VARCHAR") },
-#if (ODBCVER >= 0x0350)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
     { Types::GUID,          ODBCXX_STRING_CONST("GUID") },
 #endif
       { 0,                    NULL }
@@ -279,7 +279,7 @@ DataHandler::DataHandler(unsigned int& cr, size_t rows,
     isStreamed_=true;
 	break;
 		  
-#if (ODBCVER >= 0x0350)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
   case Types::GUID:
 	  cType_ = SQL_C_GUID;
 	  bs=36;
@@ -472,7 +472,7 @@ Date DataHandler::getDate() const
   return Date();
 }
 
-#if (ODBCVER > 0x0351)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
 Guid DataHandler::getGuid() const
 {
   if(!this->isNull()) {
@@ -581,7 +581,7 @@ ODBCXX_STRING DataHandler::getString() const
     case C_DATE:
       return this->getDate().toString();
 
-#if ODBCVER > 0x0351
+#ifdef ODBCXX_HAVE_STRUCT_GUID
     case SQL_C_GUID:
       return this->getGuid().toString();
 #endif
@@ -935,7 +935,7 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
 {
   switch(cType_) {
   case SQL_C_BINARY:
-#if (ODBCVER >= 0x0350)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
   case SQL_GUID:
 #endif
     if(!isStreamed_) {
@@ -963,7 +963,7 @@ void DataHandler::setBytes(const ODBCXX_BYTES& b)
   }
 }
 
-#if (ODBCVER > 0x0351)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
 void DataHandler::setGuid(const Guid& g) {
     Bytes data(g.getData(), g.getSize());
     setBytes(data);

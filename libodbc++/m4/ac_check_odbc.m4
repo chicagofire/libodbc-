@@ -59,6 +59,21 @@ if test "x$odbc_dir" != "xno"; then
   then
     AC_CHECK_LIB(odbc,SQLConnect,[odbc_ok=yes],[odbc_ok=no])
   fi
+  
+  if test "x$odbc_ok" = "xyes"
+  then
+    AC_CHECK_MEMBER([struct _GUID.Data1],
+    [have_struct_guid=yes],
+    [have_struct_guid=no],
+    [#include sql.h]
+    )
+    
+    if test "x$have_struct_guid" = "xyes"
+    then
+      AC_DEFINE([HAVE_STRUCT_GUID], [], [Whether the struct _GUID datatype is usable])
+    fi
+  fi
+
 else
   odbc_ok=no
 fi

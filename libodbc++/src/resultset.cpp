@@ -1433,7 +1433,7 @@ ODBCXX_BYTES ResultSet::getBytes(const ODBCXX_STRING& colName)
   return this->getBytes(this->findColumn(colName));
 }
 
-#if (ODBCVER > 0x0351)
+#ifdef ODBCXX_HAVE_STRUCT_GUID
 odbc::Guid ResultSet::getGuid(int idx) 
 {
 	CHECK_COL(idx);
