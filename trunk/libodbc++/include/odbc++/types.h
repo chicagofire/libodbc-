@@ -317,7 +317,7 @@ namespace odbc {
   };
 #endif
 	
-#if (ODBCVER > 0x0351)
+#if defined(ODBCXX_HAVE_STRUCT_GUID)
 	/** A GUID class.
 	 *
 	 * Used for setting and getting GUID values.

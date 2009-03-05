@@ -1,3 +1,18 @@
+2009-03-05  Bob Ham  <rah@bash.sh>
+
+	* m4/ac_check_odbc.m4: Define a new preprocessor macro for the
+	presence of struct _GUID
+	* include/odbc++/types.h: Define a new preprocessor macro for the
+	presence of struct _GUID
+	* src/datahandler.h: Define a new preprocessor macro for the
+	presence of struct _GUID
+	* src/datahandler.cpp: Define a new preprocessor macro for the
+	presence of struct _GUID
+	* src/preparedstatement.cpp: Define a new preprocessor macro for
+	the presence of struct _GUID
+	* src/resultset.cpp: Define a new preprocessor macro for the
+	presence of struct _GUID
+
 2009-02-05 Mark Kromis <greybird@mac.com>
     * src/preparedstatement.cpp - added setGuid
     * src/resultset.cpp - added getGuid

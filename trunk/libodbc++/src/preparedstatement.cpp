@@ -476,7 +476,8 @@ void PreparedStatement::setBinaryStream(int idx, ODBCXX_STREAM* s, int len)
   this->_checkParam(idx,&allowed,1,0,0);
   rowset_->getColumn(idx)->setStream(s,len);
 }
-#if (ODBCVER > 0x0351)
+
+#ifdef ODBCXX_HAVE_STRUCT_GUID
 void PreparedStatement::setGuid(int idx, odbc::Guid guid) {
 	int allowed=Types::GUID;
 	this->_checkParam(idx, &allowed,1,0,0);
