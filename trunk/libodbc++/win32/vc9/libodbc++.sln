@@ -1,9 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libodbc++", "libodbc++\libodbc++.vcproj", "{DC7ED022-EDB5-4F6F-9E04-F70CC8B64DAF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mysql", "mysql\mysql.vcproj", "{B0B40009-121E-4E1E-BEC8-4DC66CA81146}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DC7ED022-EDB5-4F6F-9E04-F70CC8B64DAF} = {DC7ED022-EDB5-4F6F-9E04-F70CC8B64DAF}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mssql", "mssql\mssql.vcproj", "{C6A2BC73-881A-4BBE-AC63-31BF7D7B0399}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DC7ED022-EDB5-4F6F-9E04-F70CC8B64DAF} = {DC7ED022-EDB5-4F6F-9E04-F70CC8B64DAF}
 	EndProjectSection
@@ -22,6 +27,10 @@ Global
 		{B0B40009-121E-4E1E-BEC8-4DC66CA81146}.Debug|Win32.Build.0 = Debug|Win32
 		{B0B40009-121E-4E1E-BEC8-4DC66CA81146}.Release|Win32.ActiveCfg = Release|Win32
 		{B0B40009-121E-4E1E-BEC8-4DC66CA81146}.Release|Win32.Build.0 = Release|Win32
+		{C6A2BC73-881A-4BBE-AC63-31BF7D7B0399}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C6A2BC73-881A-4BBE-AC63-31BF7D7B0399}.Debug|Win32.Build.0 = Debug|Win32
+		{C6A2BC73-881A-4BBE-AC63-31BF7D7B0399}.Release|Win32.ActiveCfg = Release|Win32
+		{C6A2BC73-881A-4BBE-AC63-31BF7D7B0399}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

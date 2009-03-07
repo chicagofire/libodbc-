@@ -101,3 +101,7 @@
 #endif
 
 #include <windows.h>
+
+#if defined(GUID_DEFINED)
+	#define ODBCXX_HAVE_STRUCT_GUID
+#endif

@@ -138,7 +138,6 @@ namespace odbc {
      */
     void setByte(int idx, signed char val);
 
-
     /** Sets a parameter value to a chunk of bytes
      * @param idx The parameter index, starting at 1
      * @param val The value to set
@@ -157,6 +156,13 @@ namespace odbc {
      */
     void setFloat(int idx, float val);
 
+#ifdef ODBCXX_HAVE_STRUCT_GUID
+	/** Sets a parameter value to a guid
+     * @param idx The parameter index, starting at 1
+     * @param val The value to set
+     */
+    void setGuid(int idx, Guid val);
+#endif
 
     /** Sets a parameter value to an int
      * @param idx The parameter index, starting at 1
