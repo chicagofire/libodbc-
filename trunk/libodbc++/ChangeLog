@@ -1,3 +1,9 @@
+2009-03-07 Mark Kromis <greybird@mac.com>
+    * include/odbc++/config-win32.h: Changes for new pre-processor macro, sets if macro is defined by Windows.h.
+    * include/odbc++/preparedstatement.h: missing method definition added with pre-processor defines
+    * include/odbc++/resultset.h: missing method definition, added with pre-processor support
+    * win32/vc9/libodbc++.sln: added mssql unit-test project
+
 2009-03-05  Bob Ham  <rah@bash.sh>
 
 	* m4/ac_check_odbc.m4: Define a new preprocessor macro for the
