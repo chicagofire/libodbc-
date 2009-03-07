@@ -469,6 +469,13 @@ namespace odbc {
      */
     void updateFloat(int idx, float val);
 
+#ifdef ODBCXX_HAVE_STRUCT_GUID
+	/** Sets the value of a column to a guid
+     * @param idx The column index, starting at 1
+     * @param val The value to set
+     */
+	Guid ResultSet::getGuid(int idx);
+#endif
     /** Sets the value of a column to an int
      * @param idx The column index, starting at 1
      * @param val The value to set
@@ -510,7 +517,6 @@ namespace odbc {
      */
     void updateNull(int idx);
 
-
     /** Sets the value of a column to a double
      * @param colName The name of the column
      * @param val The value to set
@@ -534,7 +540,6 @@ namespace odbc {
      * @param val The value to set
      */
     void updateBytes(const ODBCXX_STRING& colName, const ODBCXX_BYTES& val);
-
 
     /** Sets the value of a column to a Date
      * @param colName The name of the column
@@ -598,7 +603,6 @@ namespace odbc {
      */
     void updateAsciiStream(const ODBCXX_STRING& colName, ODBCXX_STREAM* s, int len);
 
-
     /** Sets the value of a column to the contens of a stream
      * @param idx The column index, starting at 1
      * @param s The stream to assign
@@ -618,8 +622,6 @@ namespace odbc {
      */
     void updateNull(const ODBCXX_STRING& colName);
   };
-
-
 
 } // namespace odbc
 
