@@ -1,3 +1,8 @@
+2009-04-26 Mark Kromis <greybird@mac.com>
+    * libodbc.spec.in: Updates to allow building via rpm
+    * src/resultset.cpp: Qt update for QIODevice end marker
+    * configure.ac: pre-release bump
+
 2009-03-07 Mark Kromis <greybird@mac.com>
     * include/odbc++/config-win32.h: Changes for new pre-processor macro, sets if macro is defined by Windows.h.
     * include/odbc++/preparedstatement.h: missing method definition added with pre-processor defines
