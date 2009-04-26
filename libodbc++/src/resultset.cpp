@@ -405,7 +405,7 @@ inline bool isEmpty(ODBCXX_STREAM* stream)
 	if(!retVal)
 	{
 #if defined(ODBCXX_QT)
-#	error "Must fix"
+        retVal = stream->atEnd();
 #else
 		retVal = stream->eof();
 #endif

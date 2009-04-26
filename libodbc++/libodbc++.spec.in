@@ -9,14 +9,15 @@ Summary: An ODBC class library that emulates the JDBC interface
 Name: @PACKAGE@
 Version: @VERSION@
 Release: 1
-Copyright: LGPL
+License: LGPL
 Group: Development/Libraries
-Source: http://orcane.net/freeodbc++/%{name}-%{version}.tar.bz2
-URL: http://orcane.net/freeodbc++/
+Source: %{name}-%{version}.tar.bz2
+URL: http://libodbcxx.sourceforge.net
 Distribution: RedHat Linux
 Vendor: Manush Dodunekov
 Packager: Manush Dodunekov
-BuildRoot: /var/tmp/%{name}-root
+Requires: unixODBC
+BuildRoot: %{_tmppath}/%{name}-root
 BuildPreReq: unixODBC-devel
 BuildPreReq: qt-devel >= 2.2
 
@@ -68,6 +69,7 @@ done
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
+		--libdir=%{_libdir} \
 		--with-odbc=/usr \
 		--with-gnu-ld \
 		--without-tests \
@@ -82,6 +84,7 @@ done
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
+		--libdir=%{_libdir} \
 		--with-odbc=/usr \
 		--with-gnu-ld \
 		--without-tests \
@@ -96,6 +99,7 @@ done
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
+		--libdir=%{_libdir} \
 		--with-qt=$QTDIR \
 		--with-odbc=/usr \
 		--with-gnu-ld \
@@ -111,6 +115,7 @@ done
 
 	CXXFLAGS="$RPM_OPT_FLAGS -ggdb" %{src_dir}/configure \
 		--prefix=/usr \
+		--libdir=%{_libdir} \
 		--with-qt=$QTDIR \
 		--with-odbc=/usr \
 		--with-gnu-ld \
@@ -166,6 +171,7 @@ ldconfig -n /usr/lib
 
 %files -f instdocs-files
 %defattr(-,root,root)
+%attr(0644,root,root) %{_libdir}/pkgconfig/libodbc++.pc
 %attr(0755,root,root) %{_libdir}/libodbc++.so*
 %attr(0755,root,root) %{_libdir}/libodbc++.la
 %attr(0755,root,root) %{_libdir}/libodbc++-mt.so*
