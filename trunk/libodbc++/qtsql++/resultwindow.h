@@ -24,10 +24,9 @@
 
 
 #include <qdialog.h>
-#include <qlistview.h>
+#include <qtablewidget.h>
 #include <qlabel.h>
 #include <qpushbutton.h>
-#include <qsemimodal.h>
 
 #include <odbc++/resultset.h>
 #include <odbc++/statement.h>
@@ -47,7 +46,7 @@ private:
   odbc::Statement* stmt_;
   odbc::ResultSet* rs_;
 
-  QListView* list_;
+  QTableWidget* list_;
   QPushButton* next_;
 
   void setup();
@@ -56,7 +55,7 @@ private:
 };
 
 
-class FetchInfo : public QSemiModal {
+class FetchInfo : public QDialog {
   Q_OBJECT
 
 public:

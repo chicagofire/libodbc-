@@ -26,6 +26,7 @@
 #include <qlayout.h>
 #include <qapplication.h>
 #include <qpushbutton.h>
+#include <qtablewidget.h>
 
 #include <memory>
 
@@ -34,16 +35,16 @@ using namespace odbc;
 
 FetchInfo::FetchInfo(QWidget* parent,
 		     const char* name)
-  :QSemiModal(parent,name,true),
+  :QDialog(parent),
    canceled_(false),
    nr_(0)
 {
-  this->setCaption("Fetching results");
+  this->setWindowTitle("Fetching results");
   QBoxLayout* vl=new QVBoxLayout(this);
   
   l_=new QLabel("0 rows fetched", this);
-  l_->setAlignment(QLabel::AlignHCenter);
-  vl->addWidget(l_,QLayout::AlignCenter);
+  l_->setAlignment(Qt::AlignHCenter);
+  vl->addWidget(l_,Qt::AlignVCenter);
 
   stop_=new QPushButton("&Stop",this);
   QObject::connect(stop_,SIGNAL(clicked()),this,SLOT(stopClicked()));
@@ -74,11 +75,12 @@ ResultWindow::ResultWindow(Statement* stmt)
    stmt_(stmt),
    rs_(stmt_->getResultSet())
 {
-  this->setCaption("Query results");
+  this->setWindowTitle("Query results");
   this->setMaximumSize(800,600);
 
-  list_=new QListView(this);
-  list_->setAllColumnsShowFocus(true);
+  list_=new QTableWidget(this);
+  //todo: check on all columns show focus
+  //list_->setAllColumnsShowFocus(true);
   
   QBoxLayout* vl=new QVBoxLayout(this);
   vl->addWidget(list_);
@@ -88,11 +90,11 @@ ResultWindow::ResultWindow(Statement* stmt)
 
   next_=new QPushButton("&Next result set",this);
   QObject::connect(next_,SIGNAL(clicked()),this,SLOT(nextResultSet()));
-  hl->addWidget(next_,0,QLayout::AlignLeft);
+  hl->addWidget(next_,0,Qt::AlignLeft);
 
   QPushButton* b=new QPushButton("&Close",this);
   QObject::connect(b,SIGNAL(clicked()),this,SLOT(accept()));
-  hl->addWidget(b,0,QLayout::AlignRight);
+  hl->addWidget(b,0,Qt::AlignRight);
   
 
   this->setup();
@@ -112,9 +114,15 @@ void ResultWindow::setup()
   ResultSetMetaData* md=rs_->getMetaData();
   int nc=md->getColumnCount();
 
+  // create a list of header labels
+  QStringList headerItems;
   for(int i=1; i<=nc; i++) {
-    list_->addColumn(md->getColumnName(i));
+    headerItems << QString::fromStdString(md->getColumnName(i));
   }
+
+  // Set size and labels
+  list_->setColumnCount(nc);
+  list_->setHorizontalHeaderLabels(headerItems);
 }
 
 void ResultWindow::fetchResults()
@@ -133,8 +141,6 @@ void ResultWindow::fetchResults()
 
   while(!canceled && rs_->next()) {
 
-    QListViewItem* item=new QListViewItem(list_);
-
     for(int i=1; i<=nc; i++) {
       QString t;
       bool unhandled=false;
@@ -151,19 +157,19 @@ void ResultWindow::fetchResults()
       case Types::BIGINT:
       case Types::CHAR:
       case Types::VARCHAR:
-	t=rs_->getString(i);
+	t=QString::fromStdString(rs_->getString(i));
 	break;
 
       case Types::DATE:
-	t=rs_->getDate(i).toString();
+	t=QString::fromStdString(rs_->getDate(i).toString());
 	break;
 
       case Types::TIME:
-	t=rs_->getTime(i).toString();
+	t=QString::fromStdString(rs_->getTime(i).toString());
 	break;
 
       case Types::TIMESTAMP:
-	t=rs_->getTimestamp(i).toString();
+	t=QString::fromStdString(rs_->getTimestamp(i).toString());
 	break;
 
       case Types::FLOAT:
@@ -182,7 +188,9 @@ void ResultWindow::fetchResults()
 	t="<NULL>";
       }
 
-      item->setText(i-1,t);
+      QTableWidgetItem *item = new QTableWidgetItem(t,0);
+      // todo: add to table properly
+      // i-1 -> Column
     }
 
     if(cnt%20==0) {

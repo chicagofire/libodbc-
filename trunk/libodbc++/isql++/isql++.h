@@ -116,7 +116,29 @@ private:
 
   struct ltcasestr {
     bool operator()(const string& s1, const string& s2) {
-      return strcasecmp(s1.c_str(),s2.c_str())<0;
+      return 
+#if !defined(WIN32)
+# if defined(ODBCXX_UNICODE)
+       wcscasecmp
+# else
+       strcasecmp
+# endif
+#elif defined(ODBCXX_HAVE__STRICMP)
+# if defined(ODBCXX_UNICODE)
+       _wcsicmp
+# else
+       _stricmp
+# endif
+#elif defined(ODBCXX_HAVE_STRICMP)
+# if defined(ODBCXX_UNICODE)
+       wcsicmp
+# else
+       stricmp
+# endif
+#else
+# error Cannot determine case-insensitive string compare function
+#endif
+		(s1.c_str(),s2.c_str())<0;
     }
   };
 

@@ -44,19 +44,17 @@ MainWindow::MainWindow()
   :QMainWindow(NULL,NULL),
    con_(NULL)
 {
-  this->setCaption("QTSQL++");
-  fileMenu_=new QPopupMenu(this);
+  this->setWindowTitle("QTSQL++");
+  fileMenu_ = menuBar()->addMenu("&File");
 
-  connectId_=fileMenu_->insertItem("&Connect",this,SLOT(connect()));
+// todo finish menu bar
+  connectId_=fileMenu_->addAction("&Connect",this,SLOT(connect()));
 
-  disconnectId_=fileMenu_->insertItem("&Disconnect",this,SLOT(disconnect()));
-  fileMenu_->setItemEnabled(disconnectId_,false);
+  disconnectId_=fileMenu_->addAction("&Disconnect",this,SLOT(disconnect()));
+  disconnectId_->setEnabled(false);
 
-  fileMenu_->insertSeparator();
-
-  fileMenu_->insertItem("E&xit",this,SLOT(fileExit()));
-
-  menuBar()->insertItem("&File",fileMenu_);
+  fileMenu_->addSeparator();
+  fileMenu_->addAction("E&xit",this,SLOT(fileExit()));
 
   QWidget* c=new QWidget(this);
   this->setCentralWidget(c);
@@ -64,8 +62,10 @@ MainWindow::MainWindow()
 
   QBoxLayout* hl=new QHBoxLayout();
 
-  sqlEdit_=new QMultiLineEdit(c);
-  vl->addWidget(new QLabel(sqlEdit_,"&SQL:",c));
+  sqlEdit_=new QTextEdit(c);
+  QLabel *sqlEditLabel = new QLabel("&SQL:",c);
+  sqlEditLabel->setBuddy(sqlEdit_);
+  vl->addWidget(sqlEditLabel);
   vl->addWidget(sqlEdit_);
   vl->addLayout(hl);
 
@@ -76,7 +76,7 @@ MainWindow::MainWindow()
   QObject::connect(execute_,SIGNAL(clicked()),this,SLOT(executeQuery()));
 
   autoCommit_=new QPushButton("&Autocommit",c);
-  autoCommit_->setToggleButton(true);
+  autoCommit_->setCheckable(true);
   hl->addWidget(autoCommit_);
   
   QObject::connect(autoCommit_,SIGNAL(clicked()),this,SLOT(autoCommit()));
@@ -110,23 +110,24 @@ void MainWindow::fileExit()
 
 void MainWindow::executeQuery()
 {
-  int l=sqlEdit_->numLines();
+//  int l=sqlEdit_->numLines();
   QString sql;
-  
-  for(int i=0; i<l; i++) {
-    if(i>0) {
-      sql+="\n";
-    }
-    sql+=sqlEdit_->textLine(i);
-  }
+//
+//  for(int i=0; i<l; i++) {
+//    if(i>0) {
+//      sql+="\n";
+//    }
+//    sql+=sqlEdit_->textLine(i);
+//  }
+  sql = sqlEdit_->toPlainText();
   
   try {
     std::auto_ptr<Statement> stmt(con_->createStatement());
     
-    if(stmt->execute(sql)) {
+    if(stmt->execute(sql.toStdString())) {
       ResultWindow* rw=new ResultWindow(stmt.release());
     } else {
-      statusBar()->message
+      statusBar()->showMessage
 	("Query executed, "+
 	 QString::number(stmt->getUpdateCount())+
 	 " rows affected",5000);
@@ -145,13 +146,14 @@ void MainWindow::connect()
   std::auto_ptr<ConnectWindow> cw(new ConnectWindow(this));
 
   if(cw->exec()==QDialog::Accepted) {
-    fileMenu_->setItemEnabled(connectId_,false);
-    fileMenu_->setItemEnabled(disconnectId_,true);
+	// Adjust menu settings for status
+	connectId_->setEnabled(false);
+	disconnectId_->setEnabled(true);
     con_=cw->getConnection();
 
     this->_setupButtons();
 
-    this->statusBar()->message("Connected",3000);
+    this->statusBar()->showMessage("Connected",3000);
   }
 
   this->setFocus();
@@ -163,9 +165,10 @@ void MainWindow::disconnect()
   if(con_!=NULL) {
     delete con_;
     con_=NULL;
-    statusBar()->message("Disconnected",3000);
-    fileMenu_->setItemEnabled(disconnectId_,false);
-    fileMenu_->setItemEnabled(connectId_,true);
+    statusBar()->showMessage("Disconnected",3000);
+    // adjust menu items for disconnection
+    disconnectId_->setEnabled(false);
+    connectId_->setEnabled(true);
 
     this->_setupButtons();
   }
@@ -174,16 +177,16 @@ void MainWindow::disconnect()
 void MainWindow::autoCommit()
 {
   assert(con_!=NULL);
-  bool b=autoCommit_->isOn();
+  bool b=autoCommit_->isChecked();
   try {
     con_->setAutoCommit(b);
-    autoCommit_->setOn(b);
-    statusBar()->message(QString("Autocommit is now ")+(b?"on":"off"),3000);
+    autoCommit_->setChecked(b);
+    statusBar()->showMessage(QString("Autocommit is now ")+(b?"on":"off"),3000);
   } catch(SQLException& e) {
     QMessageBox::warning
       (this,"Whoops",
-       e.getMessage(),QMessageBox::Ok,0,0);
-    autoCommit_->setOn(!b);
+       QString::fromStdString(e.getMessage()),QMessageBox::Ok,0,0);
+    autoCommit_->setChecked(!b);
   }
 }
 
@@ -192,11 +195,11 @@ void MainWindow::commit()
   assert(con_!=NULL);
   try {
     con_->commit();
-    statusBar()->message("Transaction committed",3000);
+    statusBar()->showMessage("Transaction committed",3000);
   } catch(SQLException& e) {
     QMessageBox::warning
       (this,"Commit failed",
-       e.getMessage(),QMessageBox::Ok,0,0);
+       QString::fromStdString(e.getMessage()),QMessageBox::Ok,0,0);
   }
 }
 
@@ -205,11 +208,11 @@ void MainWindow::rollback()
   assert(con_!=NULL);
   try {
     con_->rollback();
-    statusBar()->message("Transaction rolled back",3000);
+    statusBar()->showMessage("Transaction rolled back",3000);
   } catch(SQLException& e) {
     QMessageBox::warning
       (this,"Rollback failed",
-       e.getMessage(),QMessageBox::Ok,0,0);
+       QString::fromStdString(e.getMessage()),QMessageBox::Ok,0,0);
   }
 }
 
@@ -244,14 +247,14 @@ void MainWindow::_setupButtons()
     }
 
     autoCommit_->setEnabled(acEnabled);
-    autoCommit_->setOn(ac);
+    autoCommit_->setChecked(ac);
 
   } else {
     execute_->setEnabled(false);
     commit_->setEnabled(false);
     rollback_->setEnabled(false);
     autoCommit_->setEnabled(false);
-    autoCommit_->setOn(false);
+    autoCommit_->setChecked(false);
   }
 
 }

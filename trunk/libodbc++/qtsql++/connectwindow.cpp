@@ -28,26 +28,28 @@
 #include <qframe.h>
 #include <qlayout.h>
 #include <qlabel.h>
+#include <qcombobox.h>
 #include <qmessagebox.h>
 
 using namespace odbc;
 
 ConnectWindow::ConnectWindow(QWidget* parent,
 			     const char* name)
-  :QDialog(parent,name,true),
+  :QDialog(parent),
    con(NULL)
 {
-  this->setCaption("Connect to datasource");
+  setWindowTitle("Connect to datasource");
 
   QVBoxLayout* vl=new QVBoxLayout(this);
-  QGridLayout* gl=new QGridLayout(3,2);
+  QGridLayout* gl=new QGridLayout(this);
   QHBoxLayout* hl=new QHBoxLayout();
 
   vl->addLayout(gl);
   vl->addLayout(hl);
 
 
-  dataSources=new QComboBox(false,this);
+  dataSources=new QComboBox(this);
+  dataSources->setEditable(true);
   gl->addWidget(dataSources,0,1);
 
   
@@ -58,9 +60,20 @@ ConnectWindow::ConnectWindow(QWidget* parent,
   passwordBox->setEchoMode(QLineEdit::Password);
   gl->addWidget(passwordBox,2,1);
 
-  gl->addWidget(new QLabel(dataSources,"&Datasource:",this),0,0);
-  gl->addWidget(new QLabel(userBox,"&Username:",this),1,0);
-  gl->addWidget(new QLabel(passwordBox,"&Password:",this),2,0);
+  // Create label and set buddy for datasource
+  QLabel *dataSourceLabel = new QLabel("&Datasource:",this);
+  dataSourceLabel->setBuddy(dataSources);
+  gl->addWidget(dataSourceLabel,0,0);
+
+  // Create label and set buddy for username
+  QLabel *userBoxLabel = new QLabel("&Username:",this);
+  userBoxLabel->setBuddy(userBox);
+  gl->addWidget(userBoxLabel,1,0);
+
+  // Create label and set buddy for password
+  QLabel *passwordBoxLabel = new QLabel("&Password:",this);
+  passwordBoxLabel->setBuddy(passwordBox);
+  gl->addWidget(passwordBoxLabel,2,0);
   
   QPushButton* ok=new QPushButton("Connect",this);
   ok->setDefault(true);
@@ -84,7 +97,7 @@ void ConnectWindow::setup()
   for(DataSourceList::iterator i=l->begin();
       i!=l->end(); i++) {
     DataSource* ds=*i;
-    dataSources->insertItem(ds->getName());
+    dataSources->addItem(QString::fromStdString(ds->getName()));
   }
   delete l;
 
@@ -100,15 +113,15 @@ void ConnectWindow::tryConnect()
 {
   try {
     con=DriverManager::getConnection
-      (dataSources->currentText(),
-       userBox->text(),
-       passwordBox->text());
+      (dataSources->currentText().toStdString(),
+       userBox->text().toStdString(),
+       passwordBox->text().toStdString());
     
     this->accept();
 
   } catch(SQLException& e) {
     QMessageBox::warning(this,"Connect failed",
-			 e.getMessage(),
+			 QString::fromStdString(e.getMessage()),
 			 QMessageBox::Ok,0,0);
     con=NULL;
   }
