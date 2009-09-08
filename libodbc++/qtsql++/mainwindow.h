@@ -26,10 +26,10 @@
 #include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qpushbutton.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qlabel.h>
 #include <qlistview.h>
-#include <qmultilineedit.h>
+#include <qtextedit.h>
 
 namespace odbc { class Connection; }
 
@@ -52,16 +52,16 @@ public slots:
   void rollback();
 
 private:
-  QMultiLineEdit* sqlEdit_;
-  QPopupMenu* fileMenu_;
+  QTextEdit* sqlEdit_;
+  QMenu* fileMenu_;
   QPushButton* autoCommit_;
   QPushButton* execute_;
   QPushButton* commit_;
   QPushButton* rollback_;
   
 
-  int connectId_;
-  int disconnectId_;
+  QAction* connectId_;
+  QAction* disconnectId_;
 
   odbc::Connection* con_;
 

@@ -28,8 +28,6 @@ int main(int argc, char** argv)
 
   QWidget* w=new MainWindow();
   w->resize(500,400);
-  app.setMainWidget(w);
-
   w->show();
   return app.exec();
 }

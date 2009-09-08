@@ -1,3 +1,14 @@
+2009-09-08 Mark Kromis <greybird@mac.com>
+	- CMakeLists for building on windows
+	* doc/CMakeLists.txt: For future use of building documentation
+	* isql++/CMakeLists.txt: Build file for command line interaction.
+	* qtsql++/CMakeLists.txt: Build file for Qt gui interface.
+	* src/CMakeLists.txt: make core library (name odbcxx)
+	* tests/CMakeLists.txt: For future us of test builds.
+	
+	- qtsql++/*: Updated all source files to build with qt 4.5 (beta)
+	- isql++/isql++.h: Tweak for string processing
+
 2009-04-26 Mark Kromis <greybird@mac.com>
     * libodbc.spec.in: Updates to allow building via rpm
     * src/resultset.cpp: Qt update for QIODevice end marker
