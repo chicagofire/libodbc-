@@ -261,7 +261,7 @@ void ErrorHandler::_checkErrorODBC3(SQLINTEGER handleType, SQLHANDLE handle,
     }
 //-----------------------------------------------------------------------------------
 // JR DEBUG
-#if 1
+#if 0
 	DriverMessage* m2 = NULL;
     while((m2=DriverMessage::fetchMessage(handleType, handle, ++idx))!=NULL) 
 	{ 
