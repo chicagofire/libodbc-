@@ -219,23 +219,18 @@ void PreparedStatement::_bindParams()
 #if !defined(WIN32)
       SQLUINTEGER precision=0;
 #else
-      SQLUINTEGER precision=dh->dataStatus_[i-1];
-      if(precision!=SQL_NULL_DATA) {
-	// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
-	precision=SQL_LEN_DATA_AT_EXEC(precision);
+      SQLUINTEGER precision=dh->precision_;
+/*			
+      if(dh->getDataStatus()!=SQL_NULL_DATA) {
+				// assume SQL_LEN_DATA_AT_EXEC(SQL_LEN_DATA_AT_EXEC(x))==x
+				precision= (SQLULEN) SQL_LEN_DATA_AT_EXEC(dh->getDataStatus());
       } else {
-	precision=0;
+				precision=dh->precision_;
       }
+*/
 #endif
       //we send in dh->dataStatus_, as it contains
       //SQL_LEN_DATA_AT_EXEC(size) after setStream, or SQL_NULL_DATA
-      
-      //We need to store the column index, which is a transient integer,
-      //as a parameter value, which is a pointer.  We store the index
-      //in a set and use a pointer to the stored value.
-      std::set<SQLUINTEGER>::iterator indexIter( columnIndicies_.insert(i).first );
-      SQLUINTEGER *indexPtr( const_cast<SQLUINTEGER *>(&(*indexIter)) );
-      
       r=SQLBindParameter(hstmt_,
 			 (SQLUSMALLINT)i,
 			 (SQLSMALLINT)directions_[i-1],
@@ -243,7 +238,7 @@ void PreparedStatement::_bindParams()
 			 (SQLSMALLINT)dh->sqlType_,
 			 precision,
 			 0, //same here
-			 static_cast<SQLPOINTER>(indexPtr), //our column index
+			 (SQLPOINTER)i, //our column index
 			 0, //doesn't apply
 			 dh->dataStatus_);
     }
@@ -312,13 +307,13 @@ bool PreparedStatement::execute()
       r=SQLParamData(hstmt_,&currentCol);
       this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLParamData failure"));
       if(r==SQL_NEED_DATA) {
-	DataHandler* dh=rowset_->getColumn(*static_cast<SQLUINTEGER *>(currentCol));
+	DataHandler* dh=rowset_->getColumn((int)currentCol);
 
 	assert(dh->isStreamed_);
 	
 	ODBCXX_STREAM* s=dh->getStream();
 
-	assert(s!=NULL);
+	// assert(s!=NULL);
 
 	int b;
 
@@ -417,8 +412,6 @@ IMPLEMENT_SET(signed char,Byte,
 	      A_1(Types::TINYINT),
 	      0);
 
-
-
 IMPLEMENT_SET(float, Float,
 	      A_3(Types::REAL,Types::FLOAT,Types::DOUBLE),
 	      0);
@@ -438,11 +431,11 @@ IMPLEMENT_SET(short,Short,
 #if defined(ODBCXX_HAVE_SQLUCODE_H)
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_4(Types::VARCHAR,Types::CHAR,Types::WVARCHAR,Types::WCHAR),
-	      255);
+				4095);
 #else
 IMPLEMENT_SET(const ODBCXX_STRING&,String,
 	      A_2(Types::VARCHAR,Types::CHAR),
-	      255);
+	      4095);
 #endif
 
 IMPLEMENT_SET(const Date&,Date,

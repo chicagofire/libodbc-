@@ -556,7 +556,7 @@ bool DatabaseMetaData::supportsResultSetConcurrency(int type,
 
   default:
     throw SQLException
-      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet concurrency ")+intToString(type), ODBCXX_STRING_CONST("S1108"));
+      (ODBCXX_STRING_CONST("[libodbc++]: Invalid ResultSet type ")+intToString(type), ODBCXX_STRING_CONST("S1108"));
   }
 
   switch(concurrency) {

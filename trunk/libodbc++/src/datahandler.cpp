@@ -988,7 +988,10 @@ void DataHandler::setStream(ODBCXX_STREAM* s, int len, bool ownstream)
       this->resetStream();
       stream_=s;
       ownStream_=ownstream;
-      this->setDataStatus(SQL_LEN_DATA_AT_EXEC(len*sizeof(ODBCXX_CHAR_TYPE)));
+			if (!s || len <= 0)
+				this->setDataStatus(SQL_NULL_DATA);
+			else
+      	this->setDataStatus(SQL_LEN_DATA_AT_EXEC(len*sizeof(ODBCXX_CHAR_TYPE)));
       break;
     }
 

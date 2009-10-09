@@ -57,27 +57,25 @@ DataStreamBuf::DataStreamBuf(ErrorHandler* eh, SQLHSTMT hstmt, int col,
 
   ODBCXX_CHAR_TYPE* gbuf=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ODBCXX_CHAR_TYPE[bufferSize_];
   this->setg(gbuf,gbuf+bufferSize_,gbuf+bufferSize_);
-#ifdef THROWING_SHIT_IN_THE_CONSTRUCTOR_IS_A_BAD_IDEA_MAN
+
   // fetch the first chunk of data - otherwise we don't know whether it's
   // NULL or not
   try 
   {   this->underflow(); } 
   catch(...) 
   {
-//    delete[] gbuf;
-//	  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__)[]	gbuf;
 	  ODBCXX_DELETE_ARRPOINTER(gbuf, __FILE__, __LINE__);
 	  this->setg(NULL,NULL,NULL);
     throw;
   }
-#endif // THROWING_SHIT_IN_THE_CONSTRUCTOR_IS_A_BAD_IDEA_MAN
 }
 
 DataStreamBuf::~DataStreamBuf()
 {
+	// folowing lines are the same as: delete[] this->eback();}
 	ODBCXX_CHAR_TYPE* buffptr = this->eback();
 	if(buffptr != NULL)
-	{	//delete[] this->eback();}
+	{
 		  ODBCXX_DELETE_ARRPOINTER(buffptr, __FILE__, __LINE__)
 		  this->setg(NULL,NULL,NULL);
 	}
@@ -141,7 +139,12 @@ ODBCXX_STREAMBUF::int_type DataStreamBuf::underflow()
   }
 
   this->setg(this->eback(), this->eback(), this->eback()+bytes);
-  return (ODBCXX_CHAR_TYPE) *this->gptr();
+
+// Removed:
+// 		return (ODBCXX_CHAR_TYPE) *this->gptr();
+// because in binary streams, *this->gptr() could return EOF which
+// would end the operation (maybe returning ~EOF is a better idea)
+  return 0;
 }
 
 #else // defined(ODBCXX_QT)
