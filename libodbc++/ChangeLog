@@ -1,3 +1,8 @@
+2009-12-24 Mark Kromis <greybird@mac.com>
+    - src/resultsetmetadata.cpp removed const from map iterator.
+    - src/dtconv.h cnaged ODBC_STRING_PERCENT to use % symbol
+    * contributed from Manuel Teira <mteira at tid.es>
+
 2009-09-08 Mark Kromis <greybird@mac.com>
 	- CMakeLists for building on windows
 	* doc/CMakeLists.txt: For future use of building documentation

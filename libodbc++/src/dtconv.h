@@ -113,7 +113,7 @@ namespace odbc {
     snprintf(buf,LONG_STR_LEN,
 # endif
 # if defined(PRId64)
-             ODBCXX_STRING_PERCENT PRId64
+             ODBCXX_STRING_CONST("%") PRId64
 # elif ODBCXX_SIZEOF_LONG==8
              ODBCXX_STRING_CONST("%ld")
 # else
