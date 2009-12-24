@@ -48,7 +48,7 @@ typedef struct caseinsesnless
     int numCols_;
     std::vector<ODBCXX_STRING> colNames_;
 #ifdef ODBCXX_USE_INDEXED_METADATA_COLNAMES
-	std::map<const ODBCXX_STRING, int, CaseInsesitiveLess>	colNameIndex_;
+	std::map<ODBCXX_STRING, int, CaseInsesitiveLess>	colNameIndex_;
 	int findColumn(const ODBCXX_STRING& colName);
 #endif // ODBCXX_USE_INDEXED_METADATA_COLNAMES
     std::vector<int> colTypes_;
