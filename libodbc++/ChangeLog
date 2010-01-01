@@ -1,3 +1,7 @@
+2010-01-01 Mark Kromis <greybird@mac.com>
+    - include/odbc++/setup.h - removed ODBCXX_HAVE_ISO_CXXLIB defines
+    - m4/ac_check_odbc.m4 - check for headers for ODBCXX_HAVE_ISO_CXXLIB
+
 2009-12-24 Mark Kromis <greybird@mac.com>
     - src/resultsetmetadata.cpp removed const from map iterator.
     - src/dtconv.h cnaged ODBC_STRING_PERCENT to use % symbol

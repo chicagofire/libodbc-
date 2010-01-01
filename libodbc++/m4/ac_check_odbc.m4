@@ -55,6 +55,9 @@ if test "x$odbc_dir" != "xno"; then
     )
   fi
   
+  AC_CHECK_HEADERS([iosfwd istream streambuf],
+    AC_DEFINE([ODBCXX_HAVE_ISO_CXXLIB], [1], [Weather we have ISO headers]))
+  
   if test "x$odbc_ok" = "xyes"
   then
     AC_CHECK_LIB(odbc,SQLConnect,[odbc_ok=yes],[odbc_ok=no])
