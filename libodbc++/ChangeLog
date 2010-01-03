@@ -1,3 +1,6 @@
+2010-01-02 Ferenc Gerlits <fgerlits@gmail.com>
+    - include/odbc++/types.h - added header for missing EOF symbol
+
 2010-01-01 Mark Kromis <greybird@mac.com>
     - include/odbc++/setup.h - removed ODBCXX_HAVE_ISO_CXXLIB defines
     - m4/ac_check_odbc.m4 - check for headers for ODBCXX_HAVE_ISO_CXXLIB
