@@ -35,11 +35,16 @@
 #endif
 
 namespace odbc {
+  class ResultSet;
+  class PreparedStatement;
+  class Rowset;
+  class ParameterMetaData;    
 
   class ODBCXX_EXPORT DataHandler {
     friend class ResultSet;
     friend class PreparedStatement;
     friend class Rowset;
+    friend class ParameterMetaData;
 
   private:
 
@@ -57,6 +62,7 @@ namespace odbc {
     int cType_;
     int precision_;
     int scale_;
+    int nullable_;
     bool use3_;
 
 
@@ -99,7 +105,8 @@ namespace odbc {
 
   public:
     DataHandler(unsigned int& cr, size_t rows,
-		int sqlType, int precision, int scale, bool use3);
+		int sqlType, int precision, int scale, int nullable, 
+        bool use3);
 
     ~DataHandler() {
       this->resetStream();
@@ -204,9 +211,9 @@ namespace odbc {
     unsigned int currentRow_;
     bool use3_;
 
-    DataHandler* _createColumn(int sqlType, int precision, int scale) {
+    DataHandler* _createColumn(int sqlType, int precision, int scale, int nullable) {
       return ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DataHandler
-	(currentRow_,rows_,sqlType,precision,scale,use3_);
+	(currentRow_,rows_,sqlType,precision,scale,nullable,use3_);
     }
 
   public:
@@ -225,15 +232,15 @@ namespace odbc {
       }
     }
 
-    void addColumn(int sqlType, int precision, int scale) {
+    void addColumn(int sqlType, int precision, int scale, int nullable) {
       dataHandlers_.insert(dataHandlers_.end(),
-			   this->_createColumn(sqlType,precision,scale));
+			   this->_createColumn(sqlType,precision,scale, nullable));
     }
 
-    void replaceColumn(int idx, int sqlType, int precision, int scale) {
+    void replaceColumn(int idx, int sqlType, int precision, int scale, int nullable) {
       assert(idx>0 && idx<=(int)dataHandlers_.size());
 
-      DataHandler* h=this->_createColumn(sqlType,precision,scale);
+      DataHandler* h=this->_createColumn(sqlType,precision,scale, nullable);
       ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) dataHandlers_[idx-1];
       dataHandlers_[idx-1]=h;
     }

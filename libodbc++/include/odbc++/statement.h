@@ -31,12 +31,15 @@ namespace odbc {
 
   class ResultSet;
   class DriverInfo;
+  class ResultSetMetaData;
+  class ParameterMetaData;
 
   /** A simple non-prepared statement */
   class ODBCXX_EXPORT Statement : public ErrorHandler {
     friend class Connection;
     friend class ResultSet;
     friend class DatabaseMetaData;
+    friend class ParameterMetaData;
 
   protected:
     Connection* connection_;
@@ -46,9 +49,15 @@ namespace odbc {
     const DriverInfo* _getDriverInfo() const {
       return connection_->_getDriverInfo();
     }
+      
+    void _registerMetaDataResultSet(ResultSet* rs);
+    void _unregisterMetaDataResultSet(ResultSet* rs);
+
+    ResultSet* _getMetaDataResultSet();
 
   private:
     ResultSet* currentResultSet_;
+    ResultSet* metaDataResultSet_;
 
     int fetchSize_;
     int resultSetType_;
@@ -69,7 +78,7 @@ namespace odbc {
 
     void _applyResultSetType();
 
-    ResultSet* _getTypeInfo();
+    ResultSet* _getTypeInfo(SQLSMALLINT dataType=SQL_ALL_TYPES);
     ResultSet* _getTables(const ODBCXX_STRING& catalog,
                           const ODBCXX_STRING& schema,
                           const ODBCXX_STRING& tableName,

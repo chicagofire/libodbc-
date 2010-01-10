@@ -156,13 +156,14 @@ void DataHandler::setupBuffer(size_t s)
 
 DataHandler::DataHandler(unsigned int& cr, size_t rows,
                          int sqlType, int precision, int scale,
-                         bool use3)
+                         int nullable, bool use3)
   :currentRow_(cr),rows_(rows),
    buffer_(NULL),bufferSize_(0), dataStatus_(NULL),
    isStreamed_(false),stream_(NULL),ownStream_(false),
    sqlType_(sqlType),
    precision_(precision),
    scale_(scale),
+   nullable_(nullable),
    use3_(use3)
 #ifdef CACHE_STREAMED_DATA
 #endif // CACHE_STREAMED_DATA

@@ -33,6 +33,7 @@
 #include "datahandler.h"
 #include "driverinfo.h"
 #include "dtconv.h"
+#include <odbc++/parametermetadata.h>
 
 #if defined(ODBCXX_QT)
 # include <qiodevice.h>
@@ -64,7 +65,8 @@ PreparedStatement::PreparedStatement(Connection* con,
    rowset_(ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) Rowset(1,ODBC3_DC(true,false))), //always one row for now
    numParams_(0),
    defaultDirection_(defaultDirection),
-   paramsBound_(false)
+   paramsBound_(false),
+   parameterMetaData_(0)
 {
   this->_prepare();
   this->_setupParams();
@@ -72,6 +74,8 @@ PreparedStatement::PreparedStatement(Connection* con,
 
 PreparedStatement::~PreparedStatement()
 {
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) parameterMetaData_;
+
   if(paramsBound_) {
     this->_unbindParams();
   }
@@ -112,7 +116,7 @@ void PreparedStatement::_checkParam(int idx,
     }
 
     // just add a column
-    rowset_->addColumn(allowed[0],defPrec,defScale);
+    rowset_->addColumn(allowed[0],defPrec,defScale,0);
     directions_.push_back(defaultDirection_);
     numParams_++;
 
@@ -144,7 +148,7 @@ void PreparedStatement::_checkParam(int idx,
       // the parameters
       this->_unbindParams();
     }
-    rowset_->replaceColumn(idx,allowed[0],defPrec,defScale);
+    rowset_->replaceColumn(idx,allowed[0],defPrec,defScale,0);
   }
 }
 
@@ -182,13 +186,13 @@ void PreparedStatement::_setupParams()
 	prec=DataHandler::defaultPrecisionFor(sqlType);
       }
       
-      rowset_->addColumn(sqlType,prec,scale);
+      rowset_->addColumn(sqlType,prec,scale,nullable);
       directions_.push_back(defaultDirection_);
     }
   } else {
     // default all parameters to VARCHAR(255)
     for(size_t i=0; i<numParams_; i++) {
-      rowset_->addColumn(Types::VARCHAR,255,0);
+      rowset_->addColumn(Types::VARCHAR,255,0,0);
       directions_.push_back(defaultDirection_);
     }
   }
@@ -372,6 +376,27 @@ void PreparedStatement::clearParameters()
     rowset_->getColumn(i)->setNull();
   }
 }
+
+ResultSetMetaData* PreparedStatement::getMetaData()
+{
+    ResultSet *rs = this->_getMetaDataResultSet();
+
+    if ( rs == 0 )
+    {
+          rs = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ResultSet(this,hstmt_,false,ResultSet::FROM_METADATA);
+          this->_registerMetaDataResultSet(rs);
+    }
+
+    return rs->getMetaData();
+}
+
+ParameterMetaData* PreparedStatement::getParameterMetaData()
+{
+    if (parameterMetaData_==0)
+      parameterMetaData_ = ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ParameterMetaData(this);
+
+    return parameterMetaData_;
+} 
 
 void PreparedStatement::setNull(int idx, int sqlType)
 {

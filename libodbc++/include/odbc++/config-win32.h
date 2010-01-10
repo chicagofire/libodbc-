@@ -17,10 +17,12 @@
 #define ODBCXX_HAVE_SET
 #define ODBCXX_HAVE_VECTOR
 
-
 #define ODBCXX_ENABLE_THREADS
 
 #if defined(_MSC_VER)
+#pragma warning( disable : 4251 4275 4786 4996)
+# define _CRT_SECURE_NO_WARNING
+
 // MSVC has a rather compliant CXX lib
 # define ODBCXX_HAVE_ISO_CXXLIB
 
