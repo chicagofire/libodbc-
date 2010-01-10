@@ -26,6 +26,7 @@
 #include <odbc++/setup.h>
 #include <odbc++/types.h>
 #include <odbc++/statement.h>
+#include <odbc++/resultsetmetadata.h>
 
 #if defined(ODBCXX_HAVE_ISO_CXXLIB)
 # include <iosfwd>
@@ -38,6 +39,7 @@
 namespace odbc {
 
   class Rowset;
+  class ParameterMetaData;
 
   /** A prepared statement.
    *
@@ -62,6 +64,7 @@ namespace odbc {
 
   class ODBCXX_EXPORT PreparedStatement : public Statement {
     friend class Connection;
+    friend class ParameterMetaData;
 
   private:
     void _prepare();
@@ -69,6 +72,8 @@ namespace odbc {
 
   protected:
     ODBCXX_STRING sql_;
+    ParameterMetaData* parameterMetaData_;
+
     //here we store the parameters
     Rowset* rowset_;
     size_t numParams_;
@@ -119,6 +124,10 @@ namespace odbc {
 
     /** Executes this statement, assuming it returns an update count */
     int executeUpdate();
+      
+    ResultSetMetaData* getMetaData();
+      
+    ParameterMetaData* getParameterMetaData();
 
     /** Sets a parameter value to a double
      * @param idx The parameter index, starting at 1
@@ -214,7 +223,6 @@ namespace odbc {
      */
     void setBinaryStream(int idx, ODBCXX_STREAM* s, int len);
 
-
     /** Sets a parameter value to NULL
      * @param idx The parameter index, starting at 1
      * @param sqlType The SQL type of the parameter
@@ -222,7 +230,6 @@ namespace odbc {
      */
     void setNull(int idx, int sqlType);
   };
-
 
 } // namespace odbc
 

@@ -1,3 +1,17 @@
+2010-01-10 Matthew Clay <mclay@lycos.com>
+    - include/odbc++/config-win32.h - disable bogus warning messages
+    - include/odbc++/parametermetadata.h - new header to handle metadata
+    - include/odbc++/preparedstatement.h - added metadata support
+    - include/odbc++/resultset.h - 
+    - include/odbc++/statement.h -
+    - src/connection.cpp
+    - src/datahandler.cpp
+    - src/drivermanager.cpp
+    - src/parametermetadata.cpp - new class for metadata support
+    - src/preparedstatement.cpp
+    - src/resultset.cpp
+    - src/statement.cpp
+
 2010-01-02 Ferenc Gerlits <fgerlits@gmail.com>
     - include/odbc++/types.h - added header for missing EOF symbol
 

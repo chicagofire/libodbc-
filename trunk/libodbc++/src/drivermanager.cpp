@@ -30,7 +30,9 @@ using namespace std;
 
 SQLHENV DriverManager::henv_=SQL_NULL_HENV;
 std::auto_ptr<ErrorHandler> DriverManager::eh_ = auto_ptr<ErrorHandler>();
-SQLUSMALLINT	DriverManager::driverCompletion_ = SQL_DRIVER_COMPLETE;
+// SQLUSMALLINT	DriverManager::driverCompletion_ = SQL_DRIVER_COMPLETE;
+SQLUSMALLINT	DriverManager::driverCompletion_ = SQL_DRIVER_NOPROMPT;
+
 
 //-1 means don't touch, 0 means wait forever, >0 means set it for every opened
 //connection

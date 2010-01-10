@@ -22,6 +22,7 @@
 #include <odbc++/statement.h>
 #include <odbc++/resultset.h>
 #include <odbc++/connection.h>
+#include <odbc++/resultsetmetadata.h>
 #include "driverinfo.h"
 
 #include "dtconv.h"
@@ -38,7 +39,8 @@ Statement::Statement(Connection* con, SQLHSTMT hstmt,
   fetchSize_(SQL_ROWSET_SIZE_DEFAULT),
   resultSetType_(resultSetType),
   resultSetConcurrency_(resultSetConcurrency),
-  state_(STATE_CLOSED)
+  state_(STATE_CLOSED),
+  metaDataResultSet_(0)
 {
   try {
 
@@ -57,6 +59,8 @@ Statement::Statement(Connection* con, SQLHSTMT hstmt,
 
 Statement::~Statement()
 {
+  ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) metaDataResultSet_;
+
   if(currentResultSet_!=NULL) {
     currentResultSet_->ownStatement_=false;
     ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) currentResultSet_;
@@ -86,6 +90,22 @@ void Statement::_unregisterResultSet(ResultSet* rs)
   currentResultSet_=NULL;
 }
 
+void Statement::_registerMetaDataResultSet(ResultSet* rs)
+{
+  assert(metaDataResultSet_==NULL);
+  metaDataResultSet_=rs;
+}
+
+void Statement::_unregisterMetaDataResultSet(ResultSet* rs)
+{
+  assert(metaDataResultSet_==rs);
+  metaDataResultSet_=NULL;
+}
+
+ResultSet *Statement::_getMetaDataResultSet()
+{
+   return metaDataResultSet_;
+}
 
 //protected
 SQLUINTEGER Statement::_getUIntegerOption(SQLINTEGER optnum)
@@ -298,7 +318,7 @@ bool Statement::_checkForResults()
 //protected
 ResultSet* Statement::_getResultSet(bool hideMe)
 {
-  ResultSet* rs=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ResultSet(this,hstmt_,hideMe);
+  ResultSet* rs=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ResultSet(this,hstmt_,hideMe,ResultSet::FROM_QUERY);
   this->_registerResultSet(rs);
   return rs;
 }
@@ -339,11 +359,11 @@ inline ODBCXX_SQLCHAR* valueOrNull(const ODBCXX_STRING& str)
                     ODBCXX_STRING_DATA(str):NULL);
 }
 
-ResultSet* Statement::_getTypeInfo()
+ResultSet* Statement::ResultSet* Statement::_getTypeInfo(SQLSMALLINT datatype)
 {
   this->_beforeExecute();
 
-  SQLRETURN r=SQLGetTypeInfo(hstmt_,SQL_ALL_TYPES);
+  SQLRETURN r=SQLGetTypeInfo(hstmt_,datatype);
   this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("Error fetching type information"));
 
   this->_afterExecute();

@@ -143,7 +143,7 @@ do {                                                                        \
 } while(false)
 
 
-ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
+ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt, ResultSetType rsType)
   :statement_(stmt),
    hstmt_(hstmt),
    ownStatement_(ownStmt),
@@ -156,7 +156,8 @@ ResultSet::ResultSet(Statement* stmt, SQLHSTMT hstmt, bool ownStmt)
    streamedColsBound_(false),
    bindPos_(0),
    location_(BEFORE_FIRST),
-   supportsGetDataAnyOrder_(false)
+   supportsGetDataAnyOrder_(false),
+   resultSetType_(rsType)
 {
   metaData_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) ResultSetMetaData(this);
 
@@ -223,8 +224,12 @@ ResultSet::~ResultSet()
   ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) rowset_;
   delete[] rowStatus_;
   ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) metaData_;
-  statement_->_unregisterResultSet(this);
 
+  if ( resultSetType_ == FROM_QUERY )
+    statement_->_unregisterResultSet(this);
+  else if ( resultSetType_ == FROM_METADATA )
+    statement_->_unregisterMetaDataResultSet(this);
+    
   //if we own the statement, nuke it
   if(ownStatement_) {
     ODBCXX_OPERATOR_DELETE_DEBUG(__FILE__, __LINE__) statement_;
@@ -319,7 +324,8 @@ void ResultSet::_resetRowset()
 
     rowset_->addColumn(metaData_->getColumnType(i),
                        realprec,
-                       metaData_->getScale(i));
+                       metaData_->getScale(i),
+                       metaData_->isNullable(i));
   }
 }
 

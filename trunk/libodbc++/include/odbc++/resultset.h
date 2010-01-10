@@ -33,11 +33,13 @@ namespace odbc {
   class ResultSetMetaData;
   class Statement;
   class Rowset;
+  class PreparedStatement;
 
   /** A result set */
   class ODBCXX_EXPORT ResultSet : public ErrorHandler {
     friend class Statement;
     friend class ResultSetMetaData;
+    friend class PreparedStatement;
 
   private:
     Statement* statement_;
@@ -72,7 +74,11 @@ namespace odbc {
     // Flag to determine if we can lazyfetch data
     bool supportsGetDataAnyOrder_;
 
-    ResultSet(Statement* stmt,SQLHSTMT hstmt, bool ownStmt);
+    enum ResultSetType { FROM_UKNOWN, FROM_QUERY, FROM_METADATA };
+
+    ResultSetType resultSetType_;
+
+    ResultSet(Statement* stmt,SQLHSTMT hstmt, bool ownStmt,ResultSetType rsType);
 
     //driver info
     const DriverInfo* _getDriverInfo() const {

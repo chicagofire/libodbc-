@@ -213,16 +213,17 @@ void Connection::_connect(const ODBCXX_STRING& dsn,
   driverInfo_=ODBCXX_OPERATOR_NEW_DEBUG(__FILE__, __LINE__) DriverInfo(this);
 }
 
+#define DUMMY_SIZE 2048
 void Connection::_connect(const ODBCXX_STRING& connectString, SQLUSMALLINT drvcompl)
 {
-  ODBCXX_SQLCHAR dummy[256];
+  ODBCXX_SQLCHAR dummy[DUMMY_SIZE];
   SQLSMALLINT dummySize;
   SQLRETURN r=SQLDriverConnect(hdbc_,
                                0,
                                (ODBCXX_SQLCHAR*) ODBCXX_STRING_DATA(connectString),
                                ODBCXX_STRING_LEN(connectString),
                                dummy,
-                               255,
+                               DUMMY_SIZE,
                                &dummySize,
                                drvcompl);
 
