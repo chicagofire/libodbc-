@@ -359,7 +359,7 @@ inline ODBCXX_SQLCHAR* valueOrNull(const ODBCXX_STRING& str)
                     ODBCXX_STRING_DATA(str):NULL);
 }
 
-ResultSet* Statement::ResultSet* Statement::_getTypeInfo(SQLSMALLINT datatype)
+ResultSet* Statement::_getTypeInfo(SQLSMALLINT datatype)
 {
   this->_beforeExecute();
 
