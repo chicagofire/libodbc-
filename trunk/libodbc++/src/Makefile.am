@@ -25,6 +25,7 @@ drivermanager.cpp \
 connection.cpp \
 databasemetadata.cpp \
 statement.cpp \
+parametermetadata.cpp \
 preparedstatement.cpp \
 callablestatement.cpp \
 resultset.cpp \

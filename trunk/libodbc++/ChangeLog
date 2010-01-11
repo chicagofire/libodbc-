@@ -1,3 +1,8 @@
+2010-01-11 Mark Kromis <greybird@mac.com>
+    - src/CMakeLists.txt - added files for windows generation
+    - src/Makefile.am - added files for  unix generation
+    - src/statement.cpp - fixed merger error.
+
 2010-01-11 Matthew Clay <mclay@lycos.com>
     - tests/parmeter-test.cpp - Added tests for new metadata usage
 

@@ -29,6 +29,7 @@ set ( SOURCES
     driverinfo.cpp
     drivermanager.cpp
     errorhandler.cpp
+    parametermetadata.cpp
     preparedstatement.cpp
     resultset.cpp
     resultsetmetadata.cpp
