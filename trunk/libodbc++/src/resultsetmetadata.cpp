@@ -166,7 +166,7 @@ bool caseinsesnless::operator()(const ODBCXX_STRING _Left, const ODBCXX_STRING _
 int ResultSetMetaData::findColumn(const ODBCXX_STRING& colName)
 {
 	int retVal = -1;
-	std::map<const ODBCXX_STRING, int, CaseInsesitiveLess>::iterator iter =
+	std::map<ODBCXX_STRING, int, CaseInsesitiveLess>::iterator iter =
 		colNameIndex_.find(colName);
 	if(iter != colNameIndex_.end())
 	{	retVal = iter->second;}
