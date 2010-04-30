@@ -1,3 +1,7 @@
+2010-04-30 Mark Kromis <greybird@mac.com>
+    - acinclude.m4 - removed quoted warnings
+    - m4/ac_check_odbc.m4 - removed quoted warnings
+
 2010-01-11 Mark Kromis <greybird@mac.com>
     - src/CMakeLists.txt - added files for windows generation
     - src/Makefile.am - added files for  unix generation
