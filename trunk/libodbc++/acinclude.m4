@@ -26,7 +26,7 @@ dnl Macro: AC_CHECK_CXX_STL
 dnl Sets $ac_cv_cxx_stl to yes or no
 dnl defines HAVE_CXX_STL if ok
 
-AC_DEFUN(AC_CHECK_CXX_STL,
+AC_DEFUN([AC_CHECK_CXX_STL],
 [
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
@@ -56,7 +56,7 @@ AC_LANG_RESTORE
 dnl Macro: AC_CHECK_CXX_EH
 dnl Sets $ac_cv_cxx_eh to yes or no
 
-AC_DEFUN(AC_CHECK_CXX_EH,
+AC_DEFUN([AC_CHECK_CXX_EH],
 [
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
@@ -102,7 +102,7 @@ dnl Test if the c++ compiler supports namespaces
 dnl Set $ac_cv_cxx_ns to either yes or no
 dnl Define HAVE_CXX_NS if yes
 
-AC_DEFUN(AC_CHECK_CXX_NS,
+AC_DEFUN([AC_CHECK_CXX_NS],
 [
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
@@ -134,7 +134,7 @@ AC_LANG_RESTORE
 
 dnl Macro: AC_CHECK_THREADS
 dnl Test if we should compile with thread support
-AC_DEFUN(AC_CHECK_THREADS,
+AC_DEFUN([AC_CHECK_THREADS],
 [
 AC_MSG_CHECKING([whether to enable threads])
 AC_ARG_ENABLE(threads,
@@ -201,7 +201,7 @@ dnl Macro: AC_CHECK_IODBC
 dnl Checks for iodbc optionally in provided directories
 dnl sets shell variable iodbc_ok to yes or no.
 dnl Defines HAVE_LIBIODBC, HAVE_ISQL_H, HAVE_ISQLEXT_H if they are found
-AC_DEFUN(AC_CHECK_IODBC,
+AC_DEFUN([AC_CHECK_IODBC],
 [
 AC_LANG_SAVE
 AC_LANG_C
@@ -265,7 +265,7 @@ dnl Macro: AC_CHECK_ODBC_TYPE
 dnl Checks if $1 is a valid type in the ODBC environment,
 dnl and #defines it to $2 if not
 
-AC_DEFUN(AC_CHECK_ODBC_TYPE,
+AC_DEFUN([AC_CHECK_ODBC_TYPE],
 [
 
 AC_MSG_CHECKING([for $1])
