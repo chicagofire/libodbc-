@@ -83,7 +83,7 @@ namespace odbc {
 
 #if !defined(ODBCXX_HAVE_ISO_CXXLIB)
 
-  class DataStreamBase : public virtual ios {
+  class DataStreamBase : public virtual std::ios {
   private:
     DataStreamBuf buf_;
 
