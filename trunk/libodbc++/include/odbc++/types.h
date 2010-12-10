@@ -112,6 +112,10 @@ class QIODevice;
 # include <inttypes.h>
 #endif
 
+#if defined(ODBCXX_UNICODE)
+# include <stdlib.h>
+#endif
+
 #include <vector>
 #include <map>
 

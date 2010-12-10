@@ -1,3 +1,18 @@
+2010-12-10  Bob Ham  <rah@bash.sh>
+
+	* configure.ac: Always define HAVE_ISO_CXXLIB (ie,
+	ODBCXX_HAVE_ISO_CXXLIB) in configure shell script (ie, non-Win32
+	platforms)
+
+	* src/resultset.cpp: Fixed string declarations to work with unicode
+	* src/errorhandler.cpp: Fixed string declarations to work with unicode
+
+	* src/preparedstatement.cpp (_bindParams): Fixed more
+	integer-to-pointer casts
+
+	* include/odbc++/types.h: Added #include for stdlib.h which is
+	required for unicode support code
+
 2010-04-30 Mark Kromis <greybird@mac.com>
     - acinclude.m4 - removed quoted warnings
     - m4/ac_check_odbc.m4 - removed quoted warnings
