@@ -57,7 +57,9 @@ $(stamp): $(docheaders) $(docdeps)
 
 dist-hook: $(stamp)
 	for i in $(progref_dist_files) $(srcdir)/$(stamp); do \
-		cp $$i $(distdir)/$$i; \
+		if test -e $$i; then \
+			cp $$i $(distdir)/$$i; \
+		fi \
 	done
 
 

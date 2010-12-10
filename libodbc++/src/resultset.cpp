@@ -596,11 +596,11 @@ void ResultSet::_doFetch(int fetchType, int rowNum)
 }
 // --------------------------------------------------------
 
-const char* ODBC_HY090 = "HY090";
-const char* ODBC_22026 = "22026";
+static const ODBCXX_CHAR_TYPE* ODBC_HY090(ODBCXX_STRING_CONST("HY090"));
+static const ODBCXX_CHAR_TYPE* ODBC_22026(ODBCXX_STRING_CONST("22026"));
 
 #define CHECK_ERR(ret, resultset, hstmt, fromwhere)	if(ret != SQL_SUCCESS) {resultset->_checkStmtError(hstmt,ret,ODBCXX_STRING_CONST(fromwhere));}
-#define CHECK_ERR_SQLSTATE(ret, resultset, hstmt, fromwhere, ODBCSTATE)	if(ret != SQL_SUCCESS) {resultset->_checkStmtError(hstmt,ret,ODBCXX_STRING_CONST(fromwhere), ODBCXX_STRING_CONST(ODBCSTATE));}
+#define CHECK_ERR_SQLSTATE(ret, resultset, hstmt, fromwhere, ODBCSTATE)	if(ret != SQL_SUCCESS) {resultset->_checkStmtError(hstmt,ret,ODBCXX_STRING_CONST(fromwhere), ODBCSTATE);}
 // --------------------------------------------------------
 void ResultSet::_handleStreams(SQLRETURN r)
 {

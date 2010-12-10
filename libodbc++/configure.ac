@@ -349,6 +349,7 @@ AM_CONDITIONAL(BUILD_TESTS, test x$with_tests = xyes)
 # finally, add our we-are-in-the-library flag
 CXXFLAGS="-DIN_ODBCXX $CXXFLAGS"
 
+AC_DEFINE(HAVE_ISO_CXXLIB, 1, Always set a WIN32-specific define)
 
 AC_OUTPUT(\
 Makefile \

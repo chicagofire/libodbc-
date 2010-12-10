@@ -235,6 +235,13 @@ void PreparedStatement::_bindParams()
 #endif
       //we send in dh->dataStatus_, as it contains
       //SQL_LEN_DATA_AT_EXEC(size) after setStream, or SQL_NULL_DATA
+      
+      //We need to store the column index, which is a transient integer,
+      //as a parameter value, which is a pointer.  We store the index
+      //in a set and use a pointer to the stored value.
+      std::set<SQLUINTEGER>::iterator indexIter( columnIndicies_.insert(i).first );
+      SQLUINTEGER *indexPtr( const_cast<SQLUINTEGER *>(&(*indexIter)) );
+      
       r=SQLBindParameter(hstmt_,
 			 (SQLUSMALLINT)i,
 			 (SQLSMALLINT)directions_[i-1],
@@ -242,7 +249,7 @@ void PreparedStatement::_bindParams()
 			 (SQLSMALLINT)dh->sqlType_,
 			 precision,
 			 0, //same here
-			 (SQLPOINTER)i, //our column index
+			 static_cast<SQLPOINTER>(indexPtr), //our column index
 			 0, //doesn't apply
 			 dh->dataStatus_);
     }
@@ -311,7 +318,9 @@ bool PreparedStatement::execute()
       r=SQLParamData(hstmt_,&currentCol);
       this->_checkStmtError(hstmt_,r,ODBCXX_STRING_CONST("SQLParamData failure"));
       if(r==SQL_NEED_DATA) {
-	DataHandler* dh=rowset_->getColumn((int)currentCol);
+	SQLUINTEGER *indexPtr( static_cast<SQLUINTEGER *>(currentCol) );
+	
+	DataHandler* dh=rowset_->getColumn(*indexPtr);
 
 	assert(dh->isStreamed_);
 	

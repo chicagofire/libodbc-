@@ -24,8 +24,8 @@
 using namespace odbc;
 using namespace std;
 // -------------------------------------------------------------
-const ODBCXX_CHAR_TYPE*	SQLException::scDEFSQLSTATE = ODBCXX_STRING_CONST("HY000");
-const ODBCXX_STRING		SQLException::ssDEFSQLSTATE("HY000");
+const ODBCXX_CHAR_TYPE*	SQLException::scDEFSQLSTATE(ODBCXX_STRING_CONST("HY000"));
+const ODBCXX_STRING		SQLException::ssDEFSQLSTATE(ODBCXX_STRING_CONST("HY000"));
 // -------------------------------------------------------------
 
 #if ODBCVER < 0x0300
